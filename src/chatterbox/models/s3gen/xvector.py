@@ -9,7 +9,9 @@ from collections import OrderedDict
 import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
-import torchaudio.compliance.kaldi as Kaldi
+# import torchaudio.compliance.kaldi as Kaldi # Removed
+import librosa # Added
+import numpy as np # Added
 
 
 def pad_list(xs, pad_value):
@@ -42,19 +44,71 @@ def pad_list(xs, pad_value):
     return pad
 
 
-def extract_feature(audio):
+def extract_feature(audio_list_of_tensors, sr=16000):
+    # Parameters for librosa to approximate Kaldi fbank
+    # Kaldi defaults: frame-length=25ms, frame-shift=10ms, num-mel-bins (passed as 80)
+    # window=povey (Hamming is a common approximation if Povey not available)
+    # low-freq=20, high-freq=0 (Nyquist)
+    # dither=1.0 (not directly replicated here for simplicity first)
+    # energy-floor=0.0 (Kaldi uses a small epsilon, 1e-6 in log is common)
+    # Kaldi fbank typically output is log-energy, not dB.
+    
+    N_FFT = int(0.025 * sr)
+    HOP_LENGTH = int(0.010 * sr)
+    N_MELS = 80 # As used in the original Kaldi.fbank call
+    FMIN = 20.0
+    FMAX = sr / 2.0 # Nyquist
+
     features = []
-    feature_times = []
     feature_lengths = []
-    for au in audio:
-        feature = Kaldi.fbank(au.unsqueeze(0), num_mel_bins=80)
-        feature = feature - feature.mean(dim=0, keepdim=True)
-        features.append(feature)
-        feature_times.append(au.shape[0])
-        feature_lengths.append(feature.shape[0])
-    # padding for batch inference
-    features_padded = pad_list(features, pad_value=0)
-    # features = torch.cat(features)
+    feature_times = [] # Original audio lengths in samples
+
+    for au_tensor in audio_list_of_tensors:
+        # Ensure input is a 1D tensor (waveform) for librosa
+        if au_tensor.ndim > 1 and (au_tensor.shape[0] == 1 or au_tensor.shape[1] == 1):
+            au_tensor = au_tensor.reshape(-1) 
+        
+        au_np = au_tensor.cpu().numpy().astype(np.float32)
+
+        # 1. Compute power mel spectrogram
+        mel_spec_power = librosa.feature.melspectrogram(
+            y=au_np,
+            sr=sr,
+            n_fft=N_FFT,
+            hop_length=HOP_LENGTH,
+            n_mels=N_MELS,
+            window='hann', # Approximating Povey with Hann
+            fmin=FMIN,
+            fmax=FMAX,
+            htk=False # Kaldi default uses Slaney formula (htk=False)
+        ) # Output: (n_mels, num_frames)
+
+        # 2. Convert to log-mel spectrogram (use natural log, add epsilon)
+        # Adding a small epsilon to avoid log(0)
+        log_mel_spec = np.log(mel_spec_power + 1e-6) 
+        
+        # 3. Transpose to (num_frames, n_mels) to match Kaldi fbank output format
+        log_mel_spec_T = log_mel_spec.T
+        
+        # Convert back to tensor for PyTorch operations
+        feature_torch = torch.from_numpy(log_mel_spec_T).float().to(au_tensor.device)
+
+        # 4. Per-coefficient mean normalization (over frames)
+        # Original code was: feature = feature - feature.mean(dim=0, keepdim=True)
+        # This normalizes each mel coefficient over time.
+        if feature_torch.shape[0] > 0: # Avoid division by zero if empty
+             feature_norm = feature_torch - feature_torch.mean(dim=0, keepdim=True)
+        else:
+             feature_norm = feature_torch # Or handle as an error/empty feature appropriately
+
+        features.append(feature_norm) # List of (num_frames, n_mels)
+        feature_lengths.append(feature_norm.shape[0]) # num_frames
+        feature_times.append(au_tensor.shape[0]) # Original audio length in samples
+
+    # padding for batch inference using existing pad_list function
+    # pad_list expects a list of (T, *) tensors. Here T is num_frames.
+    features_padded = pad_list(features, pad_value=0.0) # (B_list, T_max_frames, n_mels)
+    
     return features_padded, feature_lengths, feature_times
 
 

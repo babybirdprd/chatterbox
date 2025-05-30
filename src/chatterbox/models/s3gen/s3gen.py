@@ -16,7 +16,8 @@ import logging
 
 import numpy as np
 import torch
-import torchaudio as ta
+import librosa # Added
+# import torchaudio as ta # Removed
 from functools import lru_cache
 from typing import Optional
 from omegaconf import DictConfig
@@ -41,7 +42,42 @@ def drop_invalid_tokens(x):
 # TODO: global resampler cache
 @lru_cache(100)
 def get_resampler(src_sr, dst_sr, device):
-    return ta.transforms.Resample(src_sr, dst_sr).to(device)
+    # Returns a function that performs resampling
+    def _resample(wav_tensor: torch.Tensor) -> torch.Tensor:
+        original_device = wav_tensor.device
+        # Librosa works with numpy arrays on CPU
+        # Input wav_tensor could be (B, L) or (L)
+        
+        # Ensure wav_tensor is on CPU before converting to numpy
+        wav_np = wav_tensor.cpu().numpy()
+        
+        # Librosa expects y as (samples,) for mono or (channels, samples) for stereo.
+        # If wav_np is (B, L), iterate through batch or handle appropriately.
+        # The existing code seems to pass (B,L) where B=1 often, or (L).
+        
+        if wav_np.ndim == 1: # Mono case (L,)
+            resampled_np = librosa.resample(wav_np, orig_sr=src_sr, target_sr=dst_sr)
+        elif wav_np.ndim == 2 and wav_np.shape[0] == 1: # Batched mono (1, L)
+            wav_np_mono = wav_np.squeeze(0)
+            resampled_mono_np = librosa.resample(wav_np_mono, orig_sr=src_sr, target_sr=dst_sr)
+            resampled_np = np.expand_dims(resampled_mono_np, axis=0) # Restore (1,L) shape
+        elif wav_np.ndim == 2 and wav_np.shape[0] > 1: # Actual batch > 1 (B, L)
+            # Resample each item in the batch
+            resampled_list = [librosa.resample(ch_wav, orig_sr=src_sr, target_sr=dst_sr) for ch_wav in wav_np]
+            # Pad if necessary, though resample should produce same length for same input length
+            # This case might need more careful handling if lengths can vary post-resample for different items
+            # For now, assume librosa handles this or lengths are consistent.
+            # If lengths are different, this will fail.
+            # A safer approach for batches would be to pad after resampling each item.
+            # However, the original torchaudio resample on a batch (B,L) would produce (B, L_new)
+            # where L_new is consistent. Librosa should do the same if applied per item.
+            resampled_np = np.array(resampled_list)
+
+        else:
+            raise ValueError(f"Unsupported wav_np shape for resampling: {wav_np.shape}")
+            
+        return torch.from_numpy(resampled_np.copy()).to(original_device) # .copy() to avoid potential read-only issues
+    return _resample
 
 
 class S3Token2Mel(torch.nn.Module):

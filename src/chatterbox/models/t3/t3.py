@@ -93,7 +93,8 @@ class T3(nn.Module):
         # prepare input embeddings (skip backbone tranformer embeddings)
         cond_emb = self.prepare_conditioning(t3_cond)  # (B, len_cond, dim)
         text_emb = self.text_emb(text_tokens)  # (B, len_text, dim)
-        text_emb[1].zero_()  # CFG uncond
+        if text_emb.size(0) > 1: # Guard for CFG uncond
+            text_emb[1].zero_()  # CFG uncond
 
         speech_emb = self.speech_emb(speech_tokens)  # (B, len_speech, dim)
         if self.hp.input_pos_emb == "learned":
@@ -104,7 +105,7 @@ class T3(nn.Module):
         if cond_emb.size(0) != text_emb.size(0):
              cond_emb = cond_emb.expand(text_emb.size(0), -1, -1)
 
-        # concat
+        # concat - Reverted to original stack and zip
         embeds = torch.stack([
             torch.cat((ce, te, se))
             for ce, te, se in zip(cond_emb, text_emb, speech_emb)
