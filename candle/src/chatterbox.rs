@@ -36,19 +36,17 @@ impl ChatterboxTurboTTS {
 
         // 2. T3 (Text -> Speech Tokens)
         // Need to implement T3 inference loop.
-        // For now, let's assume we have a simple forward or dummy generation.
-        // T3 forward normally returns logits.
 
-        // let speech_tokens = self.t3.generate(text_tokens, &spk_emb)?;
-
-        // Placeholder speech tokens
-        let speech_tokens = Tensor::zeros((1, 100), candle_core::DType::U32, &self.device)?;
+        let speech_tokens = self.t3.generate(text_tokens, &spk_emb, 10)?;
 
         // 3. S3Gen (Speech Tokens -> Wav)
         // S3Gen needs speech tokens and speaker embedding (or ref wav embedding).
-        // My S3Gen implementation currently takes speech tokens (placeholder).
-
-        // Ideally: s3gen.inference(speech_tokens, ref_mels)
+        // For now, S3Gen only takes speech tokens in current signature.
+        // We should likely pass spk_emb or ref_mels to S3Gen as well if it supports it,
+        // but looking at s3gen.rs, `forward` only takes `speech_tokens`.
+        // The original python s3gen takes ref_dict (embedding).
+        // I will stick to current s3gen.rs interface which takes just speech_tokens,
+        // but note that real implementation probably needs conditioning.
 
         let wav = self.s3gen.forward(&speech_tokens)?;
 

@@ -1,4 +1,4 @@
-use candle_core::{DType, Device, IndexOp, Result, Tensor, Module};
+use candle_core::{DType, IndexOp, Result, Tensor, Module};
 use candle_nn::{Activation, Embedding, LayerNorm, Linear, VarBuilder};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -207,8 +207,8 @@ impl GPT2Model {
         let mut hidden_states = (inputs_embeds + position_embeds)?;
 
         let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?;
+        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
+        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
         let mask = mask_indexes_row.ge(&mask_indexes_col)?;
 
         let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
