@@ -1,4 +1,4 @@
-use candle_core::{IndexOp, Result, Tensor, Module};
+use candle_core::{Result, Tensor, Module};
 use candle_nn::{Conv1d, Conv1dConfig, LayerNorm, Linear, VarBuilder};
 
 // Swish activation
