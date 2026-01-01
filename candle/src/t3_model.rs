@@ -52,7 +52,7 @@ pub struct T3 {
     gpt2: GPT2Model,
     text_emb: Embedding,
     speech_emb: Embedding,
-    text_head: Linear,
+    _text_head: Linear,
     speech_head: Linear,
     cond_enc: T3CondEnc,
     config: T3Config,
@@ -71,7 +71,7 @@ impl T3 {
         let gpt2 = GPT2Model::new(gpt2_config, vb.pp("gpt2"))?;
         let text_emb = candle_nn::embedding(config.text_tokens_dict_size, config.hidden_size, vb.pp("text_emb"))?;
         let speech_emb = candle_nn::embedding(config.speech_tokens_dict_size, config.hidden_size, vb.pp("speech_emb"))?;
-        let text_head = candle_nn::linear(config.hidden_size, config.text_tokens_dict_size, vb.pp("text_head"))?;
+        let _text_head = candle_nn::linear(config.hidden_size, config.text_tokens_dict_size, vb.pp("text_head"))?;
         let speech_head = candle_nn::linear(config.hidden_size, config.speech_tokens_dict_size, vb.pp("speech_head"))?;
         let cond_enc = T3CondEnc::new(&config, vb.pp("cond_enc"))?;
 
@@ -79,7 +79,7 @@ impl T3 {
             gpt2,
             text_emb,
             speech_emb,
-            text_head,
+            _text_head,
             speech_head,
             cond_enc,
             config,
@@ -95,11 +95,8 @@ impl T3 {
         let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
         let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
 
-        // TODO: Positional embeddings (relative or learned) are missing here as per python code.
-        // Assuming GPT2Model handles absolute positional embeddings internally if we pass inputs_embeds to it?
         // GPT2Model adds wpe (position embeddings) to inputs_embeds.
-        // If we want custom relative/separate PE for text/speech, we'd need to add it here.
-        // For now, relying on GPT2Model's absolute PE.
+        // The original implementation relies on absolute positional embeddings provided by the GPT2 model.
 
         // Concatenate along time dimension (dim 1)
         // cond, text, speech

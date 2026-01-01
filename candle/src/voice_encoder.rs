@@ -26,8 +26,8 @@ pub struct VoiceEncoder {
     lstm: Vec<LSTM>,
     proj: candle_nn::Linear,
     config: VoiceEncoderConfig,
-    similarity_weight: Tensor,
-    similarity_bias: Tensor,
+    _similarity_weight: Tensor,
+    _similarity_bias: Tensor,
 }
 
 impl VoiceEncoder {
@@ -43,21 +43,21 @@ impl VoiceEncoder {
             };
 
             let input_size = if i == 0 { config.num_mels } else { config.ve_hidden_size };
-            let lstm = LSTM::new(input_size, config.ve_hidden_size, lstm_config, lstm_vb.clone())?;
+            let lstm = LSTM::new(input_size, config.ve_hidden_size, lstm_config, lstm_vb.pp(i))?;
             lstms.push(lstm);
         }
 
         let proj = candle_nn::linear(config.ve_hidden_size, config.speaker_embed_size, vb.pp("proj"))?;
 
-        let similarity_weight = vb.get(1, "similarity_weight")?;
-        let similarity_bias = vb.get(1, "similarity_bias")?;
+        let _similarity_weight = vb.get(1, "similarity_weight")?;
+        let _similarity_bias = vb.get(1, "similarity_bias")?;
 
         Ok(Self {
             lstm: lstms,
             proj,
             config,
-            similarity_weight,
-            similarity_bias,
+            _similarity_weight,
+            _similarity_bias,
         })
     }
 

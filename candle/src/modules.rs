@@ -71,7 +71,7 @@ impl ConvolutionModule {
 // FeedForward Module
 pub struct FeedForwardModule {
     linear1: Linear,
-    dropout: f64, // Todo: implement dropout
+    _dropout: f64, // Todo: implement dropout
     linear2: Linear,
     activation: Swish,
     norm: LayerNorm,
@@ -85,7 +85,7 @@ impl FeedForwardModule {
 
         Ok(Self {
             linear1,
-            dropout: 0.1,
+            _dropout: 0.1,
             linear2,
             activation: Swish,
             norm,

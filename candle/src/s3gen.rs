@@ -4,35 +4,6 @@ use crate::modules::{ConformerEncoderLayer, Swish};
 
 // --- Helper Modules ---
 
-fn conv1d(in_c: usize, out_c: usize, k: usize, stride: usize, padding: usize, dilation: usize, groups: usize, bias: bool, vb: VarBuilder) -> Result<Conv1d> {
-    let cfg = candle_nn::Conv1dConfig {
-        padding,
-        stride,
-        dilation,
-        groups,
-        ..Default::default()
-    };
-    if bias {
-         candle_nn::conv1d(in_c, out_c, k, cfg, vb.pp("weight").pp("bias")) // Assuming standard naming if we use pp properly or just "weight", "bias"
-    } else {
-         candle_nn::conv1d_no_bias(in_c, out_c, k, cfg, vb)
-    }
-}
-
-// Re-implementing a simple helper wrapper because the one above is tricky with VB naming conventions
-fn conv1d_custom(in_c: usize, out_c: usize, k: usize, stride: usize, padding: usize, dilation: usize, groups: usize, vb: VarBuilder) -> Result<Conv1d> {
-    let cfg = candle_nn::Conv1dConfig {
-        padding,
-        stride,
-        dilation,
-        groups,
-        ..Default::default()
-    };
-    // candle_nn::conv1d expects vb to point to the layer root, looking for "weight" and "bias"
-    candle_nn::conv1d(in_c, out_c, k, cfg, vb)
-}
-
-
 struct SinusoidalPosEmb {
     dim: usize,
 }
@@ -184,7 +155,7 @@ impl CausalResnetBlock1D {
 pub struct UpsampleConformerEncoder {
     input_projection: Linear,
     layers: Vec<ConformerEncoderLayer>,
-    upsample: Conv1d, // Placeholder
+    upsample: Upsample1D,
     output_projection: Linear,
 }
 
@@ -200,7 +171,6 @@ impl Upsample1D {
         Ok(Self { conv, stride })
     }
 
-    #[allow(dead_code)]
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let (b, c, t) = x.dims3()?;
         let x = x.unsqueeze(3)?; // (B, C, T, 1)
@@ -223,14 +193,12 @@ impl UpsampleConformerEncoder {
 
         let output_projection = candle_nn::linear(output_dim, output_dim, vb.pp("output_projection"))?;
 
-        // Placeholder for real upsample impl
-        let conv_cfg = candle_nn::Conv1dConfig::default();
-        let upsample = candle_nn::conv1d(output_dim, output_dim, 1, conv_cfg, vb.pp("upsample"))?;
+        let upsample = Upsample1D::new(output_dim, output_dim, 2700 / 300, vb.pp("upsample"))?; // stride approx 9? derived from 2700/300. Assuming typical hop.
 
         Ok(Self {
             input_projection,
             layers,
-            upsample, // Placeholder
+            upsample,
             output_projection,
         })
     }
@@ -244,10 +212,10 @@ impl UpsampleConformerEncoder {
             x_curr = layer.forward(&x_curr)?;
         }
 
-        // Fake upsample
-        // x: (B, T, C) -> (B, C, T)
+        // x: (B, T, C) -> (B, C, T) for upsample
         let x_t = x_curr.transpose(1, 2)?;
         let x_up = self.upsample.forward(&x_t)?;
+        // (B, C, T') -> (B, T', C)
         let x_curr = x_up.transpose(1, 2)?;
 
         self.output_projection.forward(&x_curr)
