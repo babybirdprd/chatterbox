@@ -1,0 +1,23 @@
+[package]
+name = "candle"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+candle-core = { version = "0.9.1" }
+candle-nn = { version = "0.9.1" }
+candle-transformers = "0.9.1"
+tokenizers = "0.22.2"
+anyhow = "1.0.100"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.148"
+byteorder = "1.5.0"
+hf-hub = "0.4.3"
+
+[features]
+cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]
+default = []
+
+[[bin]]
+name = "candle"
+path = "src/main.rs"
