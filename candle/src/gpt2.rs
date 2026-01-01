@@ -66,8 +66,8 @@ struct Attention {
     c_attn: Linear,
     c_proj: Linear,
     n_head: usize,
-    n_embd: usize,
-    scale: bool,
+    _n_embd: usize,
+    _scale: bool,
 }
 
 impl Attention {
@@ -80,8 +80,8 @@ impl Attention {
             c_attn,
             c_proj,
             n_head,
-            n_embd,
-            scale,
+            _n_embd: n_embd,
+            _scale: scale,
         })
     }
 
@@ -149,7 +149,7 @@ pub struct GPT2Model {
     wpe: Embedding,
     h: Vec<Block>,
     ln_f: LayerNorm,
-    config: Config,
+    _config: Config,
 }
 
 impl GPT2Model {
@@ -170,12 +170,12 @@ impl GPT2Model {
             wpe,
             h,
             ln_f,
-            config,
+            _config: config,
         })
     }
 
     pub fn forward(&self, input_ids: &Tensor) -> Result<Tensor> {
-        let (b, t) = input_ids.dims2()?;
+        let (_b, t) = input_ids.dims2()?;
         let input_embeds = self.wte.forward(input_ids)?;
         let position_ids = Tensor::arange(0, t as u32, input_ids.device())?.unsqueeze(0)?;
         let position_embeds = self.wpe.forward(&position_ids)?;
@@ -200,7 +200,7 @@ impl GPT2Model {
 
     // Helper to allow custom embeddings input
     pub fn forward_embeds(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
-        let (b, t, c) = inputs_embeds.dims3()?;
+        let (_b, t, _c) = inputs_embeds.dims3()?;
         let position_ids = Tensor::arange(0, t as u32, inputs_embeds.device())?.unsqueeze(0)?;
         let position_embeds = self.wpe.forward(&position_ids)?;
 

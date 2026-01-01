@@ -8,7 +8,7 @@ pub struct ChatterboxTurboTTS {
     voice_encoder: VoiceEncoder,
     t3: T3,
     s3gen: S3Gen,
-    device: Device,
+    _device: Device,
 }
 
 impl ChatterboxTurboTTS {
@@ -25,7 +25,7 @@ impl ChatterboxTurboTTS {
             voice_encoder,
             t3,
             s3gen,
-            device,
+            _device: device,
         })
     }
 
