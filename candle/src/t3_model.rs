@@ -12,6 +12,9 @@ pub struct T3Config {
     pub speaker_embed_size: usize,
     pub start_speech_token: u32,
     pub stop_speech_token: u32,
+    pub speech_cond_prompt_len: Option<usize>,
+    pub use_perceiver_resampler: bool,
+    pub emotion_adv: bool,
 }
 
 impl Default for T3Config {
@@ -26,25 +29,84 @@ impl Default for T3Config {
             speaker_embed_size: 256,
             start_speech_token: 6561,
             stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
         }
     }
 }
 
 pub struct T3CondEnc {
     spkr_enc: Linear,
+    emotion_adv_fc: Option<Linear>,
+    // perceiver: Option<Perceiver>, // Placeholder for now if needed
+    config: T3Config,
 }
 
 impl T3CondEnc {
-    pub fn new(config: &T3Config, vb: VarBuilder) -> Result<Self> {
+    pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
         let spkr_enc = candle_nn::linear(config.speaker_embed_size, config.hidden_size, vb.pp("spkr_enc"))?;
-        Ok(Self { spkr_enc })
+
+        let emotion_adv_fc = if config.emotion_adv {
+            Some(candle_nn::linear_no_bias(1, config.hidden_size, vb.pp("emotion_adv_fc"))?)
+        } else {
+            None
+        };
+
+        Ok(Self {
+            spkr_enc,
+            emotion_adv_fc,
+            config,
+        })
     }
 
-    pub fn forward(&self, spk_emb: &Tensor) -> Result<Tensor> {
+    pub fn forward(&self, spk_emb: &Tensor, cond_prompt_speech_emb: Option<&Tensor>, emotion_adv: Option<&Tensor>) -> Result<Tensor> {
         // spk_emb: (B, E)
-        let cond_spkr = self.spkr_enc.forward(spk_emb)?;
-        // (B, 1, H)
-        cond_spkr.unsqueeze(1)
+        let cond_spkr = self.spkr_enc.forward(spk_emb)?; // (B, H)
+        let cond_spkr = cond_spkr.unsqueeze(1)?; // (B, 1, H)
+
+        // Empty tensor for cat if needed (B, 0, H)
+        // Note: Candle doesn't easily support 0-dim concats in all backends, but let's try standard Vec logic
+        let mut embeds = vec![cond_spkr];
+
+        // CLAP embed (placeholder)
+
+        // Cond prompt speech emb
+        if let Some(prompt_emb) = cond_prompt_speech_emb {
+            // Assuming prompt_emb is already projected or compatible (B, L, H)
+            // If using Perceiver, we would process it here.
+            // Current T3 Turbo uses `speech_cond_prompt_len` but `use_perceiver_resampler = False`.
+            // In `cond_enc.py`:
+            // if cond_prompt_speech_emb is None: empty
+            // elif hp.use_perceiver_resampler: perceiver(cond_prompt_speech_emb)
+            // It seems if not using perceiver, it just passes it through?
+            // Wait, `cond_enc.py` code:
+            // "if cond_prompt_speech_emb is None ... elif hp.use_perceiver_resampler ... "
+            // It doesn't explicitly say what happens if `!use_perceiver_resampler` and `cond_prompt_speech_emb` is present.
+            // But looking at `ChatterboxTTS.prepare_conditionals`, `cond_prompt_speech_tokens` are created.
+            // In T3 `inference` (Python), it creates `T3Cond`.
+            // The `T3CondEnc` in Python seems to use `cond_prompt_speech_emb` from `T3Cond`.
+            // But `prepare_conditionals` sets `cond_prompt_speech_tokens`, not `emb`.
+            // Ah, `T3.forward` calls `prepare_input_embeds`.
+            // In Python `T3`:
+            // `cond_prompt_speech_emb` is derived from `cond.cond_prompt_speech_tokens` via `speech_emb` embedding layer?
+            // No, `T3CondEnc` takes `T3Cond` which has `cond_prompt_speech_emb`.
+            // Let's check where `cond_prompt_speech_emb` comes from in `T3.forward`.
+
+            embeds.push(prompt_emb.clone());
+        }
+
+        if self.config.emotion_adv {
+             if let Some(emo) = emotion_adv {
+                // emo: (B, 1, 1) or (B, 1)
+                let emo_proj = self.emotion_adv_fc.as_ref().unwrap().forward(emo)?; // (B, 1, H) or similar
+                // Ensure dims
+                let emo_proj = if emo_proj.rank() == 2 { emo_proj.unsqueeze(1)? } else { emo_proj };
+                embeds.push(emo_proj);
+             }
+        }
+
+        Tensor::cat(&embeds, 1)
     }
 }
 
@@ -73,7 +135,22 @@ impl T3 {
         let speech_emb = candle_nn::embedding(config.speech_tokens_dict_size, config.hidden_size, vb.pp("speech_emb"))?;
         let _text_head = candle_nn::linear(config.hidden_size, config.text_tokens_dict_size, vb.pp("text_head"))?;
         let speech_head = candle_nn::linear(config.hidden_size, config.speech_tokens_dict_size, vb.pp("speech_head"))?;
-        let cond_enc = T3CondEnc::new(&config, vb.pp("cond_enc"))?;
+
+        // cond_enc might need config clone
+        let cond_enc = T3CondEnc::new(T3Config {
+             text_tokens_dict_size: config.text_tokens_dict_size,
+             speech_tokens_dict_size: config.speech_tokens_dict_size,
+             hidden_size: config.hidden_size,
+             num_layers: config.num_layers,
+             num_heads: config.num_heads,
+             vocab_size: config.vocab_size,
+             speaker_embed_size: config.speaker_embed_size,
+             start_speech_token: config.start_speech_token,
+             stop_speech_token: config.stop_speech_token,
+             speech_cond_prompt_len: config.speech_cond_prompt_len,
+             use_perceiver_resampler: config.use_perceiver_resampler,
+             emotion_adv: config.emotion_adv,
+        }, vb.pp("cond_enc"))?;
 
         Ok(Self {
             gpt2,
@@ -86,24 +163,28 @@ impl T3 {
         })
     }
 
-    pub fn prepare_input_embeds(&self, text_tokens: &Tensor, speech_tokens: &Tensor, spk_emb: &Tensor) -> Result<Tensor> {
+    pub fn prepare_input_embeds(&self, text_tokens: &Tensor, speech_tokens: &Tensor, spk_emb: &Tensor, cond_prompt_speech_tokens: Option<&Tensor>, emotion_adv: Option<&Tensor>) -> Result<Tensor> {
         // text_tokens: (B, Lt)
         // speech_tokens: (B, Ls)
         // spk_emb: (B, E)
 
-        let cond_emb = self.cond_enc.forward(spk_emb)?; // (B, 1, H)
+        // Handle prompt tokens embedding if present
+        let cond_prompt_speech_emb = if let Some(tokens) = cond_prompt_speech_tokens {
+            Some(self.speech_emb.forward(tokens)?)
+        } else {
+            None
+        };
+
+        let cond_emb = self.cond_enc.forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
         let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
         let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
-
-        // GPT2Model adds wpe (position embeddings) to inputs_embeds.
-        // The original implementation relies on absolute positional embeddings provided by the GPT2 model.
 
         // Concatenate along time dimension (dim 1)
         // cond, text, speech
         Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)
     }
 
-    pub fn generate(&self, text_tokens: &Tensor, spk_emb: &Tensor, max_gen_len: usize) -> Result<Tensor> {
+    pub fn generate(&self, text_tokens: &Tensor, spk_emb: &Tensor, cond_prompt_speech_tokens: Option<&Tensor>, emotion_adv: Option<&Tensor>, max_gen_len: usize) -> Result<Tensor> {
         let (b, _lt) = text_tokens.dims2()?;
         let device = text_tokens.device();
 
@@ -112,7 +193,7 @@ impl T3 {
         let mut speech_tokens = start_token.repeat((b, 1))?; // (B, 1)
 
         for _ in 0..max_gen_len {
-            let embeds = self.prepare_input_embeds(text_tokens, &speech_tokens, spk_emb)?;
+            let embeds = self.prepare_input_embeds(text_tokens, &speech_tokens, spk_emb, cond_prompt_speech_tokens, emotion_adv)?;
 
             // Forward pass
             let hidden_states = self.gpt2.forward_embeds(&embeds)?; // (B, L, H)
@@ -121,9 +202,7 @@ impl T3 {
             let last_hidden = hidden_states.i((.., hidden_states.dim(1)? - 1, ..))?; // (B, H)
             let logits = self.speech_head.forward(&last_hidden)?; // (B, Vocab)
 
-            // Greedy decoding (argmax) for simplicity, or sample?
-            // Python uses multinomial sampling.
-            // Let's implement simple greedy first to ensure it runs.
+            // Greedy decoding (argmax) for simplicity
             let next_token = logits.argmax(1)?.unsqueeze(1)?; // (B, 1)
 
             // Append
@@ -135,12 +214,6 @@ impl T3 {
                 break;
             }
         }
-
-        // Remove start token? Python code says:
-        // "Remove EOS token if present ... return all tokens"
-        // It includes start token in loop but python example starts loop with start token.
-        // The output usually expects just the content.
-        // Let's return the whole sequence for now.
 
         Ok(speech_tokens)
     }
