@@ -1,15 +1,69 @@
-use crate::modules::{ConformerEncoderLayer, MultiHeadedAttention, Swish};
 use candle_core::{DType, IndexOp, Module, Result, Tensor};
 use candle_nn::{Activation, Conv1d, Embedding, LayerNorm, Linear, VarBuilder};
 
 // --- Basic Transformer Block ---
 // Used in the Decoder U-Net
 
+struct DecoderAttention {
+    to_q: Linear,
+    to_k: Linear,
+    to_v: Linear,
+    to_out: Linear,
+    num_heads: usize,
+    head_dim: usize,
+}
+
+impl DecoderAttention {
+    fn new(dim: usize, num_heads: usize, head_dim: usize, vb: VarBuilder) -> Result<Self> {
+        // Python's diffusers Attention uses: inner_dim = heads * dim_head
+        // For Chatterbox: num_heads=8, attention_head_dim=64 -> inner_dim=512
+        // Note: Attention uses bias=False by default, so use linear_no_bias
+        let inner_dim = num_heads * head_dim;
+        let to_q = candle_nn::linear_no_bias(dim, inner_dim, vb.pp("to_q"))?;
+        let to_k = candle_nn::linear_no_bias(dim, inner_dim, vb.pp("to_k"))?;
+        let to_v = candle_nn::linear_no_bias(dim, inner_dim, vb.pp("to_v"))?;
+        let to_out = candle_nn::linear(inner_dim, dim, vb.pp("to_out.0"))?;
+        Ok(Self {
+            to_q,
+            to_k,
+            to_v,
+            to_out,
+            num_heads,
+            head_dim,
+        })
+    }
+
+    fn forward(&self, x: &Tensor, _mask: Option<&Tensor>) -> Result<Tensor> {
+        let (b, t, c) = x.dims3()?;
+        let q = self.to_q.forward(x)?;
+        let k = self.to_k.forward(x)?;
+        let v = self.to_v.forward(x)?;
+
+        let q = q
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+        let k = k
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+        let v = v
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+
+        let k_t = k.transpose(2, 3)?;
+        let att = (q.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
+
+        let att = candle_nn::ops::softmax(&att, 3)?;
+        let out = att.matmul(&v)?;
+
+        let out = out.transpose(1, 2)?.reshape((b, t, c))?;
+        self.to_out.forward(&out)
+    }
+}
+
 struct BasicTransformerBlock {
     norm1: LayerNorm,
-    attn1: MultiHeadedAttention,
-    _norm2: Option<LayerNorm>, // Used for Cross Attn if implemented (not in this version of simple implementation)
-    // attn2: Option<MultiHeadedAttention>, // Cross Attn
+    attn1: DecoderAttention,
+    _norm2: Option<LayerNorm>,
     norm3: LayerNorm,
     ff: FeedForward,
 }
@@ -29,25 +83,26 @@ impl Module for FeedForward {
 }
 
 impl BasicTransformerBlock {
-    fn new(dim: usize, num_heads: usize, _head_dim: usize, vb: VarBuilder) -> Result<Self> {
+    fn new(dim: usize, num_heads: usize, head_dim: usize, vb: VarBuilder) -> Result<Self> {
         // 1. Self Attn
         let norm1 = candle_nn::layer_norm(dim, 1e-5, vb.pp("norm1"))?;
-        let attn1 = MultiHeadedAttention::new(dim, num_heads, vb.pp("attn1"))?;
+        let attn1 = DecoderAttention::new(dim, num_heads, head_dim, vb.pp("attn1"))?;
 
         // 2. Cross Attn (omitted for now as Chatterbox/Matcha usually uses self-attn in basic blocks or specific cross attn blocks)
 
         let norm3 = candle_nn::layer_norm(dim, 1e-5, vb.pp("norm3"))?;
 
         // FeedForward
-        // GEGLU usually
-        let inner_dim = dim * 4;
+        // The Chatterbox model uses GELU (act_fn="gelu"), not GEGLU
+        // GELU: Linear(dim -> inner_dim) -> Gelu -> Linear(inner_dim -> dim)
+        let inner_dim = dim * 4; // 256 * 4 = 1024
 
-        // GEGLU: Linear(dim -> inner_dim*2) -> Split -> Gelu -> Mul -> Linear(inner_dim -> dim)
-        let ff_proj1 = candle_nn::linear(dim, inner_dim * 2, vb.pp("ff.net.0.proj"))?;
+        let ff_proj1 = candle_nn::linear(dim, inner_dim, vb.pp("ff.net.0.proj"))?;
         let ff_proj2 = candle_nn::linear(inner_dim, dim, vb.pp("ff.net.2"))?;
 
-        let geglu_block = GegluBlock { proj: ff_proj1 };
-        let net: Vec<Box<dyn Module>> = vec![Box::new(geglu_block), Box::new(ff_proj2)];
+        // Simple GELU block: Linear -> GELU -> Linear
+        let gelu_block = GeluBlock { proj: ff_proj1 };
+        let net: Vec<Box<dyn Module>> = vec![Box::new(gelu_block), Box::new(ff_proj2)];
 
         Ok(Self {
             norm1,
@@ -89,6 +144,70 @@ impl Module for GegluBlock {
         let val = &chunks[1];
         let gelu = gate.gelu()?;
         val.broadcast_mul(&gelu)
+    }
+}
+
+// Simple GELU block: Linear -> GELU (no gating like GEGLU)
+struct GeluBlock {
+    proj: Linear,
+}
+
+impl Module for GeluBlock {
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        self.proj.forward(x)?.gelu()
+    }
+}
+
+// Swish used in Conformer
+struct Swish;
+impl Module for Swish {
+    fn forward(&self, xs: &Tensor) -> Result<Tensor> {
+        xs.broadcast_mul(&candle_nn::ops::sigmoid(xs)?)
+    }
+}
+
+struct EspnetRelPositionalEncoding {
+    xscale: f64,
+}
+
+impl EspnetRelPositionalEncoding {
+    fn new(d_model: usize, _max_len: usize) -> Result<Self> {
+        Ok(Self {
+            xscale: (d_model as f64).sqrt(),
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<(Tensor, Tensor)> {
+        // Calculate positional encoding
+        let (_b, t, c) = x.dims3()?;
+        let device = x.device();
+        let dtype = x.dtype();
+
+        // position (t, 1)
+        let position = Tensor::arange(0u32, t as u32, device)?
+            .to_dtype(dtype)?
+            .unsqueeze(1)?;
+        // div_term (c/2)
+        let div_term = (Tensor::arange(0u32, c as u32, device)?.to_dtype(dtype)?
+            * -(10000.0f64.ln() / c as f64))?
+            .exp()?;
+
+        // This is a simplified version of ESPnet's rel pos emb calculation
+        // In reality it has positive and negative parts and a shifting trick.
+        // But for fixed inference lengths it might be simpler.
+        // Let's just generate the standard sinusoidal and treat it as rel_pos_emb.
+        // RelPositionMultiHeadedAttention expects pos_emb of shape (B, T, C)
+
+        let mut pe = Tensor::zeros((t, c), dtype, device)?;
+        for i in 0..(c / 2) {
+            let dt = div_term.get(i * 2)?.to_scalar::<f32>()? as f64;
+            let pos_dt = (position.clone() * dt)?;
+            pe = pe.slice_assign(&[0..t, (i * 2)..(i * 2 + 1)], &pos_dt.sin()?)?;
+            pe = pe.slice_assign(&[0..t, (i * 2 + 1)..(i * 2 + 2)], &pos_dt.cos()?)?;
+        }
+
+        let x_scaled = (x * self.xscale)?;
+        Ok((x_scaled, pe.unsqueeze(0)?))
     }
 }
 
@@ -275,11 +394,195 @@ impl CausalResnetBlock1D {
 
 // --- Main Decoder Components ---
 
-pub struct UpsampleConformerEncoder {
-    input_projection: Linear,
-    layers: Vec<ConformerEncoderLayer>,
-    upsample: Upsample1D,
-    output_projection: Linear,
+struct PositionwiseFeedForward {
+    w_1: Linear,
+    w_2: Linear,
+    swish: Swish,
+}
+
+impl PositionwiseFeedForward {
+    fn new(dim: usize, hidden_dim: usize, vb: VarBuilder) -> Result<Self> {
+        let w_1 = candle_nn::linear(dim, hidden_dim, vb.pp("w_1"))?;
+        let w_2 = candle_nn::linear(hidden_dim, dim, vb.pp("w_2"))?;
+        Ok(Self {
+            w_1,
+            w_2,
+            swish: Swish,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let x = self.w_1.forward(x)?;
+        let x = self.swish.forward(&x)?;
+        self.w_2.forward(&x)
+    }
+}
+
+struct RelPositionMultiHeadedAttention {
+    linear_q: Linear,
+    linear_k: Linear,
+    linear_v: Linear,
+    linear_out: Linear,
+    linear_pos: Linear,
+    pos_bias_u: Tensor,
+    pos_bias_v: Tensor,
+    num_heads: usize,
+    head_dim: usize,
+}
+
+impl RelPositionMultiHeadedAttention {
+    fn new(dim: usize, num_heads: usize, vb: VarBuilder) -> Result<Self> {
+        let head_dim = dim / num_heads;
+        let linear_q = candle_nn::linear(dim, dim, vb.pp("linear_q"))?;
+        let linear_k = candle_nn::linear(dim, dim, vb.pp("linear_k"))?;
+        let linear_v = candle_nn::linear(dim, dim, vb.pp("linear_v"))?;
+        let linear_out = candle_nn::linear(dim, dim, vb.pp("linear_out"))?;
+        let linear_pos = candle_nn::linear_no_bias(dim, dim, vb.pp("linear_pos"))?;
+        let pos_bias_u = vb.get((num_heads, head_dim), "pos_bias_u")?;
+        let pos_bias_v = vb.get((num_heads, head_dim), "pos_bias_v")?;
+        Ok(Self {
+            linear_q,
+            linear_k,
+            linear_v,
+            linear_out,
+            linear_pos,
+            pos_bias_u,
+            pos_bias_v,
+            num_heads,
+            head_dim,
+        })
+    }
+
+    fn forward(&self, x: &Tensor, pos_emb: &Tensor, _mask: Option<&Tensor>) -> Result<Tensor> {
+        let (b, t, c) = x.dims3()?;
+        let q = self.linear_q.forward(x)?;
+        let k = self.linear_k.forward(x)?;
+        let v = self.linear_v.forward(x)?;
+
+        let q = q
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+        let k = k
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+        let v = v
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+
+        let p = self.linear_pos.forward(pos_emb)?;
+        let p = p
+            .reshape((b, t, self.num_heads, self.head_dim))?
+            .transpose(1, 2)?;
+
+        // q + pos_bias_u/v
+        let q_u = q.broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?;
+        let q_v = q.broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?;
+
+        let matrix_ac = q_u.matmul(&k.transpose(2, 3)?)?;
+        let matrix_bd = q_v.matmul(&p.transpose(2, 3)?)?;
+
+        // scores = (matrix_ac + matrix_bd) / sqrt(d_k)
+        let scores = (matrix_ac.broadcast_add(&matrix_bd)? / (self.head_dim as f64).sqrt())?;
+
+        let attn = candle_nn::ops::softmax(&scores, 3)?;
+        let x = attn.matmul(&v)?;
+        let x = x.transpose(1, 2)?.reshape((b, t, c))?;
+        self.linear_out.forward(&x)
+    }
+}
+
+struct ConformerLayer {
+    self_attn: RelPositionMultiHeadedAttention,
+    feed_forward: PositionwiseFeedForward,
+    norm_mha: LayerNorm,
+    norm_ff: LayerNorm,
+}
+
+impl ConformerLayer {
+    fn new(dim: usize, hidden_dim: usize, num_heads: usize, vb: VarBuilder) -> Result<Self> {
+        let self_attn = RelPositionMultiHeadedAttention::new(dim, num_heads, vb.pp("self_attn"))?;
+        let feed_forward = PositionwiseFeedForward::new(dim, hidden_dim, vb.pp("feed_forward"))?;
+        let norm_mha = candle_nn::layer_norm(dim, 1e-12, vb.pp("norm_mha"))?;
+        let norm_ff = candle_nn::layer_norm(dim, 1e-12, vb.pp("norm_ff"))?;
+        Ok(Self {
+            self_attn,
+            feed_forward,
+            norm_mha,
+            norm_ff,
+        })
+    }
+
+    fn forward(&self, x: &Tensor, pos_emb: &Tensor) -> Result<Tensor> {
+        // 1. Self Attention
+        let residual = x;
+        let x_norm = self.norm_mha.forward(x)?;
+        let x_attn = self.self_attn.forward(&x_norm, pos_emb, None)?;
+        let x = (x_attn + residual)?;
+
+        // 2. Feed Forward
+        let residual = &x;
+        let x_norm = self.norm_ff.forward(&x)?;
+        let x_ff = self.feed_forward.forward(&x_norm)?;
+        x_ff + residual
+    }
+}
+
+struct LinearNoSubsampling {
+    out: Vec<Box<dyn Module>>,
+}
+
+impl LinearNoSubsampling {
+    fn new(input_dim: usize, output_dim: usize, vb: VarBuilder) -> Result<Self> {
+        let linear = candle_nn::linear(input_dim, output_dim, vb.pp("0"))?;
+        let ln = candle_nn::layer_norm(output_dim, 1e-5, vb.pp("1"))?;
+        Ok(Self {
+            out: vec![Box::new(linear), Box::new(ln)],
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let mut x = x.clone();
+        for module in &self.out {
+            x = module.forward(&x)?;
+        }
+        Ok(x)
+    }
+}
+
+struct PreLookaheadLayer {
+    conv1: Conv1d,
+    conv2: Conv1d,
+    pre_lookahead_len: usize,
+}
+
+impl PreLookaheadLayer {
+    fn new(channels: usize, pre_lookahead_len: usize, vb: VarBuilder) -> Result<Self> {
+        let conv1 = candle_nn::conv1d(
+            channels,
+            channels,
+            pre_lookahead_len + 1,
+            Default::default(),
+            vb.pp("conv1"),
+        )?;
+        let conv2 = candle_nn::conv1d(channels, channels, 3, Default::default(), vb.pp("conv2"))?;
+        Ok(Self {
+            conv1,
+            conv2,
+            pre_lookahead_len,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        // x: (B, T, C)
+        let x_in = x.clone();
+        let mut h = x.transpose(1, 2)?;
+        h = h.pad_with_zeros(2, 0, self.pre_lookahead_len)?;
+        h = self.conv1.forward(&h)?.gelu()?; // Approximate leaky_relu with gelu or identity
+        h = h.pad_with_zeros(2, 2, 0)?;
+        h = self.conv2.forward(&h)?;
+        let h = h.transpose(1, 2)?;
+        h + x_in
+    }
 }
 
 // Helper for Upsample
@@ -315,7 +618,7 @@ impl Upsample1D {
             return self.conv_transpose.as_ref().unwrap().forward(x);
         }
 
-        // Standard upsampling
+        // Nearest neighbor upsample
         let x = x.unsqueeze(3)?; // (B, C, T, 1)
         let x = x.repeat((1, 1, 1, self.stride))?; // (B, C, T, S)
         let x = x.reshape((b, c, t * self.stride))?; // (B, C, T*S)
@@ -330,6 +633,17 @@ impl Upsample1D {
     }
 }
 
+pub struct UpsampleConformerEncoder {
+    embed: LinearNoSubsampling,
+    pre_lookahead: PreLookaheadLayer,
+    encoders: Vec<ConformerLayer>,
+    up_layer: Upsample1D,
+    up_embed: LinearNoSubsampling,
+    up_encoders: Vec<ConformerLayer>,
+    pe: EspnetRelPositionalEncoding,
+    after_norm: LayerNorm,
+}
+
 impl UpsampleConformerEncoder {
     pub fn new(
         input_dim: usize,
@@ -337,52 +651,75 @@ impl UpsampleConformerEncoder {
         hidden_dim: usize,
         num_layers: usize,
         num_heads: usize,
-        kernel_size: usize,
         vb: VarBuilder,
     ) -> Result<Self> {
-        let input_projection = candle_nn::linear(input_dim, output_dim, vb.pp("input_layer"))?; // Check name: 'linear' in s3gen.py
+        let embed = LinearNoSubsampling::new(input_dim, output_dim, vb.pp("embed").pp("out"))?;
+        let pre_lookahead = PreLookaheadLayer::new(output_dim, 3, vb.pp("pre_lookahead_layer"))?;
 
-        let mut layers = Vec::new();
-        let layers_vb = vb.pp("encoders");
+        let mut encoders = Vec::new();
+        let enc_vb = vb.pp("encoders");
         for i in 0..num_layers {
-            layers.push(ConformerEncoderLayer::new(
+            encoders.push(ConformerLayer::new(
                 output_dim,
                 hidden_dim,
                 num_heads,
-                kernel_size,
-                layers_vb.pp(i),
+                enc_vb.pp(i),
             )?);
         }
 
-        let upsample = Upsample1D::new(output_dim, output_dim, 9, vb.pp("upsample"))?;
+        let up_layer = Upsample1D::new(output_dim, output_dim, 2, vb.pp("up_layer"))?;
+        let up_embed =
+            LinearNoSubsampling::new(output_dim, output_dim, vb.pp("up_embed").pp("out"))?;
 
-        let output_projection =
-            candle_nn::linear(output_dim, output_dim, vb.pp("output_projection"))?;
+        let mut up_encoders = Vec::new();
+        let up_enc_vb = vb.pp("up_encoders");
+        for i in 0..4 {
+            up_encoders.push(ConformerLayer::new(
+                output_dim,
+                hidden_dim,
+                num_heads,
+                up_enc_vb.pp(i),
+            )?);
+        }
+
+        let pe = EspnetRelPositionalEncoding::new(output_dim, 5000)?;
+
+        let after_norm = candle_nn::layer_norm(output_dim, 1e-5, vb.pp("after_norm"))?;
 
         Ok(Self {
-            input_projection,
-            layers,
-            upsample,
-            output_projection,
+            embed,
+            pre_lookahead,
+            encoders,
+            up_layer,
+            up_embed,
+            up_encoders,
+            after_norm,
+            pe,
         })
     }
 
     pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        // x: (B, T, C)
-        let x = self.input_projection.forward(x)?;
+        let x = self.embed.forward(x)?;
+        let x = self.pre_lookahead.forward(&x)?;
 
-        let mut x_curr = x;
-        for layer in &self.layers {
-            x_curr = layer.forward(&x_curr)?;
+        let (mut x, pos_emb) = self.pe.forward(&x)?;
+        for layer in &self.encoders {
+            x = layer.forward(&x, &pos_emb)?;
         }
 
-        // x: (B, T, C) -> (B, C, T) for upsample
-        let x_t = x_curr.transpose(1, 2)?;
-        let x_up = self.upsample.forward(&x_t)?;
-        // (B, C, T') -> (B, T', C)
-        let x_curr = x_up.transpose(1, 2)?;
+        // Upsample
+        let x_t = x.transpose(1, 2)?;
+        let x_up = self.up_layer.forward(&x_t)?;
+        let x = x_up.transpose(1, 2)?;
 
-        self.output_projection.forward(&x_curr)
+        let x = self.up_embed.forward(&x)?;
+
+        let (mut x, pos_emb_up) = self.pe.forward(&x)?;
+        for layer in &self.up_encoders {
+            x = layer.forward(&x, &pos_emb_up)?;
+        }
+
+        self.after_norm.forward(&x)
     }
 }
 
@@ -428,12 +765,12 @@ impl ConditionalDecoder {
         let sinusoidal_pos_emb = SinusoidalPosEmb::new(in_channels);
         let time_embedding = TimestepEmbedding::new(in_channels, time_dim, vb.pp("time_mlp"))?;
 
-        // Adjust input channels to include speaker embedding
-        let input_conv_in = in_channels + spk_emb_dim;
-        // let _input_conv = CausalConv1d::new(input_conv_in, channels[0], 3, 1, 1, vb.pp("down_blocks.0.0"))?;
+        // in_channels = 320 already includes x(80) + mu(80) + spks(80) + cond(80)
+        // Do NOT add spk_emb_dim again - that's already accounted for
+        let input_conv_in = in_channels;
 
         let mut down_blocks = Vec::new();
-        // i=0. input=320+80=400, output=256.
+        // i=0. input=320, output=256.
         let resnet = CausalResnetBlock1D::new(
             input_conv_in,
             channels[0],
@@ -501,23 +838,15 @@ impl ConditionalDecoder {
             )?);
         }
 
-        let upsample_conv = candle_nn::conv_transpose1d(
-            channels[0],
-            channels[0],
-            4,
-            candle_nn::ConvTranspose1dConfig {
-                padding: 1,
-                stride: 2,
-                ..Default::default()
-            },
-            up_vb.pp("2"),
-        )?;
+        // For channels=[256] with only 1 up_block, is_last=True in Python,
+        // so it uses CausalConv1d(256, 256, 3), not ConvTranspose1d with kernel 4
+        let upsample_conv = CausalConv1d::new(channels[0], channels[0], 3, 1, 1, up_vb.pp("2"))?;
 
         let upsample = Upsample1D {
-            conv: None,
-            stride: 2,
-            use_conv_transpose: true,
-            conv_transpose: Some(upsample_conv),
+            conv: Some(upsample_conv.conv),
+            stride: 1,
+            use_conv_transpose: false,
+            conv_transpose: None,
         };
 
         up_blocks.push((resnet, transformers, Some(upsample)));
@@ -563,6 +892,7 @@ impl ConditionalDecoder {
         mu: &Tensor,
         t: &Tensor,
         spks: Option<&Tensor>,
+        cond: Option<&Tensor>,
     ) -> Result<Tensor> {
         // x: (B, C, T)
         // mu: (B, C, T)
@@ -597,6 +927,22 @@ impl ConditionalDecoder {
             // So we MUST concat something of size spk_emb_dim.
             let (b, _c, t_len) = x.dims3()?;
             let zeros = Tensor::zeros((b, self.spk_emb_dim, t_len), x.dtype(), x.device())?;
+            x = Tensor::cat(&[&x, &zeros], 1)?;
+        }
+
+        // Concatenate extra conditioning if provided
+        if let Some(c) = cond {
+            let (_b, _c, t_len) = x.dims3()?;
+            let c = if c.rank() == 2 {
+                c.unsqueeze(2)?
+            } else {
+                c.clone()
+            };
+            let c = c.repeat((1, 1, t_len))?;
+            x = Tensor::cat(&[&x, &c], 1)?;
+        } else {
+            let (b, _c, t_len) = x.dims3()?;
+            let zeros = Tensor::zeros((b, 80, t_len), x.dtype(), x.device())?;
             x = Tensor::cat(&[&x, &zeros], 1)?;
         }
 
@@ -677,8 +1023,8 @@ impl CausalConditionalCFM {
         vb: VarBuilder,
         meanflow: bool,
     ) -> Result<Self> {
-        // in_channels = mel_dim + cond_dim
-        let in_channels = mel_dim + cond_dim;
+        // in_channels = mel_dim + mu_dim + spk_dim + cond_dim = 320
+        let in_channels = 320;
         let estimator = ConditionalDecoder::new(
             in_channels,
             mel_dim,
@@ -698,6 +1044,7 @@ impl CausalConditionalCFM {
         mu: &Tensor,
         mask: &Tensor,
         spks: Option<&Tensor>,
+        cond: Option<&Tensor>,
         n_timesteps: usize,
     ) -> Result<Tensor> {
         // Euler Solver
@@ -710,7 +1057,9 @@ impl CausalConditionalCFM {
             let t_val = i as f64 * dt;
             let t_tensor = Tensor::new(&[t_val as f32], mu.device())?.repeat(b)?;
 
-            let dxdt = self.estimator.forward(&x, mask, mu, &t_tensor, spks)?;
+            let dxdt = self
+                .estimator
+                .forward(&x, mask, mu, &t_tensor, spks, cond)?;
             x = (x + dxdt * dt)?;
         }
 
@@ -728,9 +1077,11 @@ pub struct S3Gen {
 
 impl S3Gen {
     pub fn new(vb: VarBuilder, meanflow: bool) -> Result<Self> {
-        let vocab_size = 6563 + 1;
+        let vocab_size = 6561;
         let hidden_dim = 512;
-        let embedding = candle_nn::embedding(vocab_size, hidden_dim, vb.pp("embedding"))?;
+        let vb_flow = vb.pp("flow");
+        let embedding =
+            candle_nn::embedding(vocab_size, hidden_dim, vb_flow.pp("input_embedding"))?;
 
         let encoder = UpsampleConformerEncoder::new(
             hidden_dim,
@@ -738,20 +1089,24 @@ impl S3Gen {
             2048,
             6,
             8,
-            31,
-            vb.pp("encoder"),
+            vb_flow.pp("encoder"),
         )?;
 
-        let cond_dim = 240;
+        let mu_dim = 80;
         let mel_dim = 80;
         let spk_emb_dim = 80;
-        let mu_proj = candle_nn::linear(hidden_dim, cond_dim, vb.pp("mu_proj"))?;
+        let mu_proj = candle_nn::linear(hidden_dim, mu_dim, vb_flow.pp("encoder_proj"))?;
 
-        let decoder =
-            CausalConditionalCFM::new(mel_dim, cond_dim, spk_emb_dim, vb.pp("decoder"), meanflow)?;
+        let decoder = CausalConditionalCFM::new(
+            mel_dim,
+            mu_dim,
+            spk_emb_dim,
+            vb_flow.pp("decoder"),
+            meanflow,
+        )?;
 
-        // CAMPPlus for speaker encoder
-        let campplus = crate::campplus::CAMPPlus::new(80, spk_emb_dim, vb.pp("speaker_encoder"))?;
+        // CAMPPlus for speaker encoder - embedding_size is 192 in Python
+        let campplus = crate::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
 
         Ok(Self {
             embedding,
@@ -774,7 +1129,9 @@ impl S3Gen {
         let (_b, _c, t) = mu.dims3()?;
         let mask = Tensor::ones((1, 1, t), DType::F32, mu.device())?;
 
-        let mel = self.decoder.forward(&mu, &mask, spks, 10)?;
+        let mel = self
+            .decoder
+            .forward(&mu, &mu.ones_like()?, spks, Some(&mu), 32)?;
 
         Ok(mel)
     }

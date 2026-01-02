@@ -15,6 +15,7 @@ pub struct T3Config {
     pub speech_cond_prompt_len: Option<usize>,
     pub use_perceiver_resampler: bool,
     pub emotion_adv: bool,
+    pub n_positions: usize,
 }
 
 impl Default for T3Config {
@@ -32,6 +33,7 @@ impl Default for T3Config {
             speech_cond_prompt_len: Some(375),
             use_perceiver_resampler: false,
             emotion_adv: false,
+            n_positions: 8196,
         }
     }
 }
@@ -144,10 +146,11 @@ impl T3 {
             n_embd: config.hidden_size,
             n_layer: config.num_layers,
             n_head: config.num_heads,
+            n_positions: config.n_positions,
             ..Default::default()
         };
 
-        let gpt2 = GPT2Model::new(gpt2_config, vb.pp("gpt2"))?;
+        let gpt2 = GPT2Model::new(gpt2_config, vb.pp("tfmr"))?;
         let text_emb = candle_nn::embedding(
             config.text_tokens_dict_size,
             config.hidden_size,
@@ -158,7 +161,7 @@ impl T3 {
             config.hidden_size,
             vb.pp("speech_emb"),
         )?;
-        let _text_head = candle_nn::linear(
+        let _text_head = candle_nn::linear_no_bias(
             config.hidden_size,
             config.text_tokens_dict_size,
             vb.pp("text_head"),
@@ -184,6 +187,7 @@ impl T3 {
                 speech_cond_prompt_len: config.speech_cond_prompt_len,
                 use_perceiver_resampler: config.use_perceiver_resampler,
                 emotion_adv: config.emotion_adv,
+                n_positions: config.n_positions,
             },
             vb.pp("cond_enc"),
         )?;

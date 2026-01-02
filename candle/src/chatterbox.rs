@@ -32,9 +32,13 @@ impl ChatterboxTTS {
         let s3gen_path = repo
             .get("s3gen.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3tokenizer_path = repo
-            .get("s3tokenizer.safetensors")
+
+        // S3Tokenizer is in a separate repo
+        let s3tok_repo = api.model("ResembleAI/s3tokenizer-v2".to_string());
+        let s3tokenizer_path = s3tok_repo
+            .get("model.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+
         let tokenizer_path = repo
             .get("tokenizer.json")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
@@ -179,10 +183,16 @@ impl ChatterboxTurboTTS {
         let s3gen_path = repo
             .get("s3gen_meanflow.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3tokenizer_path = repo
-            .get("s3tokenizer_turbo.safetensors")
+
+        // S3Tokenizer is in a separate repo
+        let s3tok_repo = api.model("ResembleAI/s3tokenizer-v2".to_string());
+        let s3tokenizer_path = s3tok_repo
+            .get("model.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let tokenizer_path = repo
+
+        // Tokenizer is in the base repo
+        let base_repo = api.model("ResembleAI/chatterbox".to_string());
+        let tokenizer_path = base_repo
             .get("tokenizer.json")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
 
@@ -217,6 +227,7 @@ impl ChatterboxTurboTTS {
             speech_cond_prompt_len: Some(375),
             use_perceiver_resampler: false,
             emotion_adv: false,
+            n_positions: 8196,
         };
 
         let vb_t3 = unsafe {
@@ -298,7 +309,15 @@ impl ChatterboxTurboTTS {
         )?;
 
         // Generate audio
-        let audio_tensor = self.s3gen.forward(&speech_tokens, Some(&spk_emb))?;
+        let speech_tokens_filtered = {
+            let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+            let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            let len = filtered.len();
+            Tensor::from_vec(filtered, (1, len), &self.device)?
+        };
+        let audio_tensor = self
+            .s3gen
+            .forward(&speech_tokens_filtered, Some(&spk_emb))?;
 
         // Convert to samples
         let mut samples = tensor_to_samples(&audio_tensor)?;

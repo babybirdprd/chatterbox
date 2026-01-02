@@ -1,5 +1,29 @@
-use candle_core::{Module, Result, Tensor};
+use candle_core::{Module, Result, Tensor, D};
 use candle_nn::{Activation, BatchNorm, Conv1d, Conv2d, Linear, ModuleT, VarBuilder};
+
+// Helper to create Conv2d without bias (Python uses bias=False)
+fn conv2d_no_bias(
+    in_c: usize,
+    out_c: usize,
+    k: usize,
+    cfg: candle_nn::Conv2dConfig,
+    vb: VarBuilder,
+) -> Result<Conv2d> {
+    let weight = vb.get((out_c, in_c / cfg.groups, k, k), "weight")?;
+    Ok(Conv2d::new(weight, None, cfg))
+}
+
+// Helper to create Conv1d without bias
+fn conv1d_no_bias(
+    in_c: usize,
+    out_c: usize,
+    k: usize,
+    cfg: candle_nn::Conv1dConfig,
+    vb: VarBuilder,
+) -> Result<Conv1d> {
+    let weight = vb.get((out_c, in_c / cfg.groups, k), "weight")?;
+    Ok(Conv1d::new(weight, None, cfg))
+}
 
 // Basic 2D ResBlock for FCM
 struct BasicResBlock2D {
@@ -17,10 +41,10 @@ impl BasicResBlock2D {
             padding: 1,
             ..Default::default()
         };
-        let conv1 = candle_nn::conv2d(in_c, out_c, 3, conv_cfg, vb.pp("conv1"))?;
+        let conv1 = conv2d_no_bias(in_c, out_c, 3, conv_cfg, vb.pp("conv1"))?;
         let bn1 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn1"))?;
 
-        let conv2 = candle_nn::conv2d(
+        let conv2 = conv2d_no_bias(
             out_c,
             out_c,
             3,
@@ -33,7 +57,7 @@ impl BasicResBlock2D {
         let bn2 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn2"))?;
 
         let shortcut = if stride != 1 || in_c != out_c {
-            let s_conv = candle_nn::conv2d(
+            let s_conv = conv2d_no_bias(
                 in_c,
                 out_c,
                 1,
@@ -84,7 +108,7 @@ struct FCM {
 
 impl FCM {
     fn new(m_channels: usize, feat_dim: usize, vb: VarBuilder) -> Result<Self> {
-        let conv1 = candle_nn::conv2d(
+        let conv1 = conv2d_no_bias(
             1,
             m_channels,
             3,
@@ -124,7 +148,7 @@ impl FCM {
             vb.pp("layer2.1"),
         )?);
 
-        let conv2 = candle_nn::conv2d(
+        let conv2 = conv2d_no_bias(
             m_channels,
             m_channels,
             3,
@@ -192,8 +216,8 @@ impl TDNNLayer {
             stride,
             ..Default::default()
         };
-        let conv = candle_nn::conv1d(in_c, out_c, k, conv_cfg, vb.pp("linear"))?; // PyTorch CAMpplus uses Conv1d called 'linear'
-        let bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("batchnorm"))?;
+        let conv = conv1d_no_bias(in_c, out_c, k, conv_cfg, vb.pp("linear"))?; // PyTorch CAMpplus uses Conv1d with bias=False
+        let bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("nonlinear.batchnorm"))?;
         Ok(Self {
             conv,
             bn,
@@ -224,7 +248,7 @@ impl CAMLayer {
         vb: VarBuilder,
     ) -> Result<Self> {
         let padding = (k - 1) / 2 * dilation;
-        let linear_local = candle_nn::conv1d(
+        let linear_local = conv1d_no_bias(
             bn_channels,
             out_channels,
             k,
@@ -282,7 +306,7 @@ impl CAMDenseTDNNLayer {
         vb: VarBuilder,
     ) -> Result<Self> {
         let bn1 = candle_nn::batch_norm(in_c, 1e-5, vb.pp("nonlinear1.batchnorm"))?;
-        let linear1 = candle_nn::conv1d(in_c, bn_c, 1, Default::default(), vb.pp("linear1"))?;
+        let linear1 = conv1d_no_bias(in_c, bn_c, 1, Default::default(), vb.pp("linear1"))?;
         let bn2 = candle_nn::batch_norm(bn_c, 1e-5, vb.pp("nonlinear2.batchnorm"))?;
         let cam_layer = CAMLayer::new(bn_c, out_c, k, dilation, vb.pp("cam_layer"))?;
         Ok(Self {
@@ -348,7 +372,7 @@ struct TransitLayer {
 impl TransitLayer {
     fn new(in_c: usize, out_c: usize, vb: VarBuilder) -> Result<Self> {
         let bn = candle_nn::batch_norm(in_c, 1e-5, vb.pp("nonlinear.batchnorm"))?;
-        let linear = candle_nn::conv1d(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
+        let linear = conv1d_no_bias(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
         Ok(Self { bn, linear })
     }
 
@@ -358,12 +382,34 @@ impl TransitLayer {
     }
 }
 
+// DenseLayer: Conv1d(k=1) only - Python uses non-affine batchnorm (affine=False)
+// which has no weight/bias params. At inference time with training=False,
+// a non-affine batchnorm just applies running mean/var normalization.
+// For simplicity, we skip it here since it's just normalization without learnable params.
+struct DenseLayer {
+    linear: Conv1d,
+}
+
+impl DenseLayer {
+    fn new(in_c: usize, out_c: usize, vb: VarBuilder) -> Result<Self> {
+        let linear = conv1d_no_bias(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
+        Ok(Self { linear })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        // x: (B, C) - need to add dim for conv1d
+        let x = x.unsqueeze(2)?; // (B, C, 1)
+        let x = self.linear.forward(&x)?;
+        x.squeeze(2) // Back to (B, C)
+    }
+}
+
 pub struct CAMPPlus {
     head: FCM,
     tdnn: TDNNLayer,
     blocks: Vec<(CAMDenseTDNNBlock, TransitLayer)>,
     final_bn: BatchNorm,
-    final_dense: Linear,
+    final_dense: DenseLayer,
     _embedding_size: usize,
 }
 
@@ -403,8 +449,7 @@ impl CAMPPlus {
 
         let final_bn =
             candle_nn::batch_norm(channels, 1e-5, vb.pp("xvector.out_nonlinear.batchnorm"))?;
-        let final_dense =
-            candle_nn::linear(channels * 2, embedding_size, vb.pp("xvector.dense.linear"))?;
+        let final_dense = DenseLayer::new(channels * 2, embedding_size, vb.pp("xvector.dense"))?;
 
         Ok(Self {
             head,

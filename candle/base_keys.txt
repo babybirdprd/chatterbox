@@ -1,0 +1,13 @@
+warning: unused variable: `vb`
+  --> examples\list_keys.rs:12:9
+   |
+12 |     let vb = unsafe {
+   |         ^^ help: if this is intentional, prefix it with an underscore: `_vb`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `candle` (example "list_keys") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.77s
+     Running `target\release\examples\list_keys.exe "C:\Users\Steve Business\.cache\huggingface\hub\models--ResembleAI--chatterbox\snapshots\f96a40510e8b10b046a37108bad33fd991814b9c\t3_cfg.safetensors"`
+Error: path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox\\snapshots\\f96a40510e8b10b046a37108bad33fd991814b9c\\t3_cfg.safetensors" The system cannot find the file specified. (os error 2)
+error: process didn't exit successfully: `target\release\examples\list_keys.exe "C:\Users\Steve Business\.cache\huggingface\hub\models--ResembleAI--chatterbox\snapshots\f96a40510e8b10b046a37108bad33fd991814b9c\t3_cfg.safetensors"` (exit code: 1)

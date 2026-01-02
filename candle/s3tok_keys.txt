@@ -1,0 +1,117 @@
+   Compiling candle v0.1.0 (D:\chatterbox-rs\candle)
+warning: unused variable: `vb`
+  --> examples\list_keys.rs:12:9
+   |
+12 |     let vb = unsafe {
+   |         ^^ help: if this is intentional, prefix it with an underscore: `_vb`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `candle` (example "list_keys") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 14.40s
+     Running `target\release\examples\list_keys.exe "C:\Users\Steve Business\.cache\huggingface\hub\models--ResembleAI--s3tokenizer-v2\snapshots\23a047dead140344f2f89ca26182ab9a34e3f4db\model.safetensors"`
+File: C:\Users\Steve Business\.cache\huggingface\hub\models--ResembleAI--s3tokenizer-v2\snapshots\23a047dead140344f2f89ca26182ab9a34e3f4db\model.safetensors
+_mel_filters
+s3_model.encoder.blocks.0.attn.fsmn_block.weight
+s3_model.encoder.blocks.0.attn.key.weight
+s3_model.encoder.blocks.0.attn.out.bias
+s3_model.encoder.blocks.0.attn.out.weight
+s3_model.encoder.blocks.0.attn.query.bias
+s3_model.encoder.blocks.0.attn.query.weight
+s3_model.encoder.blocks.0.attn.value.bias
+s3_model.encoder.blocks.0.attn.value.weight
+s3_model.encoder.blocks.0.attn_ln.bias
+s3_model.encoder.blocks.0.attn_ln.weight
+s3_model.encoder.blocks.0.mlp.0.bias
+s3_model.encoder.blocks.0.mlp.0.weight
+s3_model.encoder.blocks.0.mlp.2.bias
+s3_model.encoder.blocks.0.mlp.2.weight
+s3_model.encoder.blocks.0.mlp_ln.bias
+s3_model.encoder.blocks.0.mlp_ln.weight
+s3_model.encoder.blocks.1.attn.fsmn_block.weight
+s3_model.encoder.blocks.1.attn.key.weight
+s3_model.encoder.blocks.1.attn.out.bias
+s3_model.encoder.blocks.1.attn.out.weight
+s3_model.encoder.blocks.1.attn.query.bias
+s3_model.encoder.blocks.1.attn.query.weight
+s3_model.encoder.blocks.1.attn.value.bias
+s3_model.encoder.blocks.1.attn.value.weight
+s3_model.encoder.blocks.1.attn_ln.bias
+s3_model.encoder.blocks.1.attn_ln.weight
+s3_model.encoder.blocks.1.mlp.0.bias
+s3_model.encoder.blocks.1.mlp.0.weight
+s3_model.encoder.blocks.1.mlp.2.bias
+s3_model.encoder.blocks.1.mlp.2.weight
+s3_model.encoder.blocks.1.mlp_ln.bias
+s3_model.encoder.blocks.1.mlp_ln.weight
+s3_model.encoder.blocks.2.attn.fsmn_block.weight
+s3_model.encoder.blocks.2.attn.key.weight
+s3_model.encoder.blocks.2.attn.out.bias
+s3_model.encoder.blocks.2.attn.out.weight
+s3_model.encoder.blocks.2.attn.query.bias
+s3_model.encoder.blocks.2.attn.query.weight
+s3_model.encoder.blocks.2.attn.value.bias
+s3_model.encoder.blocks.2.attn.value.weight
+s3_model.encoder.blocks.2.attn_ln.bias
+s3_model.encoder.blocks.2.attn_ln.weight
+s3_model.encoder.blocks.2.mlp.0.bias
+s3_model.encoder.blocks.2.mlp.0.weight
+s3_model.encoder.blocks.2.mlp.2.bias
+s3_model.encoder.blocks.2.mlp.2.weight
+s3_model.encoder.blocks.2.mlp_ln.bias
+s3_model.encoder.blocks.2.mlp_ln.weight
+s3_model.encoder.blocks.3.attn.fsmn_block.weight
+s3_model.encoder.blocks.3.attn.key.weight
+s3_model.encoder.blocks.3.attn.out.bias
+s3_model.encoder.blocks.3.attn.out.weight
+s3_model.encoder.blocks.3.attn.query.bias
+s3_model.encoder.blocks.3.attn.query.weight
+s3_model.encoder.blocks.3.attn.value.bias
+s3_model.encoder.blocks.3.attn.value.weight
+s3_model.encoder.blocks.3.attn_ln.bias
+s3_model.encoder.blocks.3.attn_ln.weight
+s3_model.encoder.blocks.3.mlp.0.bias
+s3_model.encoder.blocks.3.mlp.0.weight
+s3_model.encoder.blocks.3.mlp.2.bias
+s3_model.encoder.blocks.3.mlp.2.weight
+s3_model.encoder.blocks.3.mlp_ln.bias
+s3_model.encoder.blocks.3.mlp_ln.weight
+s3_model.encoder.blocks.4.attn.fsmn_block.weight
+s3_model.encoder.blocks.4.attn.key.weight
+s3_model.encoder.blocks.4.attn.out.bias
+s3_model.encoder.blocks.4.attn.out.weight
+s3_model.encoder.blocks.4.attn.query.bias
+s3_model.encoder.blocks.4.attn.query.weight
+s3_model.encoder.blocks.4.attn.value.bias
+s3_model.encoder.blocks.4.attn.value.weight
+s3_model.encoder.blocks.4.attn_ln.bias
+s3_model.encoder.blocks.4.attn_ln.weight
+s3_model.encoder.blocks.4.mlp.0.bias
+s3_model.encoder.blocks.4.mlp.0.weight
+s3_model.encoder.blocks.4.mlp.2.bias
+s3_model.encoder.blocks.4.mlp.2.weight
+s3_model.encoder.blocks.4.mlp_ln.bias
+s3_model.encoder.blocks.4.mlp_ln.weight
+s3_model.encoder.blocks.5.attn.fsmn_block.weight
+s3_model.encoder.blocks.5.attn.key.weight
+s3_model.encoder.blocks.5.attn.out.bias
+s3_model.encoder.blocks.5.attn.out.weight
+s3_model.encoder.blocks.5.attn.query.bias
+s3_model.encoder.blocks.5.attn.query.weight
+s3_model.encoder.blocks.5.attn.value.bias
+s3_model.encoder.blocks.5.attn.value.weight
+s3_model.encoder.blocks.5.attn_ln.bias
+s3_model.encoder.blocks.5.attn_ln.weight
+s3_model.encoder.blocks.5.mlp.0.bias
+s3_model.encoder.blocks.5.mlp.0.weight
+s3_model.encoder.blocks.5.mlp.2.bias
+s3_model.encoder.blocks.5.mlp.2.weight
+s3_model.encoder.blocks.5.mlp_ln.bias
+s3_model.encoder.blocks.5.mlp_ln.weight
+s3_model.encoder.conv1.bias
+s3_model.encoder.conv1.weight
+s3_model.encoder.conv2.bias
+s3_model.encoder.conv2.weight
+s3_model.quantizer._codebook.project_down.bias
+s3_model.quantizer._codebook.project_down.weight
+window

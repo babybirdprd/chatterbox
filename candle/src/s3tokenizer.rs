@@ -135,9 +135,9 @@ pub struct FSMNMultiHeadAttention {
 
 impl FSMNMultiHeadAttention {
     pub fn new(n_state: usize, n_head: usize, kernel_size: usize, vb: VarBuilder) -> Result<Self> {
-        let query = candle_nn::linear(n_state, n_state, vb.pp("query"))?;
-        let key = candle_nn::linear(n_state, n_state, vb.pp("key"))?;
-        let value = candle_nn::linear(n_state, n_state, vb.pp("value"))?;
+        let query = candle_nn::linear_no_bias(n_state, n_state, vb.pp("query"))?;
+        let key = candle_nn::linear_no_bias(n_state, n_state, vb.pp("key"))?;
+        let value = candle_nn::linear_no_bias(n_state, n_state, vb.pp("value"))?;
         let out = candle_nn::linear(n_state, n_state, vb.pp("out"))?;
 
         let fsmn_config = Conv1dConfig {
@@ -147,13 +147,11 @@ impl FSMNMultiHeadAttention {
             groups: n_state,
             ..Default::default()
         };
-        let fsmn_block = candle_nn::conv1d(
-            n_state,
-            n_state,
-            kernel_size,
-            fsmn_config,
-            vb.pp("fsmn_block"),
-        )?;
+        // FSMN block uses no bias in Python
+        let fsmn_weight = vb
+            .pp("fsmn_block")
+            .get((n_state, 1, kernel_size), "weight")?;
+        let fsmn_block = Conv1d::new(fsmn_weight, None, fsmn_config);
 
         Ok(Self {
             n_head,
@@ -369,6 +367,7 @@ pub struct S3TokenizerV2 {
 
 impl S3TokenizerV2 {
     pub fn new(config: &ModelConfig, vb: VarBuilder) -> Result<Self> {
+        let vb = vb.pp("s3_model");
         let encoder = AudioEncoderV2::new(config, vb.pp("encoder"))?;
         let quantizer = FSQCodebook::new(config.n_audio_state, 3, vb.pp("quantizer._codebook"))?;
 

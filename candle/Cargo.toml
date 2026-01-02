@@ -18,6 +18,8 @@ hound = "3.5"
 rubato = "0.15"
 realfft = "3.4"
 rand = "0.8"
+memmap2 = "0.9"
+safetensors = "0.5.2"
 
 [features]
 cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]
