@@ -33,17 +33,23 @@
 //! - `cuda` - Enable CUDA GPU acceleration
 
 pub mod audio;
+pub mod campplus;
 pub mod chatterbox;
 pub mod gpt2;
 pub mod hifigan;
 pub mod modules;
 pub mod s3gen;
+pub mod s3tokenizer;
+pub mod sampling;
 pub mod t3_model;
 pub mod voice_encoder;
 
 // Re-export main types for convenience
 pub use audio::{load_wav, resample, save_wav, S3GEN_SR, S3_SR};
+pub use campplus::CAMPPlus;
 pub use chatterbox::{ChatterboxTTS, ChatterboxTurboTTS};
+pub use s3tokenizer::{ModelConfig as S3TokenizerConfig, S3TokenizerV2};
+pub use sampling::LogitsProcessor;
 
 /// Generation configuration options
 #[derive(Debug, Clone)]

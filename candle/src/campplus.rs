@@ -1,0 +1,440 @@
+use candle_core::{Module, Result, Tensor};
+use candle_nn::{Activation, BatchNorm, Conv1d, Conv2d, Linear, ModuleT, VarBuilder};
+
+// Basic 2D ResBlock for FCM
+struct BasicResBlock2D {
+    conv1: Conv2d,
+    bn1: BatchNorm,
+    conv2: Conv2d,
+    bn2: BatchNorm,
+    shortcut: Option<(Conv2d, BatchNorm)>,
+}
+
+impl BasicResBlock2D {
+    fn new(in_c: usize, out_c: usize, stride: usize, vb: VarBuilder) -> Result<Self> {
+        let conv_cfg = candle_nn::Conv2dConfig {
+            stride,
+            padding: 1,
+            ..Default::default()
+        };
+        let conv1 = candle_nn::conv2d(in_c, out_c, 3, conv_cfg, vb.pp("conv1"))?;
+        let bn1 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn1"))?;
+
+        let conv2 = candle_nn::conv2d(
+            out_c,
+            out_c,
+            3,
+            candle_nn::Conv2dConfig {
+                padding: 1,
+                ..Default::default()
+            },
+            vb.pp("conv2"),
+        )?;
+        let bn2 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn2"))?;
+
+        let shortcut = if stride != 1 || in_c != out_c {
+            let s_conv = candle_nn::conv2d(
+                in_c,
+                out_c,
+                1,
+                candle_nn::Conv2dConfig {
+                    stride,
+                    ..Default::default()
+                },
+                vb.pp("shortcut.0"),
+            )?;
+            let s_bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("shortcut.1"))?;
+            Some((s_conv, s_bn))
+        } else {
+            None
+        };
+
+        Ok(Self {
+            conv1,
+            bn1,
+            conv2,
+            bn2,
+            shortcut,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let residual = if let Some((s_conv, s_bn)) = &self.shortcut {
+            s_bn.forward_t(&s_conv.forward(x)?, false)?
+        } else {
+            x.clone()
+        };
+
+        let x = self.bn1.forward_t(&self.conv1.forward(x)?, false)?.relu()?;
+        let x = self.bn2.forward_t(&self.conv2.forward(&x)?, false)?;
+        (x + residual)?.relu()
+    }
+}
+
+// FCM Head
+struct FCM {
+    conv1: Conv2d,
+    bn1: BatchNorm,
+    layer1: Vec<BasicResBlock2D>,
+    layer2: Vec<BasicResBlock2D>,
+    conv2: Conv2d,
+    bn2: BatchNorm,
+    out_channels: usize,
+}
+
+impl FCM {
+    fn new(m_channels: usize, feat_dim: usize, vb: VarBuilder) -> Result<Self> {
+        let conv1 = candle_nn::conv2d(
+            1,
+            m_channels,
+            3,
+            candle_nn::Conv2dConfig {
+                padding: 1,
+                ..Default::default()
+            },
+            vb.pp("conv1"),
+        )?;
+        let bn1 = candle_nn::batch_norm(m_channels, 1e-5, vb.pp("bn1"))?;
+
+        let mut layer1 = Vec::new();
+        layer1.push(BasicResBlock2D::new(
+            m_channels,
+            m_channels,
+            2,
+            vb.pp("layer1.0"),
+        )?);
+        layer1.push(BasicResBlock2D::new(
+            m_channels,
+            m_channels,
+            1,
+            vb.pp("layer1.1"),
+        )?);
+
+        let mut layer2 = Vec::new();
+        layer2.push(BasicResBlock2D::new(
+            m_channels,
+            m_channels,
+            2,
+            vb.pp("layer2.0"),
+        )?);
+        layer2.push(BasicResBlock2D::new(
+            m_channels,
+            m_channels,
+            1,
+            vb.pp("layer2.1"),
+        )?);
+
+        let conv2 = candle_nn::conv2d(
+            m_channels,
+            m_channels,
+            3,
+            candle_nn::Conv2dConfig {
+                stride: 2,
+                padding: 1,
+                ..Default::default()
+            },
+            vb.pp("conv2"),
+        )?;
+        let bn2 = candle_nn::batch_norm(m_channels, 1e-5, vb.pp("bn2"))?;
+
+        let out_channels = m_channels * (feat_dim / 8);
+
+        Ok(Self {
+            conv1,
+            bn1,
+            layer1,
+            layer2,
+            conv2,
+            bn2,
+            out_channels,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        // x: (B, 1, F, T)
+        let mut x = self.bn1.forward_t(&self.conv1.forward(x)?, false)?.relu()?;
+        for block in &self.layer1 {
+            x = block.forward(&x)?;
+        }
+        for block in &self.layer2 {
+            x = block.forward(&x)?;
+        }
+        x = self
+            .bn2
+            .forward_t(&self.conv2.forward(&x)?, false)?
+            .relu()?;
+
+        let (b, c, f, t) = x.dims4()?;
+        x.reshape((b, c * f, t))
+    }
+}
+
+// TDNN Layer
+struct TDNNLayer {
+    conv: Conv1d,
+    bn: BatchNorm,
+    activation: Activation,
+}
+
+impl TDNNLayer {
+    fn new(
+        in_c: usize,
+        out_c: usize,
+        k: usize,
+        dilation: usize,
+        stride: usize,
+        vb: VarBuilder,
+    ) -> Result<Self> {
+        let padding = (k - 1) / 2 * dilation;
+        let conv_cfg = candle_nn::Conv1dConfig {
+            padding,
+            dilation,
+            stride,
+            ..Default::default()
+        };
+        let conv = candle_nn::conv1d(in_c, out_c, k, conv_cfg, vb.pp("linear"))?; // PyTorch CAMpplus uses Conv1d called 'linear'
+        let bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("batchnorm"))?;
+        Ok(Self {
+            conv,
+            bn,
+            activation: Activation::Relu,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let x = self.conv.forward(x)?;
+        let x = self.bn.forward_t(&x, false)?;
+        self.activation.forward(&x)
+    }
+}
+
+// CAM Layer (Attention-based context pooling)
+struct CAMLayer {
+    linear_local: Conv1d,
+    linear1: Conv1d,
+    linear2: Conv1d,
+}
+
+impl CAMLayer {
+    fn new(
+        bn_channels: usize,
+        out_channels: usize,
+        k: usize,
+        dilation: usize,
+        vb: VarBuilder,
+    ) -> Result<Self> {
+        let padding = (k - 1) / 2 * dilation;
+        let linear_local = candle_nn::conv1d(
+            bn_channels,
+            out_channels,
+            k,
+            candle_nn::Conv1dConfig {
+                padding,
+                dilation,
+                ..Default::default()
+            },
+            vb.pp("linear_local"),
+        )?;
+        let linear1 = candle_nn::conv1d(
+            bn_channels,
+            bn_channels / 2,
+            1,
+            Default::default(),
+            vb.pp("linear1"),
+        )?;
+        let linear2 = candle_nn::conv1d(
+            bn_channels / 2,
+            out_channels,
+            1,
+            Default::default(),
+            vb.pp("linear2"),
+        )?;
+        Ok(Self {
+            linear_local,
+            linear1,
+            linear2,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let y = self.linear_local.forward(x)?;
+        let mean = x.mean_keepdim(2)?;
+        let context = self.linear1.forward(&mean)?.relu()?;
+        let gate = candle_nn::ops::sigmoid(&self.linear2.forward(&context)?)?;
+        y.broadcast_mul(&gate)
+    }
+}
+
+struct CAMDenseTDNNLayer {
+    bn1: BatchNorm,
+    linear1: Conv1d,
+    bn2: BatchNorm,
+    cam_layer: CAMLayer,
+}
+
+impl CAMDenseTDNNLayer {
+    fn new(
+        in_c: usize,
+        out_c: usize,
+        bn_c: usize,
+        k: usize,
+        dilation: usize,
+        vb: VarBuilder,
+    ) -> Result<Self> {
+        let bn1 = candle_nn::batch_norm(in_c, 1e-5, vb.pp("nonlinear1.batchnorm"))?;
+        let linear1 = candle_nn::conv1d(in_c, bn_c, 1, Default::default(), vb.pp("linear1"))?;
+        let bn2 = candle_nn::batch_norm(bn_c, 1e-5, vb.pp("nonlinear2.batchnorm"))?;
+        let cam_layer = CAMLayer::new(bn_c, out_c, k, dilation, vb.pp("cam_layer"))?;
+        Ok(Self {
+            bn1,
+            linear1,
+            bn2,
+            cam_layer,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let h = self.bn1.forward_t(x, false)?.relu()?;
+        let h = self.linear1.forward(&h)?;
+        let h = self.bn2.forward_t(&h, false)?.relu()?;
+        self.cam_layer.forward(&h)
+    }
+}
+
+struct CAMDenseTDNNBlock {
+    layers: Vec<CAMDenseTDNNLayer>,
+}
+
+impl CAMDenseTDNNBlock {
+    fn new(
+        num_layers: usize,
+        in_c: usize,
+        out_c: usize,
+        bn_c: usize,
+        k: usize,
+        dilation: usize,
+        vb: VarBuilder,
+    ) -> Result<Self> {
+        let mut layers = Vec::new();
+        for i in 0..num_layers {
+            let layer_in = in_c + i * out_c;
+            layers.push(CAMDenseTDNNLayer::new(
+                layer_in,
+                out_c,
+                bn_c,
+                k,
+                dilation,
+                vb.pp(format!("tdnnd{}", i + 1)),
+            )?);
+        }
+        Ok(Self { layers })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let mut current = x.clone();
+        for layer in &self.layers {
+            let out = layer.forward(&current)?;
+            current = Tensor::cat(&[&current, &out], 1)?;
+        }
+        Ok(current)
+    }
+}
+
+struct TransitLayer {
+    bn: BatchNorm,
+    linear: Conv1d,
+}
+
+impl TransitLayer {
+    fn new(in_c: usize, out_c: usize, vb: VarBuilder) -> Result<Self> {
+        let bn = candle_nn::batch_norm(in_c, 1e-5, vb.pp("nonlinear.batchnorm"))?;
+        let linear = candle_nn::conv1d(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
+        Ok(Self { bn, linear })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let x = self.bn.forward_t(x, false)?.relu()?;
+        self.linear.forward(&x)
+    }
+}
+
+pub struct CAMPPlus {
+    head: FCM,
+    tdnn: TDNNLayer,
+    blocks: Vec<(CAMDenseTDNNBlock, TransitLayer)>,
+    final_bn: BatchNorm,
+    final_dense: Linear,
+    _embedding_size: usize,
+}
+
+impl CAMPPlus {
+    pub fn new(feat_dim: usize, embedding_size: usize, vb: VarBuilder) -> Result<Self> {
+        let m_channels = 32;
+        let head = FCM::new(m_channels, feat_dim, vb.pp("head"))?;
+        let mut channels = head.out_channels;
+
+        let tdnn = TDNNLayer::new(channels, 128, 5, 1, 2, vb.pp("xvector.tdnn"))?;
+        channels = 128;
+
+        let mut blocks = Vec::new();
+        let configs = vec![(12, 3, 1), (24, 3, 2), (16, 3, 2)];
+        let growth_rate = 32;
+        let bn_size = 4;
+
+        for (i, (num_layers, k, dilation)) in configs.into_iter().enumerate() {
+            let block = CAMDenseTDNNBlock::new(
+                num_layers,
+                channels,
+                growth_rate,
+                bn_size * growth_rate,
+                k,
+                dilation,
+                vb.pp(format!("xvector.block{}", i + 1)),
+            )?;
+            channels += num_layers * growth_rate;
+            let transit = TransitLayer::new(
+                channels,
+                channels / 2,
+                vb.pp(format!("xvector.transit{}", i + 1)),
+            )?;
+            channels /= 2;
+            blocks.push((block, transit));
+        }
+
+        let final_bn =
+            candle_nn::batch_norm(channels, 1e-5, vb.pp("xvector.out_nonlinear.batchnorm"))?;
+        let final_dense =
+            candle_nn::linear(channels * 2, embedding_size, vb.pp("xvector.dense.linear"))?;
+
+        Ok(Self {
+            head,
+            tdnn,
+            blocks,
+            final_bn,
+            final_dense,
+            _embedding_size: embedding_size,
+        })
+    }
+
+    pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let x = x.transpose(1, 2)?.unsqueeze(1)?;
+        let mut x = self.head.forward(&x)?;
+        x = self.tdnn.forward(&x)?;
+
+        for (block, transit) in &self.blocks {
+            x = block.forward(&x)?;
+            x = transit.forward(&x)?;
+        }
+
+        x = self.final_bn.forward_t(&x, false)?.relu()?;
+        let mean = x.mean_keepdim(2)?.squeeze(2)?;
+        let (_b, _c, t) = x.dims3()?;
+        let centered = x.broadcast_sub(&mean.unsqueeze(2)?)?;
+        let std = (centered.sqr()?.sum_keepdim(2)? / (t as f64 - 1.0))?
+            .sqrt()?
+            .squeeze(2)?;
+
+        let stats = Tensor::cat(&[&mean, &std], 1)?;
+        self.final_dense.forward(&stats)
+    }
+}

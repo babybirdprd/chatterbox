@@ -9,14 +9,13 @@ use tokenizers::Tokenizer;
 use crate::audio::{self, S3GEN_SR, S3_SR};
 use crate::s3gen::S3Gen;
 use crate::t3_model::{T3Config, T3};
-use crate::voice_encoder::{VoiceEncoder, VoiceEncoderConfig};
 use crate::GenerateConfig;
 
 /// Standard Chatterbox TTS model
 pub struct ChatterboxTTS {
-    voice_encoder: VoiceEncoder,
     t3: T3,
     s3gen: S3Gen,
+    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
     tokenizer: Tokenizer,
     device: Device,
 }
@@ -27,36 +26,36 @@ impl ChatterboxTTS {
         let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let repo = api.model("ResembleAI/chatterbox".to_string());
 
-        let ve_path = repo
-            .get("ve.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let t3_path = repo
             .get("t3_cfg.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let s3gen_path = repo
             .get("s3gen.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3tokenizer_path = repo
+            .get("s3tokenizer.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let tokenizer_path = repo
             .get("tokenizer.json")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
 
-        Self::from_local(ve_path, t3_path, s3gen_path, tokenizer_path, device)
+        Self::from_local(
+            t3_path,
+            s3gen_path,
+            s3tokenizer_path,
+            tokenizer_path,
+            device,
+        )
     }
 
     /// Load model from local paths
     pub fn from_local(
-        ve_path: PathBuf,
         t3_path: PathBuf,
         s3gen_path: PathBuf,
+        s3tokenizer_path: PathBuf,
         tokenizer_path: PathBuf,
         device: Device,
     ) -> Result<Self> {
-        let vb_ve = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[ve_path], candle_core::DType::F32, &device)?
-        };
-        let ve_config = VoiceEncoderConfig::default();
-        let voice_encoder = VoiceEncoder::new(ve_config, vb_ve)?;
-
         let t3_config = T3Config::default();
         let vb_t3 = unsafe {
             VarBuilder::from_mmaped_safetensors(&[t3_path], candle_core::DType::F32, &device)?
@@ -68,13 +67,23 @@ impl ChatterboxTTS {
         };
         let s3gen = S3Gen::new(vb_s3, false)?;
 
+        let vb_s3tok = unsafe {
+            VarBuilder::from_mmaped_safetensors(
+                &[s3tokenizer_path],
+                candle_core::DType::F32,
+                &device,
+            )?
+        };
+        let s3tokenizer_config = crate::s3tokenizer::ModelConfig::default();
+        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(&s3tokenizer_config, vb_s3tok)?;
+
         let tokenizer = Tokenizer::from_file(&tokenizer_path)
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
 
         Ok(Self {
-            voice_encoder,
             t3,
             s3gen,
+            s3tokenizer,
             tokenizer,
             device,
         })
@@ -100,17 +109,31 @@ impl ChatterboxTTS {
         // Compute mel spectrogram for voice encoder
         let ref_mels = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device)?;
 
-        // Get speaker embedding
-        let spk_emb = self.voice_encoder.forward(&ref_mels)?;
+        // Get speaker embedding (using CAMPPlus via S3Gen)
+        let spk_emb = self.s3gen.campplus.forward(&ref_mels)?;
+
+        // Get semantic tokens for zero-shot conditioning
+        let prompt_tokens = self.s3tokenizer.encode(&ref_mels)?;
 
         // Tokenize text
         let text_tokens = self.tokenize_text(text)?;
 
         // Generate speech tokens
-        let speech_tokens = self.t3.generate(&text_tokens, &spk_emb, None, None, 500)?;
+        let speech_tokens = self.t3.generate(
+            &text_tokens,
+            &spk_emb,
+            Some(&prompt_tokens),
+            None,
+            500,
+            config.temperature,
+            config.top_p,
+            config.top_k,
+            config.repetition_penalty,
+            config.seed,
+        )?;
 
         // Generate audio
-        let audio_tensor = self.s3gen.forward(&speech_tokens, None)?;
+        let audio_tensor = self.s3gen.forward(&speech_tokens, Some(&spk_emb))?;
 
         // Convert to samples
         let mut samples = tensor_to_samples(&audio_tensor)?;
@@ -137,9 +160,9 @@ impl ChatterboxTTS {
 
 /// Chatterbox Turbo TTS model - faster inference
 pub struct ChatterboxTurboTTS {
-    voice_encoder: VoiceEncoder,
     t3: T3,
     s3gen: S3Gen,
+    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
     tokenizer: Tokenizer,
     device: Device,
 }
@@ -150,36 +173,36 @@ impl ChatterboxTurboTTS {
         let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let repo = api.model("ResembleAI/chatterbox-turbo".to_string());
 
-        let ve_path = repo
-            .get("ve.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let t3_path = repo
             .get("t3_turbo_v1.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let s3gen_path = repo
             .get("s3gen_meanflow.safetensors")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3tokenizer_path = repo
+            .get("s3tokenizer_turbo.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
         let tokenizer_path = repo
             .get("tokenizer.json")
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
 
-        Self::from_local(ve_path, t3_path, s3gen_path, tokenizer_path, device)
+        Self::from_local(
+            t3_path,
+            s3gen_path,
+            s3tokenizer_path,
+            tokenizer_path,
+            device,
+        )
     }
 
     /// Load model from local paths
     pub fn from_local(
-        ve_path: PathBuf,
         t3_path: PathBuf,
         s3gen_path: PathBuf,
+        s3tokenizer_path: PathBuf,
         tokenizer_path: PathBuf,
         device: Device,
     ) -> Result<Self> {
-        let vb_ve = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[ve_path], candle_core::DType::F32, &device)?
-        };
-        let ve_config = VoiceEncoderConfig::default();
-        let voice_encoder = VoiceEncoder::new(ve_config, vb_ve)?;
-
         // Turbo Config
         let t3_config = T3Config {
             text_tokens_dict_size: 50276,
@@ -206,27 +229,29 @@ impl ChatterboxTurboTTS {
         };
         let s3gen = S3Gen::new(vb_s3, true)?;
 
+        let vb_s3tok = unsafe {
+            VarBuilder::from_mmaped_safetensors(
+                &[s3tokenizer_path],
+                candle_core::DType::F32,
+                &device,
+            )?
+        };
+        let s3tokenizer_config = crate::s3tokenizer::ModelConfig::default();
+        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(&s3tokenizer_config, vb_s3tok)?;
+
         let tokenizer = Tokenizer::from_file(&tokenizer_path)
             .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
 
         Ok(Self {
-            voice_encoder,
             t3,
             s3gen,
+            s3tokenizer,
             tokenizer,
             device,
         })
     }
 
     /// Generate speech from text and reference audio
-    ///
-    /// # Arguments
-    /// * `text` - Text to synthesize
-    /// * `ref_audio_path` - Path to reference audio file (5+ seconds, WAV)
-    /// * `config` - Generation configuration
-    ///
-    /// # Returns
-    /// Tuple of (audio samples, sample rate)
     pub fn generate_speech(
         &self,
         text: &str,
@@ -249,18 +274,31 @@ impl ChatterboxTurboTTS {
         // Compute mel spectrogram for voice encoder
         let ref_mels = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device)?;
 
-        // Get speaker embedding
-        let spk_emb = self.voice_encoder.forward(&ref_mels)?;
+        // Get speaker embedding (using CAMPPlus via S3Gen)
+        let spk_emb = self.s3gen.campplus.forward(&ref_mels)?;
+
+        // Get semantic tokens for zero-shot conditioning
+        let prompt_tokens = self.s3tokenizer.encode(&ref_mels)?;
 
         // Tokenize text
         let text_tokens = self.tokenize_text(&text)?;
 
         // Generate speech tokens (using config parameters)
-        // TODO: Pass temperature, top_p, top_k, repetition_penalty to T3
-        let speech_tokens = self.t3.generate(&text_tokens, &spk_emb, None, None, 500)?;
+        let speech_tokens = self.t3.generate(
+            &text_tokens,
+            &spk_emb,
+            Some(&prompt_tokens),
+            None,
+            500,
+            config.temperature,
+            config.top_p,
+            config.top_k,
+            config.repetition_penalty,
+            config.seed,
+        )?;
 
         // Generate audio
-        let audio_tensor = self.s3gen.forward(&speech_tokens, None)?;
+        let audio_tensor = self.s3gen.forward(&speech_tokens, Some(&spk_emb))?;
 
         // Convert to samples
         let mut samples = tensor_to_samples(&audio_tensor)?;

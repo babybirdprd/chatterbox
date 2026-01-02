@@ -206,6 +206,7 @@ impl F0Predictor {
 struct SineGen {
     harmonic_num: usize,
     sine_amp: f32,
+    #[allow(dead_code)]
     noise_std: f32,
     sampling_rate: u32,
     voiced_threshold: f32,

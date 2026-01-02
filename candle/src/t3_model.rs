@@ -1,6 +1,6 @@
+use crate::gpt2::{Config as GPT2Config, GPT2Model};
 use candle_core::{IndexOp, Result, Tensor};
 use candle_nn::{Embedding, Linear, Module, VarBuilder};
-use crate::gpt2::{GPT2Model, Config as GPT2Config};
 
 pub struct T3Config {
     pub text_tokens_dict_size: usize,
@@ -45,10 +45,18 @@ pub struct T3CondEnc {
 
 impl T3CondEnc {
     pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
-        let spkr_enc = candle_nn::linear(config.speaker_embed_size, config.hidden_size, vb.pp("spkr_enc"))?;
+        let spkr_enc = candle_nn::linear(
+            config.speaker_embed_size,
+            config.hidden_size,
+            vb.pp("spkr_enc"),
+        )?;
 
         let emotion_adv_fc = if config.emotion_adv {
-            Some(candle_nn::linear_no_bias(1, config.hidden_size, vb.pp("emotion_adv_fc"))?)
+            Some(candle_nn::linear_no_bias(
+                1,
+                config.hidden_size,
+                vb.pp("emotion_adv_fc"),
+            )?)
         } else {
             None
         };
@@ -60,7 +68,12 @@ impl T3CondEnc {
         })
     }
 
-    pub fn forward(&self, spk_emb: &Tensor, cond_prompt_speech_emb: Option<&Tensor>, emotion_adv: Option<&Tensor>) -> Result<Tensor> {
+    pub fn forward(
+        &self,
+        spk_emb: &Tensor,
+        cond_prompt_speech_emb: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+    ) -> Result<Tensor> {
         // spk_emb: (B, E)
         let cond_spkr = self.spkr_enc.forward(spk_emb)?; // (B, H)
         let cond_spkr = cond_spkr.unsqueeze(1)?; // (B, 1, H)
@@ -97,13 +110,17 @@ impl T3CondEnc {
         }
 
         if self.config.emotion_adv {
-             if let Some(emo) = emotion_adv {
+            if let Some(emo) = emotion_adv {
                 // emo: (B, 1, 1) or (B, 1)
                 let emo_proj = self.emotion_adv_fc.as_ref().unwrap().forward(emo)?; // (B, 1, H) or similar
-                // Ensure dims
-                let emo_proj = if emo_proj.rank() == 2 { emo_proj.unsqueeze(1)? } else { emo_proj };
+                                                                                    // Ensure dims
+                let emo_proj = if emo_proj.rank() == 2 {
+                    emo_proj.unsqueeze(1)?
+                } else {
+                    emo_proj
+                };
                 embeds.push(emo_proj);
-             }
+            }
         }
 
         Tensor::cat(&embeds, 1)
@@ -131,26 +148,45 @@ impl T3 {
         };
 
         let gpt2 = GPT2Model::new(gpt2_config, vb.pp("gpt2"))?;
-        let text_emb = candle_nn::embedding(config.text_tokens_dict_size, config.hidden_size, vb.pp("text_emb"))?;
-        let speech_emb = candle_nn::embedding(config.speech_tokens_dict_size, config.hidden_size, vb.pp("speech_emb"))?;
-        let _text_head = candle_nn::linear(config.hidden_size, config.text_tokens_dict_size, vb.pp("text_head"))?;
-        let speech_head = candle_nn::linear(config.hidden_size, config.speech_tokens_dict_size, vb.pp("speech_head"))?;
+        let text_emb = candle_nn::embedding(
+            config.text_tokens_dict_size,
+            config.hidden_size,
+            vb.pp("text_emb"),
+        )?;
+        let speech_emb = candle_nn::embedding(
+            config.speech_tokens_dict_size,
+            config.hidden_size,
+            vb.pp("speech_emb"),
+        )?;
+        let _text_head = candle_nn::linear(
+            config.hidden_size,
+            config.text_tokens_dict_size,
+            vb.pp("text_head"),
+        )?;
+        let speech_head = candle_nn::linear(
+            config.hidden_size,
+            config.speech_tokens_dict_size,
+            vb.pp("speech_head"),
+        )?;
 
         // cond_enc might need config clone
-        let cond_enc = T3CondEnc::new(T3Config {
-             text_tokens_dict_size: config.text_tokens_dict_size,
-             speech_tokens_dict_size: config.speech_tokens_dict_size,
-             hidden_size: config.hidden_size,
-             num_layers: config.num_layers,
-             num_heads: config.num_heads,
-             vocab_size: config.vocab_size,
-             speaker_embed_size: config.speaker_embed_size,
-             start_speech_token: config.start_speech_token,
-             stop_speech_token: config.stop_speech_token,
-             speech_cond_prompt_len: config.speech_cond_prompt_len,
-             use_perceiver_resampler: config.use_perceiver_resampler,
-             emotion_adv: config.emotion_adv,
-        }, vb.pp("cond_enc"))?;
+        let cond_enc = T3CondEnc::new(
+            T3Config {
+                text_tokens_dict_size: config.text_tokens_dict_size,
+                speech_tokens_dict_size: config.speech_tokens_dict_size,
+                hidden_size: config.hidden_size,
+                num_layers: config.num_layers,
+                num_heads: config.num_heads,
+                vocab_size: config.vocab_size,
+                speaker_embed_size: config.speaker_embed_size,
+                start_speech_token: config.start_speech_token,
+                stop_speech_token: config.stop_speech_token,
+                speech_cond_prompt_len: config.speech_cond_prompt_len,
+                use_perceiver_resampler: config.use_perceiver_resampler,
+                emotion_adv: config.emotion_adv,
+            },
+            vb.pp("cond_enc"),
+        )?;
 
         Ok(Self {
             gpt2,
@@ -163,7 +199,14 @@ impl T3 {
         })
     }
 
-    pub fn prepare_input_embeds(&self, text_tokens: &Tensor, speech_tokens: &Tensor, spk_emb: &Tensor, cond_prompt_speech_tokens: Option<&Tensor>, emotion_adv: Option<&Tensor>) -> Result<Tensor> {
+    pub fn prepare_input_embeds(
+        &self,
+        text_tokens: &Tensor,
+        speech_tokens: &Tensor,
+        spk_emb: &Tensor,
+        cond_prompt_speech_tokens: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+    ) -> Result<Tensor> {
         // text_tokens: (B, Lt)
         // speech_tokens: (B, Ls)
         // spk_emb: (B, E)
@@ -175,7 +218,9 @@ impl T3 {
             None
         };
 
-        let cond_emb = self.cond_enc.forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
+        let cond_emb =
+            self.cond_enc
+                .forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
         let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
         let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
 
@@ -184,16 +229,42 @@ impl T3 {
         Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)
     }
 
-    pub fn generate(&self, text_tokens: &Tensor, spk_emb: &Tensor, cond_prompt_speech_tokens: Option<&Tensor>, emotion_adv: Option<&Tensor>, max_gen_len: usize) -> Result<Tensor> {
+    pub fn generate(
+        &self,
+        text_tokens: &Tensor,
+        spk_emb: &Tensor,
+        cond_prompt_speech_tokens: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+        max_gen_len: usize,
+        temperature: f32,
+        top_p: f32,
+        top_k: usize,
+        repetition_penalty: f32,
+        seed: u64,
+    ) -> Result<Tensor> {
         let (b, _lt) = text_tokens.dims2()?;
         let device = text_tokens.device();
 
+        let mut logits_processor = crate::sampling::LogitsProcessor::new(
+            seed,
+            Some(temperature as f64),
+            Some(top_p as f64),
+            Some(top_k),
+        );
+
         // Start with start_speech_token
         let start_token = Tensor::new(&[[self.config.start_speech_token]], device)?; // (1, 1)
-        let mut speech_tokens = start_token.repeat((b, 1))?; // (B, 1)
+        let mut speech_tokens_v = vec![self.config.start_speech_token];
+        let mut speech_tokens_tensor = start_token.repeat((b, 1))?; // (B, 1)
 
         for _ in 0..max_gen_len {
-            let embeds = self.prepare_input_embeds(text_tokens, &speech_tokens, spk_emb, cond_prompt_speech_tokens, emotion_adv)?;
+            let embeds = self.prepare_input_embeds(
+                text_tokens,
+                &speech_tokens_tensor,
+                spk_emb,
+                cond_prompt_speech_tokens,
+                emotion_adv,
+            )?;
 
             // Forward pass
             let hidden_states = self.gpt2.forward_embeds(&embeds)?; // (B, L, H)
@@ -202,19 +273,23 @@ impl T3 {
             let last_hidden = hidden_states.i((.., hidden_states.dim(1)? - 1, ..))?; // (B, H)
             let logits = self.speech_head.forward(&last_hidden)?; // (B, Vocab)
 
-            // Greedy decoding (argmax) for simplicity
-            let next_token = logits.argmax(1)?.unsqueeze(1)?; // (B, 1)
+            // Sample for each batch (assuming B=1 for now as per Python sync inference)
+            let logits_0 = logits.i(0)?;
+            let next_token =
+                logits_processor.sample(&logits_0, &speech_tokens_v, Some(repetition_penalty))?;
+
+            speech_tokens_v.push(next_token);
+            let next_token_tensor = Tensor::new(&[[next_token]], device)?;
 
             // Append
-            speech_tokens = Tensor::cat(&[&speech_tokens, &next_token], 1)?;
+            speech_tokens_tensor = Tensor::cat(&[&speech_tokens_tensor, &next_token_tensor], 1)?;
 
-            // Check EOS (assuming batch size 1 for simplicity of check)
-            let token_scalar: u32 = next_token.i((0,0))?.to_scalar()?;
-            if token_scalar == self.config.stop_speech_token {
+            // Check EOS
+            if next_token == self.config.stop_speech_token {
                 break;
             }
         }
 
-        Ok(speech_tokens)
+        Ok(speech_tokens_tensor)
     }
 }
