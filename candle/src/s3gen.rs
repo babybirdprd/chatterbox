@@ -8,7 +8,7 @@ use crate::modules::{ConformerEncoderLayer, Swish, MultiHeadedAttention};
 struct BasicTransformerBlock {
     norm1: LayerNorm,
     attn1: MultiHeadedAttention,
-    norm2: Option<LayerNorm>, // Used for Cross Attn if implemented (not in this version of simple implementation)
+    _norm2: Option<LayerNorm>, // Used for Cross Attn if implemented (not in this version of simple implementation)
     // attn2: Option<MultiHeadedAttention>, // Cross Attn
     norm3: LayerNorm,
     ff: FeedForward,
@@ -55,7 +55,7 @@ impl BasicTransformerBlock {
         Ok(Self {
             norm1,
             attn1,
-            norm2: None,
+            _norm2: None,
             norm3,
             ff: FeedForward { net },
         })
@@ -121,7 +121,7 @@ struct TimestepEmbedding {
     linear1: Linear,
     linear2: Linear,
     act: Swish,
-    cond_proj: Option<Linear>, // Added for meanflow time mixer or cond proj
+    _cond_proj: Option<Linear>, // Added for meanflow time mixer or cond proj
 }
 
 impl TimestepEmbedding {
@@ -133,7 +133,7 @@ impl TimestepEmbedding {
             linear1,
             linear2,
             act: Swish,
-            cond_proj: None, // Simplified
+            _cond_proj: None, // Simplified
         })
     }
 
@@ -353,7 +353,6 @@ impl UpsampleConformerEncoder {
 pub struct ConditionalDecoder {
     sinusoidal_pos_emb: SinusoidalPosEmb,
     time_embedding: TimestepEmbedding,
-    input_conv: CausalConv1d,
 
     down_blocks: Vec<(CausalResnetBlock1D, Vec<BasicTransformerBlock>, Option<CausalConv1d>)>, // Resnet, Transformers, Downsample
     mid_blocks: Vec<(CausalResnetBlock1D, Vec<BasicTransformerBlock>)>,
@@ -363,7 +362,7 @@ pub struct ConditionalDecoder {
     final_proj: Conv1d,
 
     meanflow: bool,
-    time_mixer: Option<Linear>,
+    _time_mixer: Option<Linear>,
     spk_emb_dim: usize, // New: speaker embedding dimension
 }
 
@@ -381,7 +380,7 @@ impl ConditionalDecoder {
 
         // Adjust input channels to include speaker embedding
         let input_conv_in = in_channels + spk_emb_dim;
-        let _input_conv = CausalConv1d::new(input_conv_in, channels[0], 3, 1, 1, vb.pp("down_blocks.0.0"))?;
+        // let _input_conv = CausalConv1d::new(input_conv_in, channels[0], 3, 1, 1, vb.pp("down_blocks.0.0"))?;
 
         let mut down_blocks = Vec::new();
         // i=0. input=320+80=400, output=256.
@@ -448,14 +447,13 @@ impl ConditionalDecoder {
         Ok(Self {
             sinusoidal_pos_emb,
             time_embedding,
-            input_conv: CausalConv1d::new(1, 1, 1, 1, 1, vb.pp("dummy"))?,
             down_blocks,
             mid_blocks,
             up_blocks,
             final_block,
             final_proj,
             meanflow,
-            time_mixer,
+            _time_mixer: time_mixer,
             spk_emb_dim,
         })
     }
@@ -467,7 +465,7 @@ impl ConditionalDecoder {
         // spks: (B, spk_emb_dim) or (B, spk_emb_dim, 1)
 
         let t_emb = self.sinusoidal_pos_emb.forward(t)?; // (B, time_dim)
-        let mut t_emb = self.time_embedding.forward(&t_emb)?;
+        let t_emb = self.time_embedding.forward(&t_emb)?; // remove mut
 
         if self.meanflow {
              // Logic skipped for simplicity
@@ -559,7 +557,7 @@ impl ConditionalDecoder {
 pub struct CausalConditionalCFM {
     estimator: ConditionalDecoder,
     mel_dim: usize,
-    meanflow: bool,
+    _meanflow: bool,
 }
 
 impl CausalConditionalCFM {
@@ -567,7 +565,7 @@ impl CausalConditionalCFM {
         // in_channels = mel_dim + cond_dim
         let in_channels = mel_dim + cond_dim;
         let estimator = ConditionalDecoder::new(in_channels, mel_dim, spk_emb_dim, vb.pp("estimator"), meanflow)?;
-        Ok(Self { estimator, mel_dim, meanflow })
+        Ok(Self { estimator, mel_dim, _meanflow: meanflow })
     }
 
     pub fn forward(&self, mu: &Tensor, mask: &Tensor, spks: Option<&Tensor>, n_timesteps: usize) -> Result<Tensor> {
