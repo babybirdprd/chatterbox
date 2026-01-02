@@ -43,3 +43,6 @@ You **cannot** generate usable audio files yet. You can:
 3.  Inspect the output Mel Spectrogram tensor shapes.
 
 To enable audio generation, the priority is porting the **Vocoder**.
+
+May need to clone this as well, if needed for reference.
+https://github.com/xingchensong/S3Tokenizer

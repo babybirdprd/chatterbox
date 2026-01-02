@@ -14,11 +14,19 @@ serde_json = "1.0.148"
 byteorder = "1.5.0"
 hf-hub = "0.4.3"
 clap = { version = "4.5.53", features = ["derive"] }
+hound = "3.5"
+rubato = "0.15"
+realfft = "3.4"
+rand = "0.8"
 
 [features]
 cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]
 default = []
 
-[[bin]]
+[lib]
 name = "candle"
+path = "src/lib.rs"
+
+[[bin]]
+name = "chatterbox"
 path = "src/main.rs"
