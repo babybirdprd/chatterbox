@@ -243,7 +243,8 @@ impl SineGen {
 
     fn forward(&self, f0: &Tensor) -> Result<(Tensor, Tensor)> {
         let device = f0.device();
-        let (b, _, _t) = f0.dims3()?;
+        let (b, _, t) = f0.dims3()?;
+        eprintln!("[SineGen::forward] f0 shape: {:?}", f0.dims());
 
         let mut f_mat_slices = Vec::new();
         for i in 0..=self.harmonic_num {
@@ -251,13 +252,34 @@ impl SineGen {
             f_mat_slices.push(f);
         }
         let f_mat = Tensor::cat(&f_mat_slices, 1)?; // (B, H+1, T)
+        eprintln!(
+            "[SineGen::forward] f_mat shape: {:?}, device: {:?}",
+            f_mat.dims(),
+            f_mat.device()
+        );
 
         // theta = 2 * PI * (cumsum(f_mat) % 1)
-        let cumsum = f_mat.cumsum(2)?;
-        let phase = (cumsum.broadcast_sub(&cumsum.floor()?)? * (2.0 * PI as f64))?;
+        eprintln!("[SineGen::forward] starting manual cumsum...");
+        let f_mat_vec = f_mat.to_vec3::<f32>()?;
+        let mut cumsum_data = vec![0.0f32; b * (self.harmonic_num + 1) * t];
+        for b_idx in 0..b {
+            for h_idx in 0..=self.harmonic_num {
+                let mut sum = 0.0;
+                for t_idx in 0..t {
+                    sum += f_mat_vec[b_idx][h_idx][t_idx];
+                    // Keep it normalized to [0, 1] as we go to avoid precision issues
+                    sum %= 1.0;
+                    cumsum_data[b_idx * (self.harmonic_num + 1) * t + h_idx * t + t_idx] = sum;
+                }
+            }
+        }
+        let cumsum = Tensor::from_vec(cumsum_data, f_mat.dims(), device)?;
+        eprintln!("[SineGen::forward] manual cumsum done, phase is already normalized");
+
+        let phase = (cumsum * (2.0 * PI as f64))?;
+        eprintln!("[SineGen::forward] phase done shape: {:?}", phase.dims());
 
         // Random initial phase for harmonics
-        // Note: Python uses Uniform(-PI, PI).
         let rand_shape = (b, self.harmonic_num + 1, 1);
         let mut phase_vec_data = vec![0.0f32; b * (self.harmonic_num + 1)];
         for batch_idx in 0..b {
@@ -267,20 +289,28 @@ impl SineGen {
             }
         }
         let phase_vec = Tensor::from_vec(phase_vec_data, rand_shape, device)?;
+        eprintln!("[SineGen::forward] phase_vec shape: {:?}", phase_vec.dims());
 
         let sine_waves = ((phase.broadcast_add(&phase_vec))?.sin()? * self.sine_amp as f64)?;
+        eprintln!(
+            "[SineGen::forward] sine_waves final shape: {:?}",
+            sine_waves.dims()
+        );
 
         let uv = f0.gt(self.voiced_threshold as f64)?.to_dtype(DType::F32)?;
 
         // noise
         let noise_amp = {
             let voiced_part = (&uv * 0.003/* noise_std */)?;
-            let unvoiced_part = ((1.0 - &uv)? * (self.sine_amp / 3.0) as f64)?;
+            let unvoiced_part = ((Tensor::new(1.0f32, device)?.broadcast_as(uv.dims())? - &uv)?
+                * (self.sine_amp / 3.0) as f64)?;
             (&voiced_part + &unvoiced_part)?
         };
-        let noise = (Tensor::randn(0.0f32, 1.0, sine_waves.dims(), device)? * noise_amp)?;
+        // noise shape [1, 9, T]
+        let noise =
+            (Tensor::randn(0.0f32, 1.0, sine_waves.dims(), device)?.broadcast_mul(&noise_amp))?;
 
-        let sine_waves = ((&sine_waves * &uv.broadcast_as(sine_waves.dims())?)? + &noise)?;
+        let sine_waves = (sine_waves.broadcast_mul(&uv)?.broadcast_add(&noise))?;
 
         Ok((sine_waves, uv))
     }
@@ -505,13 +535,20 @@ impl HiFTGenerator {
         let f0_min = f0_flat.min(0)?.to_vec0::<f32>()?;
         let f0_max = f0_flat.max(0)?.to_vec0::<f32>()?;
         eprintln!(
-            "[HiFTGenerator::inference] f0 min={:.2}, max={:.2}",
-            f0_min, f0_max
+            "[HiFTGenerator::inference] f0 shape: {:?}, min={:.2}, max={:.2}",
+            f0.dims(),
+            f0_min,
+            f0_max
         );
 
         // Upsample F0 to audio rate manually as per Python
         let upsample_factor =
             self.config.upsample_rates.iter().product::<usize>() * self.config.hop_len;
+        eprintln!(
+            "[HiFTGenerator::inference] upsample_factor={}",
+            upsample_factor
+        );
+
         let b = f0.dim(0)?;
         let t = f0.dim(1)?;
         let f0_up = f0.unsqueeze(2)?.repeat((1, 1, upsample_factor))?.reshape((
@@ -519,9 +556,20 @@ impl HiFTGenerator {
             t * upsample_factor,
             1,
         ))?;
+        eprintln!("[HiFTGenerator::inference] f0_up shape: {:?}", f0_up.dims());
 
         let (sine_merge, noise, _uv) = self.source_module.forward(&f0_up)?;
+        eprintln!(
+            "[HiFTGenerator::inference] sine_merge shape: {:?}, noise shape: {:?}",
+            sine_merge.dims(),
+            noise.dims()
+        );
+
         let source = (sine_merge + noise)?;
+        eprintln!(
+            "[HiFTGenerator::inference] source excitation shape: {:?}",
+            source.dims()
+        );
 
         let audio = self.decode(mel, &source)?;
         eprintln!("[HiFTGenerator::inference] END audio={:?}", audio.dims());
@@ -529,17 +577,38 @@ impl HiFTGenerator {
     }
 
     fn decode(&self, mel: &Tensor, source: &Tensor) -> Result<Tensor> {
+        eprintln!(
+            "[HiFTGenerator::decode] START mel={:?}, source={:?}",
+            mel.dims(),
+            source.dims()
+        );
         // source_squeezed: (B, 1, T) -> (B, T)
+        let source_squeezed = source.squeeze(1)?;
+        eprintln!(
+            "[HiFTGenerator::decode] source_squeezed shape: {:?}",
+            source_squeezed.dims()
+        );
+
         let (s_real, s_imag) =
-            simple_stft(&source.squeeze(1)?, self.config.n_fft, self.config.hop_len)?;
+            simple_stft(&source_squeezed, self.config.n_fft, self.config.hop_len)?;
+        eprintln!(
+            "[HiFTGenerator::decode] STFT real={:?}, imag={:?}",
+            s_real.dims(),
+            s_imag.dims()
+        );
+
         let s_stft = Tensor::cat(&[&s_real, &s_imag], 1)?;
+        eprintln!("[HiFTGenerator::decode] s_stft shape: {:?}", s_stft.dims());
 
         let mut x = self.conv_pre.forward(mel)?;
+        eprintln!("[HiFTGenerator::decode] after conv_pre: {:?}", x.dims());
+
         let num_kernels = self.config.resblock_kernel_sizes.len();
 
         for i in 0..self.ups.len() {
             x = candle_nn::ops::leaky_relu(&x, 0.2)?;
             x = self.ups[i].forward(&x)?;
+            eprintln!("[HiFTGenerator::decode] after ups.{}: {:?}", i, x.dims());
 
             // Note: Python has ReflectionPad1d((1, 0)) for last upsample?
             // We'll skip for now if indices match.
@@ -547,6 +616,7 @@ impl HiFTGenerator {
             // Fusion
             let si = self.source_downs[i].forward(&s_stft)?;
             let si = self.source_resblocks[i].forward(&si)?;
+            eprintln!("[HiFTGenerator::decode] fusion si.{}: {:?}", i, si.dims());
 
             // Crop if necessary
             let target_len = x.dim(2)?;
@@ -572,11 +642,17 @@ impl HiFTGenerator {
 
         x = candle_nn::ops::leaky_relu(&x, 0.2)?;
         x = self.conv_post.forward(&x)?;
+        eprintln!("[HiFTGenerator::decode] after conv_post: {:?}", x.dims());
 
         let half = (self.config.n_fft / 2) + 1;
         let magnitude = x.narrow(1, 0, half)?.exp()?;
         let phase = x.narrow(1, half, half)?.sin()?;
 
+        eprintln!(
+            "[HiFTGenerator::decode] calling iSTFT with mag={:?}, phase={:?}",
+            magnitude.dims(),
+            phase.dims()
+        );
         let audio = simple_istft(&magnitude, &phase, self.config.n_fft, self.config.hop_len)?;
         audio.clamp(-0.99f32, 0.99f32)
     }
@@ -587,6 +663,13 @@ fn simple_stft(x: &Tensor, n_fft: usize, hop_len: usize) -> Result<(Tensor, Tens
     use realfft::RealFftPlanner;
     let (b, t) = x.dims2()?;
     let device = x.device();
+    eprintln!(
+        "[simple_stft] x={:?}, n_fft={}, hop_len={}",
+        x.dims(),
+        n_fft,
+        hop_len
+    );
+
     if t < n_fft {
         let n_bins = n_fft / 2 + 1;
         return Ok((
@@ -596,6 +679,16 @@ fn simple_stft(x: &Tensor, n_fft: usize, hop_len: usize) -> Result<(Tensor, Tens
     }
     let n_frames = (t - n_fft) / hop_len + 1;
     let n_bins = n_fft / 2 + 1;
+    eprintln!("[simple_stft] n_frames={}, n_bins={}", n_frames, n_bins);
+
+    // Check for overflow or massive allocation
+    if n_frames > 1_000_000 {
+        return Err(candle_core::Error::Msg(format!(
+            "Too many STFT frames: {}",
+            n_frames
+        )));
+    }
+
     let window: Vec<f32> = (0..n_fft)
         .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / n_fft as f32).cos()))
         .collect();
@@ -614,7 +707,8 @@ fn simple_stft(x: &Tensor, n_fft: usize, hop_len: usize) -> Result<(Tensor, Tens
                 .map(|(s, w)| s * w)
                 .collect();
             let mut spectrum = fft.make_output_vec();
-            fft.process(&mut windowed, &mut spectrum).unwrap();
+            fft.process(&mut windowed, &mut spectrum)
+                .map_err(|e| candle_core::Error::Msg(format!("FFT error: {:?}", e)))?;
             for c in &spectrum {
                 all_real.push(c.re);
                 all_imag.push(c.im);
@@ -638,6 +732,7 @@ fn simple_istft(
     hop_len: usize,
 ) -> Result<Tensor> {
     use realfft::RealFftPlanner;
+    use rustfft::num_complex::Complex;
     let (b, n_bins, n_frames) = magnitude.dims3()?;
     let device = magnitude.device();
     if n_frames == 0 {
@@ -654,18 +749,28 @@ fn simple_istft(
     let mut all_output = Vec::with_capacity(b * out_len);
 
     for batch_idx in 0..b {
+        eprintln!("[simple_istft] processing batch {}/{}", batch_idx + 1, b);
         let mut output = vec![0.0f32; out_len];
         let mut window_sum = vec![0.0f32; out_len];
+
         for frame_idx in 0..n_frames {
-            let mut spectrum: Vec<rustfft::num_complex::Complex<f32>> = (0..n_bins)
-                .map(|bin| {
-                    let mag = mag_data[batch_idx][bin][frame_idx].min(1e2);
-                    let ph = phase_data[batch_idx][bin][frame_idx];
-                    rustfft::num_complex::Complex::new(mag * ph.cos(), mag * ph.sin())
-                })
-                .collect();
+            let mut spectrum = ifft.make_input_vec();
+            for i in 0..n_bins {
+                let mag = mag_data[batch_idx][i][frame_idx].min(1e2);
+                let ph = phase_data[batch_idx][i][frame_idx];
+                let re = mag * ph.cos();
+                let im = if i == 0 || i == n_bins - 1 {
+                    0.0
+                } else {
+                    mag * ph.sin()
+                };
+                spectrum[i] = Complex::new(re, im);
+            }
+
             let mut time_data = ifft.make_output_vec();
-            ifft.process(&mut spectrum, &mut time_data).unwrap();
+            ifft.process(&mut spectrum, &mut time_data)
+                .map_err(|e| candle_core::Error::Msg(format!("FFT error: {:?}", e)))?;
+
             let norm = 1.0 / n_fft as f32;
             let start = frame_idx * hop_len;
             for (i, &sample) in time_data.iter().enumerate() {
@@ -676,6 +781,7 @@ fn simple_istft(
                 }
             }
         }
+
         for i in 0..out_len {
             if window_sum[i] > 1e-8 {
                 output[i] /= window_sum[i];
@@ -683,5 +789,6 @@ fn simple_istft(
             all_output.push(output[i]);
         }
     }
-    Tensor::from_vec(all_output, (b, out_len), device)
+    eprintln!("[simple_istft] final all_output len={}", all_output.len());
+    Tensor::from_vec(all_output, (b, 1, out_len), device)
 }
