@@ -20,6 +20,7 @@ realfft = "3.4"
 rand = "0.8"
 memmap2 = "0.9"
 safetensors = "0.5.2"
+rustfft = "6.4.1"
 
 [features]
 cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]

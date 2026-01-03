@@ -1,7 +1,6 @@
-use candle_core::{Module, Result, Tensor, D};
-use candle_nn::{Activation, BatchNorm, Conv1d, Conv2d, Linear, ModuleT, VarBuilder};
+use candle_core::{Module, Result, Tensor};
+use candle_nn::{Activation, BatchNorm, Conv1d, Conv2d, ModuleT, VarBuilder};
 
-// Helper to create Conv2d without bias (Python uses bias=False)
 fn conv2d_no_bias(
     in_c: usize,
     out_c: usize,
@@ -13,7 +12,6 @@ fn conv2d_no_bias(
     Ok(Conv2d::new(weight, None, cfg))
 }
 
-// Helper to create Conv1d without bias
 fn conv1d_no_bias(
     in_c: usize,
     out_c: usize,
@@ -25,7 +23,6 @@ fn conv1d_no_bias(
     Ok(Conv1d::new(weight, None, cfg))
 }
 
-// Basic 2D ResBlock for FCM
 struct BasicResBlock2D {
     conv1: Conv2d,
     bn1: BatchNorm,
@@ -95,10 +92,9 @@ impl BasicResBlock2D {
     }
 }
 
-// FCM Head
 struct FCM {
-    conv1: Conv2d,
     bn1: BatchNorm,
+    conv1: Conv2d,
     layer1: Vec<BasicResBlock2D>,
     layer2: Vec<BasicResBlock2D>,
     conv2: Conv2d,
@@ -164,8 +160,8 @@ impl FCM {
         let out_channels = m_channels * (feat_dim / 8);
 
         Ok(Self {
-            conv1,
             bn1,
+            conv1,
             layer1,
             layer2,
             conv2,
@@ -175,7 +171,6 @@ impl FCM {
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        // x: (B, 1, F, T)
         let mut x = self.bn1.forward_t(&self.conv1.forward(x)?, false)?.relu()?;
         for block in &self.layer1 {
             x = block.forward(&x)?;
@@ -187,13 +182,11 @@ impl FCM {
             .bn2
             .forward_t(&self.conv2.forward(&x)?, false)?
             .relu()?;
-
         let (b, c, f, t) = x.dims4()?;
         x.reshape((b, c * f, t))
     }
 }
 
-// TDNN Layer
 struct TDNNLayer {
     conv: Conv1d,
     bn: BatchNorm,
@@ -216,7 +209,7 @@ impl TDNNLayer {
             stride,
             ..Default::default()
         };
-        let conv = conv1d_no_bias(in_c, out_c, k, conv_cfg, vb.pp("linear"))?; // PyTorch CAMpplus uses Conv1d with bias=False
+        let conv = conv1d_no_bias(in_c, out_c, k, conv_cfg, vb.pp("linear"))?;
         let bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("nonlinear.batchnorm"))?;
         Ok(Self {
             conv,
@@ -232,7 +225,6 @@ impl TDNNLayer {
     }
 }
 
-// CAM Layer (Attention-based context pooling)
 struct CAMLayer {
     linear_local: Conv1d,
     linear1: Conv1d,
@@ -382,10 +374,6 @@ impl TransitLayer {
     }
 }
 
-// DenseLayer: Conv1d(k=1) only - Python uses non-affine batchnorm (affine=False)
-// which has no weight/bias params. At inference time with training=False,
-// a non-affine batchnorm just applies running mean/var normalization.
-// For simplicity, we skip it here since it's just normalization without learnable params.
 struct DenseLayer {
     linear: Conv1d,
 }
@@ -397,10 +385,9 @@ impl DenseLayer {
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        // x: (B, C) - need to add dim for conv1d
-        let x = x.unsqueeze(2)?; // (B, C, 1)
+        let x = x.unsqueeze(2)?;
         let x = self.linear.forward(&x)?;
-        x.squeeze(2) // Back to (B, C)
+        x.squeeze(2)
     }
 }
 
@@ -410,34 +397,27 @@ pub struct CAMPPlus {
     blocks: Vec<(CAMDenseTDNNBlock, TransitLayer)>,
     final_bn: BatchNorm,
     final_dense: DenseLayer,
-    _embedding_size: usize,
 }
 
 impl CAMPPlus {
     pub fn new(feat_dim: usize, embedding_size: usize, vb: VarBuilder) -> Result<Self> {
-        let m_channels = 32;
-        let head = FCM::new(m_channels, feat_dim, vb.pp("head"))?;
+        let head = FCM::new(32, feat_dim, vb.pp("head"))?;
         let mut channels = head.out_channels;
-
         let tdnn = TDNNLayer::new(channels, 128, 5, 1, 2, vb.pp("xvector.tdnn"))?;
         channels = 128;
-
         let mut blocks = Vec::new();
         let configs = vec![(12, 3, 1), (24, 3, 2), (16, 3, 2)];
-        let growth_rate = 32;
-        let bn_size = 4;
-
         for (i, (num_layers, k, dilation)) in configs.into_iter().enumerate() {
             let block = CAMDenseTDNNBlock::new(
                 num_layers,
                 channels,
-                growth_rate,
-                bn_size * growth_rate,
+                32,
+                4 * 32,
                 k,
                 dilation,
                 vb.pp(format!("xvector.block{}", i + 1)),
             )?;
-            channels += num_layers * growth_rate;
+            channels += num_layers * 32;
             let transit = TransitLayer::new(
                 channels,
                 channels / 2,
@@ -446,18 +426,15 @@ impl CAMPPlus {
             channels /= 2;
             blocks.push((block, transit));
         }
-
         let final_bn =
             candle_nn::batch_norm(channels, 1e-5, vb.pp("xvector.out_nonlinear.batchnorm"))?;
         let final_dense = DenseLayer::new(channels * 2, embedding_size, vb.pp("xvector.dense"))?;
-
         Ok(Self {
             head,
             tdnn,
             blocks,
             final_bn,
             final_dense,
-            _embedding_size: embedding_size,
         })
     }
 
@@ -465,12 +442,10 @@ impl CAMPPlus {
         let x = x.transpose(1, 2)?.unsqueeze(1)?;
         let mut x = self.head.forward(&x)?;
         x = self.tdnn.forward(&x)?;
-
         for (block, transit) in &self.blocks {
             x = block.forward(&x)?;
             x = transit.forward(&x)?;
         }
-
         x = self.final_bn.forward_t(&x, false)?.relu()?;
         let mean = x.mean_keepdim(2)?.squeeze(2)?;
         let (_b, _c, t) = x.dims3()?;
@@ -478,7 +453,6 @@ impl CAMPPlus {
         let std = (centered.sqr()?.sum_keepdim(2)? / (t as f64 - 1.0))?
             .sqrt()?
             .squeeze(2)?;
-
         let stats = Tensor::cat(&[&mean, &std], 1)?;
         self.final_dense.forward(&stats)
     }

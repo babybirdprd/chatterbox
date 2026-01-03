@@ -1,4 +1,4 @@
-use candle_core::{DType, IndexOp, Result, Tensor, Module};
+use candle_core::{DType, IndexOp, Module, Result, Tensor};
 use candle_nn::{Activation, Embedding, LayerNorm, Linear, VarBuilder};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -90,9 +90,9 @@ impl Attention {
         let qkv = self.c_attn.forward(x)?;
         let qkv = qkv.reshape((b, t, 3, self.n_head, c / self.n_head))?;
         let qkv = qkv.permute((2, 0, 3, 1, 4))?;
-        let q = qkv.i(0)?;
-        let k = qkv.i(1)?;
-        let v = qkv.i(2)?;
+        let q = qkv.i(0)?.contiguous()?;
+        let k = qkv.i(1)?.contiguous()?;
+        let v = qkv.i(2)?.contiguous()?;
 
         let k_t = k.transpose(2, 3)?;
         let mut att = (q.matmul(&k_t)? / (c as f64 / self.n_head as f64).sqrt())?;
@@ -188,8 +188,13 @@ impl GPT2Model {
         let mask = mask_indexes_row.ge(&mask_indexes_col)?;
 
         let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(DType::F32)?;
-        let mask = ((mask - 1.0)? * 1e9)?;
+        let mask = mask.to_dtype(hidden_states.dtype())?;
+        let wide_mask_val = if hidden_states.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
 
         for block in &self.h {
             hidden_states = block.forward(&hidden_states, Some(&mask))?;
@@ -212,8 +217,13 @@ impl GPT2Model {
         let mask = mask_indexes_row.ge(&mask_indexes_col)?;
 
         let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(DType::F32)?;
-        let mask = ((mask - 1.0)? * 1e9)?;
+        let mask = mask.to_dtype(inputs_embeds.dtype())?;
+        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
 
         for block in &self.h {
             hidden_states = block.forward(&hidden_states, Some(&mask))?;

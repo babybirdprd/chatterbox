@@ -1,6 +1,0 @@
-    Finished `release` profile [optimized] target(s) in 0.71s
-     Running `target\release\examples\generate.exe --text "Testing after mu projection fix." --ref-audio reference.wav`
-Using CPU...
-Loading Chatterbox Turbo model...
-Error: shape mismatch for flow.decoder.estimator.time_mlp.linear_1.weight, expected: [1024, 160], got: [1024, 320]
-error: process didn't exit successfully: `target\release\examples\generate.exe --text "Testing after mu projection fix." --ref-audio reference.wav` (exit code: 1)
