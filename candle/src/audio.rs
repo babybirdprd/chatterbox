@@ -190,7 +190,7 @@ pub fn compute_mel_spectrogram(
                 sum += weight * mag_frame[i];
             }
             // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
-            mel_spec[t][m] = (sum.max(1e-5)).ln();
+            mel_spec[t][m] = sum.max(1e-5);
         }
     }
 

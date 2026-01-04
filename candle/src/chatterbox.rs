@@ -127,10 +127,20 @@ impl ChatterboxTTS {
             &audio::MelConfig::for_24k(80),
         )?;
 
-        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
-        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
         let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
-        let spk_emb_80 = self.s3gen.campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)?;
+
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
 
         // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
         let prompt_tokens = {
@@ -330,14 +340,22 @@ impl ChatterboxTurboTTS {
         )?;
         eprintln!("[generate_speech] mel_80 (24k): {:?}", mel_80_24k.dims());
 
-        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
-        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
         let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
 
         eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
         eprintln!("[generate_speech] Running CAMPPlus...");
-        // CAMPPlus should probably use 24kHz mel as it's part of S3Gen
-        let spk_emb_80 = self.s3gen.campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)?;
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
         eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
         // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)

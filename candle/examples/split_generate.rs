@@ -3,6 +3,19 @@ use candle_nn::VarBuilder;
 use hf_hub::api::sync::Api;
 use tokenizers::Tokenizer;
 
+fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
+    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
+    let mel = mel.clamp(1e-10, f32::MAX)?;
+    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
+
+    // Dynamic range compression
+    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
+    let log_mel = log_mel.maximum(max_val - 8.0)?;
+
+    let result = ((log_mel + 4.0)? / 4.0)?;
+    Ok(result)
+}
+
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
     let text = args
@@ -89,7 +102,7 @@ fn main() -> anyhow::Result<()> {
         ref_samples.clone()
     };
 
-    // VoiceEncoder (T3) needs 40 Mel bins at 16kHz
+    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
     let config_16k_40 = candle::audio::MelConfig {
         n_fft: 1024,
         hop_length: 160,
@@ -97,30 +110,29 @@ fn main() -> anyhow::Result<()> {
         n_mels: 40,
         fmax: 8000.0,
     };
-    let mel_40 = candle::audio::compute_mel_spectrogram(
+    let mel_40_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
         &config_16k_40,
     )?;
 
-    // S3Tokenizer needs 80 Mel bins at 16kHz
-    let mel_80_16k = candle::audio::compute_mel_spectrogram(
+    let mel_80_16k_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
         &candle::audio::MelConfig::for_16k(),
     )?;
 
-    // CAMPPlus & S3Gen need 80 Mel bins at 24kHz
-    let mel_80_24k = candle::audio::compute_mel_spectrogram(
+    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_24k,
         candle::audio::S3GEN_SR,
         &device,
         &candle::audio::MelConfig::for_24k(80),
     )?;
 
-    // STEP 3: S3 Prompt Tokens (Needs 80 mel padded to 128)
+    // --- STEP 3: S3 Prompt Tokens ---
+    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_80_16k_linear)?;
     let speech_prompt_tokens = {
         let vb = unsafe {
             VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
@@ -129,12 +141,12 @@ fn main() -> anyhow::Result<()> {
             &candle::s3tokenizer::ModelConfig::default(),
             vb,
         )?;
-        let (b, c, t) = mel_80_16k.dims3()?;
+        let (b, c, t) = mel_for_tokenizer.dims3()?;
         let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_80_16k, &padding], 1)?)?
+        s3tok.encode(&Tensor::cat(&[&mel_for_tokenizer, &padding], 1)?)?
     };
 
-    // STEP 4: T3 Embedding (Needs 40 mel)
+    // --- STEP 4: T3 Embedding (Voice Encoder) ---
     println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
     let spk_emb_256 = {
         let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
@@ -142,17 +154,24 @@ fn main() -> anyhow::Result<()> {
             candle::voice_encoder::VoiceEncoderConfig::default(),
             vb,
         )?;
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
+        let mel_40_power = mel_40_linear.sqr()?;
         // VoiceEncoder expects (B, T, 40)
-        ve.forward(&mel_40.transpose(1, 2)?)?
+        ve.forward(&mel_40_power.transpose(1, 2)?)?
     };
 
-    // STEP 5: S3Gen Embedding (Needs 80 mel)
+    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
     println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
+    // CAMPPlus expects Mean-Normalized Log-Mel
+    let mel_80_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+    let mean = mel_80_log.mean_keepdim(2)?;
+    let mel_for_campplus = mel_80_log.broadcast_sub(&mean)?;
+
     let spk_emb_80 = {
         let vb =
             unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
         let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
-        campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)? // Use 24k mel
+        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
     };
 
     // STEP 6: T3 Generation
@@ -191,17 +210,61 @@ fn main() -> anyhow::Result<()> {
 
     // STEP 7: Synthesis
     println!("\n[Step 7/6] Synthesizing audio...");
+
+    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
     let speech_tokens_filtered = {
         let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-        let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t != 6562).collect();
+        let filtered: Vec<u32> = tokens
+            .into_iter()
+            .filter(|&t| t != 6561 && t != 6562)
+            .collect();
         Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
     };
+
+    // Concatenate prompt tokens + generated tokens
+    // Note: speech_prompt_tokens was calculated in Step 3.
+    // We assume speech_prompt_tokens is (1, N_PROMPT).
+    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
+    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
 
     let audio_tensor = {
         let vb =
             unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
         let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
-        s3gen.forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?
+
+        // 2. Prepare Reference Mel for Conditioning
+        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
+        // mel_80_24k_linear is (1, 80, T_ref)
+        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+
+        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
+        // The S3Gen Encoder upsamples tokens by 2x.
+        // So output length = input_tokens_len * 2.
+        let (_, n_toks) = s3_input_tokens.dims2()?;
+        let target_len = n_toks * 2;
+        let (b, c, ref_len) = ref_mel_log.dims3()?;
+
+        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
+        let safe_ref_len = ref_len.min(target_len);
+        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
+
+        // Create padding
+        let padding_len = target_len - safe_ref_len;
+        let cond = if padding_len > 0 {
+            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
+            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
+        } else {
+            ref_mel_log_trimmed
+        };
+
+        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
+
+        // 4. Forward with corrected inputs
+        s3gen.forward(
+            &s3_input_tokens,
+            Some(&spk_emb_80),
+            Some(&cond), // Pass the time-aligned conditioning, not the mean!
+        )?
     };
 
     let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;

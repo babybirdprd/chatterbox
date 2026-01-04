@@ -49,9 +49,7 @@ candle/examples/split_generate.rs
 candle/examples/test_vocoder.rs
 candle/examples/verify_shapes.rs
 candle/examples/verify_weights.rs
-candle/extract_debug.py
-candle/run_output_final_2.txt
-candle/run_output_final.txt
+candle/output.txt
 candle/src/audio.rs
 candle/src/campplus.rs
 candle/src/chatterbox.rs
@@ -134,130 +132,319 @@ src/chatterbox/vc.py
 <files>
 This section contains the contents of the repository's files.
 
-<file path="candle/run_output_final_2.txt">
-Compiling candle v0.1.0 (D:\chatterbox-rs\candle)
-</file>
-
-<file path="candle/run_output_final.txt">
-Compiling candle v0.1.0 (D:\chatterbox-rs\candle)
-    Finished `release` profile [optimized] target(s) in 42.26s
-     Running `target\release\examples\split_generate.exe --text "Hello world this is a test of the turbo model." --output test_turbo_fix.wav --cuda --t3-cuda --fp16`
+<file path="candle/output.txt">
 Downloading model files...
+[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
+[DEBUG] Keys in t3_turbo_v1.safetensors:
+  cond_enc.spkr_enc.bias
+  cond_enc.spkr_enc.weight
+  speech_emb.weight
+  speech_head.bias
+  speech_head.weight
+  text_emb.weight
+  text_head.weight
+  tfmr.h.0.attn.c_attn.bias
+  tfmr.h.0.attn.c_attn.weight
+  tfmr.h.0.attn.c_proj.bias
+  tfmr.h.0.attn.c_proj.weight
+  tfmr.h.0.ln_1.bias
+  tfmr.h.0.ln_1.weight
+  tfmr.h.0.ln_2.bias
+  tfmr.h.0.ln_2.weight
+  tfmr.h.0.mlp.c_fc.bias
+  tfmr.h.0.mlp.c_fc.weight
+  tfmr.h.0.mlp.c_proj.bias
+  tfmr.h.0.mlp.c_proj.weight
+  tfmr.h.1.attn.c_attn.bias
+  tfmr.h.1.attn.c_attn.weight
+  tfmr.h.1.attn.c_proj.bias
+  tfmr.h.1.attn.c_proj.weight
+  tfmr.h.1.ln_1.bias
+  tfmr.h.1.ln_1.weight
+  tfmr.h.1.ln_2.bias
+  tfmr.h.1.ln_2.weight
+  tfmr.h.1.mlp.c_fc.bias
+  tfmr.h.1.mlp.c_fc.weight
+  tfmr.h.1.mlp.c_proj.bias
+  tfmr.h.1.mlp.c_proj.weight
+  tfmr.h.10.attn.c_attn.bias
+  tfmr.h.10.attn.c_attn.weight
+  tfmr.h.10.attn.c_proj.bias
+  tfmr.h.10.attn.c_proj.weight
+  tfmr.h.10.ln_1.bias
+  tfmr.h.10.ln_1.weight
+  tfmr.h.10.ln_2.bias
+  tfmr.h.10.ln_2.weight
+  tfmr.h.10.mlp.c_fc.bias
+  tfmr.h.10.mlp.c_fc.weight
+  tfmr.h.10.mlp.c_proj.bias
+  tfmr.h.10.mlp.c_proj.weight
+  tfmr.h.11.attn.c_attn.bias
+  tfmr.h.11.attn.c_attn.weight
+  tfmr.h.11.attn.c_proj.bias
+  tfmr.h.11.attn.c_proj.weight
+  tfmr.h.11.ln_1.bias
+  tfmr.h.11.ln_1.weight
+  tfmr.h.11.ln_2.bias
+  tfmr.h.11.ln_2.weight
+  tfmr.h.11.mlp.c_fc.bias
+  tfmr.h.11.mlp.c_fc.weight
+  tfmr.h.11.mlp.c_proj.bias
+  tfmr.h.11.mlp.c_proj.weight
+  tfmr.h.12.attn.c_attn.bias
+  tfmr.h.12.attn.c_attn.weight
+  tfmr.h.12.attn.c_proj.bias
+  tfmr.h.12.attn.c_proj.weight
+  tfmr.h.12.ln_1.bias
+  tfmr.h.12.ln_1.weight
+  tfmr.h.12.ln_2.bias
+  tfmr.h.12.ln_2.weight
+  tfmr.h.12.mlp.c_fc.bias
+  tfmr.h.12.mlp.c_fc.weight
+  tfmr.h.12.mlp.c_proj.bias
+  tfmr.h.12.mlp.c_proj.weight
+  tfmr.h.13.attn.c_attn.bias
+  tfmr.h.13.attn.c_attn.weight
+  tfmr.h.13.attn.c_proj.bias
+  tfmr.h.13.attn.c_proj.weight
+  tfmr.h.13.ln_1.bias
+  tfmr.h.13.ln_1.weight
+  tfmr.h.13.ln_2.bias
+  tfmr.h.13.ln_2.weight
+  tfmr.h.13.mlp.c_fc.bias
+  tfmr.h.13.mlp.c_fc.weight
+  tfmr.h.13.mlp.c_proj.bias
+  tfmr.h.13.mlp.c_proj.weight
+  tfmr.h.14.attn.c_attn.bias
+  tfmr.h.14.attn.c_attn.weight
+  tfmr.h.14.attn.c_proj.bias
+  tfmr.h.14.attn.c_proj.weight
+  tfmr.h.14.ln_1.bias
+  tfmr.h.14.ln_1.weight
+  tfmr.h.14.ln_2.bias
+  tfmr.h.14.ln_2.weight
+  tfmr.h.14.mlp.c_fc.bias
+  tfmr.h.14.mlp.c_fc.weight
+  tfmr.h.14.mlp.c_proj.bias
+  tfmr.h.14.mlp.c_proj.weight
+  tfmr.h.15.attn.c_attn.bias
+  tfmr.h.15.attn.c_attn.weight
+  tfmr.h.15.attn.c_proj.bias
+  tfmr.h.15.attn.c_proj.weight
+  tfmr.h.15.ln_1.bias
+  tfmr.h.15.ln_1.weight
+  tfmr.h.15.ln_2.bias
+  tfmr.h.15.ln_2.weight
+  tfmr.h.15.mlp.c_fc.bias
+  tfmr.h.15.mlp.c_fc.weight
+  tfmr.h.15.mlp.c_proj.bias
+  tfmr.h.15.mlp.c_proj.weight
+  tfmr.h.16.attn.c_attn.bias
+  tfmr.h.16.attn.c_attn.weight
+  tfmr.h.16.attn.c_proj.bias
+  tfmr.h.16.attn.c_proj.weight
+  tfmr.h.16.ln_1.bias
+  tfmr.h.16.ln_1.weight
+  tfmr.h.16.ln_2.bias
+  tfmr.h.16.ln_2.weight
+  tfmr.h.16.mlp.c_fc.bias
+  tfmr.h.16.mlp.c_fc.weight
+  tfmr.h.16.mlp.c_proj.bias
+  tfmr.h.16.mlp.c_proj.weight
+  tfmr.h.17.attn.c_attn.bias
+  tfmr.h.17.attn.c_attn.weight
+  tfmr.h.17.attn.c_proj.bias
+  tfmr.h.17.attn.c_proj.weight
+  tfmr.h.17.ln_1.bias
+  tfmr.h.17.ln_1.weight
+  tfmr.h.17.ln_2.bias
+  tfmr.h.17.ln_2.weight
+  tfmr.h.17.mlp.c_fc.bias
+  tfmr.h.17.mlp.c_fc.weight
+  tfmr.h.17.mlp.c_proj.bias
+  tfmr.h.17.mlp.c_proj.weight
+  tfmr.h.18.attn.c_attn.bias
+  tfmr.h.18.attn.c_attn.weight
+  tfmr.h.18.attn.c_proj.bias
+  tfmr.h.18.attn.c_proj.weight
+  tfmr.h.18.ln_1.bias
+  tfmr.h.18.ln_1.weight
+  tfmr.h.18.ln_2.bias
+  tfmr.h.18.ln_2.weight
+  tfmr.h.18.mlp.c_fc.bias
+  tfmr.h.18.mlp.c_fc.weight
+  tfmr.h.18.mlp.c_proj.bias
+  tfmr.h.18.mlp.c_proj.weight
+  tfmr.h.19.attn.c_attn.bias
+  tfmr.h.19.attn.c_attn.weight
+  tfmr.h.19.attn.c_proj.bias
+  tfmr.h.19.attn.c_proj.weight
+  tfmr.h.19.ln_1.bias
+  tfmr.h.19.ln_1.weight
+  tfmr.h.19.ln_2.bias
+  tfmr.h.19.ln_2.weight
+  tfmr.h.19.mlp.c_fc.bias
+  tfmr.h.19.mlp.c_fc.weight
+  tfmr.h.19.mlp.c_proj.bias
+  tfmr.h.19.mlp.c_proj.weight
+  tfmr.h.2.attn.c_attn.bias
+  tfmr.h.2.attn.c_attn.weight
+  tfmr.h.2.attn.c_proj.bias
+  tfmr.h.2.attn.c_proj.weight
+  tfmr.h.2.ln_1.bias
+  tfmr.h.2.ln_1.weight
+  tfmr.h.2.ln_2.bias
+  tfmr.h.2.ln_2.weight
+  tfmr.h.2.mlp.c_fc.bias
+  tfmr.h.2.mlp.c_fc.weight
+  tfmr.h.2.mlp.c_proj.bias
+  tfmr.h.2.mlp.c_proj.weight
+  tfmr.h.20.attn.c_attn.bias
+  tfmr.h.20.attn.c_attn.weight
+  tfmr.h.20.attn.c_proj.bias
+  tfmr.h.20.attn.c_proj.weight
+  tfmr.h.20.ln_1.bias
+  tfmr.h.20.ln_1.weight
+  tfmr.h.20.ln_2.bias
+  tfmr.h.20.ln_2.weight
+  tfmr.h.20.mlp.c_fc.bias
+  tfmr.h.20.mlp.c_fc.weight
+  tfmr.h.20.mlp.c_proj.bias
+  tfmr.h.20.mlp.c_proj.weight
+  tfmr.h.21.attn.c_attn.bias
+  tfmr.h.21.attn.c_attn.weight
+  tfmr.h.21.attn.c_proj.bias
+  tfmr.h.21.attn.c_proj.weight
+  tfmr.h.21.ln_1.bias
+  tfmr.h.21.ln_1.weight
+  tfmr.h.21.ln_2.bias
+  tfmr.h.21.ln_2.weight
+  tfmr.h.21.mlp.c_fc.bias
+  tfmr.h.21.mlp.c_fc.weight
+  tfmr.h.21.mlp.c_proj.bias
+  tfmr.h.21.mlp.c_proj.weight
+  tfmr.h.22.attn.c_attn.bias
+  tfmr.h.22.attn.c_attn.weight
+  tfmr.h.22.attn.c_proj.bias
+  tfmr.h.22.attn.c_proj.weight
+  tfmr.h.22.ln_1.bias
+  tfmr.h.22.ln_1.weight
+  tfmr.h.22.ln_2.bias
+  tfmr.h.22.ln_2.weight
+  tfmr.h.22.mlp.c_fc.bias
+  tfmr.h.22.mlp.c_fc.weight
+  tfmr.h.22.mlp.c_proj.bias
+  tfmr.h.22.mlp.c_proj.weight
+  tfmr.h.23.attn.c_attn.bias
+  tfmr.h.23.attn.c_attn.weight
+  tfmr.h.23.attn.c_proj.bias
+  tfmr.h.23.attn.c_proj.weight
+  tfmr.h.23.ln_1.bias
+  tfmr.h.23.ln_1.weight
+  tfmr.h.23.ln_2.bias
+  tfmr.h.23.ln_2.weight
+  tfmr.h.23.mlp.c_fc.bias
+  tfmr.h.23.mlp.c_fc.weight
+  tfmr.h.23.mlp.c_proj.bias
+  tfmr.h.23.mlp.c_proj.weight
+  tfmr.h.3.attn.c_attn.bias
+  tfmr.h.3.attn.c_attn.weight
+  tfmr.h.3.attn.c_proj.bias
+  tfmr.h.3.attn.c_proj.weight
+  tfmr.h.3.ln_1.bias
+  tfmr.h.3.ln_1.weight
+  tfmr.h.3.ln_2.bias
+  tfmr.h.3.ln_2.weight
+  tfmr.h.3.mlp.c_fc.bias
+  tfmr.h.3.mlp.c_fc.weight
+  tfmr.h.3.mlp.c_proj.bias
+  tfmr.h.3.mlp.c_proj.weight
+  tfmr.h.4.attn.c_attn.bias
+  tfmr.h.4.attn.c_attn.weight
+  tfmr.h.4.attn.c_proj.bias
+  tfmr.h.4.attn.c_proj.weight
+  tfmr.h.4.ln_1.bias
+  tfmr.h.4.ln_1.weight
+  tfmr.h.4.ln_2.bias
+  tfmr.h.4.ln_2.weight
+  tfmr.h.4.mlp.c_fc.bias
+  tfmr.h.4.mlp.c_fc.weight
+  tfmr.h.4.mlp.c_proj.bias
+  tfmr.h.4.mlp.c_proj.weight
+  tfmr.h.5.attn.c_attn.bias
+  tfmr.h.5.attn.c_attn.weight
+  tfmr.h.5.attn.c_proj.bias
+  tfmr.h.5.attn.c_proj.weight
+  tfmr.h.5.ln_1.bias
+  tfmr.h.5.ln_1.weight
+  tfmr.h.5.ln_2.bias
+  tfmr.h.5.ln_2.weight
+  tfmr.h.5.mlp.c_fc.bias
+  tfmr.h.5.mlp.c_fc.weight
+  tfmr.h.5.mlp.c_proj.bias
+  tfmr.h.5.mlp.c_proj.weight
+  tfmr.h.6.attn.c_attn.bias
+  tfmr.h.6.attn.c_attn.weight
+  tfmr.h.6.attn.c_proj.bias
+  tfmr.h.6.attn.c_proj.weight
+  tfmr.h.6.ln_1.bias
+  tfmr.h.6.ln_1.weight
+  tfmr.h.6.ln_2.bias
+  tfmr.h.6.ln_2.weight
+  tfmr.h.6.mlp.c_fc.bias
+  tfmr.h.6.mlp.c_fc.weight
+  tfmr.h.6.mlp.c_proj.bias
+  tfmr.h.6.mlp.c_proj.weight
+  tfmr.h.7.attn.c_attn.bias
+  tfmr.h.7.attn.c_attn.weight
+  tfmr.h.7.attn.c_proj.bias
+  tfmr.h.7.attn.c_proj.weight
+  tfmr.h.7.ln_1.bias
+  tfmr.h.7.ln_1.weight
+  tfmr.h.7.ln_2.bias
+  tfmr.h.7.ln_2.weight
+  tfmr.h.7.mlp.c_fc.bias
+  tfmr.h.7.mlp.c_fc.weight
+  tfmr.h.7.mlp.c_proj.bias
+  tfmr.h.7.mlp.c_proj.weight
+  tfmr.h.8.attn.c_attn.bias
+  tfmr.h.8.attn.c_attn.weight
+  tfmr.h.8.attn.c_proj.bias
+  tfmr.h.8.attn.c_proj.weight
+  tfmr.h.8.ln_1.bias
+  tfmr.h.8.ln_1.weight
+  tfmr.h.8.ln_2.bias
+  tfmr.h.8.ln_2.weight
+  tfmr.h.8.mlp.c_fc.bias
+  tfmr.h.8.mlp.c_fc.weight
+  tfmr.h.8.mlp.c_proj.bias
+  tfmr.h.8.mlp.c_proj.weight
+  tfmr.h.9.attn.c_attn.bias
+  tfmr.h.9.attn.c_attn.weight
+  tfmr.h.9.attn.c_proj.bias
+  tfmr.h.9.attn.c_proj.weight
+  tfmr.h.9.ln_1.bias
+  tfmr.h.9.ln_1.weight
+  tfmr.h.9.ln_2.bias
+  tfmr.h.9.ln_2.weight
+  tfmr.h.9.mlp.c_fc.bias
+  tfmr.h.9.mlp.c_fc.weight
+  tfmr.h.9.mlp.c_proj.bias
+  tfmr.h.9.mlp.c_proj.weight
+  tfmr.ln_f.bias
+  tfmr.ln_f.weight
+  tfmr.wpe.weight
+  tfmr.wte.weight
 
 [Step 4/6] Extracting speaker embedding with VoiceEncoder...
-[VoiceEncoder] input mels: b=1, t=951, m=40
-[VoiceEncoder] LSTM layer 0: creating zeros (b=1, h=256)
-[VoiceEncoder] LSTM layer 0: stacking 951 outputs
-[VoiceEncoder] LSTM layer 0: hidden_states: [1, 951, 256]
-[VoiceEncoder] LSTM layer 1: creating zeros (b=1, h=256)
-[VoiceEncoder] LSTM layer 1: stacking 951 outputs
-[VoiceEncoder] LSTM layer 1: hidden_states: [1, 951, 256]
-[VoiceEncoder] LSTM layer 2: creating zeros (b=1, h=256)
-[VoiceEncoder] LSTM layer 2: stacking 951 outputs
-[VoiceEncoder] LSTM layer 2: hidden_states: [1, 951, 256]
 [Step 5/6] Extracting synthesis embedding with CAMPPlus...
 
 [Step 6/6] Generating tokens with T3...
-[T3] Generating token 0/500...
-[T3] Generating token 10/500...
-[T3] Generating token 20/500...
-[T3] Generating token 30/500...
-[T3] Generating token 40/500...
-[T3] Generating token 50/500...
-[T3] Generating token 60/500...
-[T3] Generating token 70/500...
-[T3] Generating token 80/500...
-[T3] Generating token 90/500...
-[T3] Generating token 100/500...
-[T3] Generating token 110/500...
-[T3] Generating token 120/500...
-[T3] Generating token 130/500...
-[T3] Generating token 140/500...
-[T3] Generating token 150/500...
-[T3] Generating token 160/500...
 
 [Step 7/6] Synthesizing audio...
-[HiFTGenerator::new] START loading from mel2wav
-[HiFTGenerator::new] in_ch=80, base_ch=512, n_fft=16
-[HiFTGenerator::new] f0_predictor loaded
-[HiFTGenerator::new] source_downs.0 loaded (ch=256, k=30, u=15)
-[HiFTGenerator::new] source_resblocks.0 loaded
-[HiFTGenerator::new] source_downs.1 loaded (ch=128, k=6, u=3)
-[HiFTGenerator::new] source_resblocks.1 loaded
-[HiFTGenerator::new] source_downs.2 loaded (ch=64, k=1, u=1)
-[HiFTGenerator::new] source_resblocks.2 loaded
-[S3Gen] HiFTGenerator (mel2wav) loaded successfully
-[S3Gen::forward] speech_tokens: [1, 166]
-[S3Gen::forward] embeds: [1, 166, 512]
-Error: matmul is only supported for contiguous tensors lstride: Layout { shape: [1, 8, 166, 64], stride: [84992, 10624, 64, 1], start_offset: 0 } rstride: Layout { shape: [1, 8, 64, 166], stride: [84992, 64, 1, 512], start_offset: 0 } mnk: (166, 166, 64)
-   0: std::backtrace_rs::backtrace::win64::trace
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\..\..\backtrace\src\backtrace\win64.rs:85
-   1: std::backtrace_rs::backtrace::trace_unsynchronized
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\..\..\backtrace\src\backtrace\mod.rs:66
-   2: std::backtrace::Backtrace::create
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\backtrace.rs:331
-   3: std::backtrace::Backtrace::capture
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\backtrace.rs:296
-   4: candle_core::error::Error::bt
-   5: <candle_core::cuda_backend::CudaStorage as candle_core::backend::BackendStorage>::matmul
-   6: candle_core::storage::Storage::matmul
-   7: candle_core::tensor::Tensor::matmul
-   8: candle::voice_encoder::VoiceEncoder::forward
-   9: candle::s3gen::UpsampleConformerEncoder::forward
-  10: candle::s3gen::S3Gen::forward
-  11: split_generate::main
-  12: std::sys::backtrace::__rust_begin_short_backtrace
-  13: std::rt::lang_start::{{closure}}
-  14: std::rt::lang_start_internal::closure$0
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\rt.rs:175
-  15: std::panicking::catch_unwind::do_call
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panicking.rs:590
-  16: std::panicking::catch_unwind
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panicking.rs:553
-  17: std::panic::catch_unwind
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panic.rs:359
-  18: std::rt::lang_start_internal
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\rt.rs:171
-  19: main
-  20: invoke_main
-             at D:\a\_work\1\s\src\vctools\crt\vcstartup\src\startup\exe_common.inl:78
-  21: __scrt_common_main_seh
-             at D:\a\_work\1\s\src\vctools\crt\vcstartup\src\startup\exe_common.inl:288
-  22: BaseThreadInitThunk
-  23: RtlUserThreadStart
-
-
-Stack backtrace:
-   0: std::backtrace_rs::backtrace::win64::trace
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\..\..\backtrace\src\backtrace\win64.rs:85
-   1: std::backtrace_rs::backtrace::trace_unsynchronized
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\..\..\backtrace\src\backtrace\mod.rs:66
-   2: std::backtrace::Backtrace::create
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\backtrace.rs:331
-   3: std::backtrace::Backtrace::capture
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\backtrace.rs:296
-   4: serde_json::value::de::<impl serde_core::de::Deserializer for serde_json::value::Value>::deserialize_str
-   5: split_generate::main
-   6: std::sys::backtrace::__rust_begin_short_backtrace
-   7: std::rt::lang_start::{{closure}}
-   8: std::rt::lang_start_internal::closure$0
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\rt.rs:175
-   9: std::panicking::catch_unwind::do_call
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panicking.rs:590
-  10: std::panicking::catch_unwind
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panicking.rs:553
-  11: std::panic::catch_unwind
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\panic.rs:359
-  12: std::rt::lang_start_internal
-             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library\std\src\rt.rs:171
-  13: main
-  14: invoke_main
-             at D:\a\_work\1\s\src\vctools\crt\vcstartup\src\startup\exe_common.inl:78
-  15: __scrt_common_main_seh
-             at D:\a\_work\1\s\src\vctools\crt\vcstartup\src\startup\exe_common.inl:288
-  16: BaseThreadInitThunk
-  17: RtlUserThreadStart
-error: process didn't exit successfully: `target\release\examples\split_generate.exe --text "Hello world this is a test of the turbo model." --output test_turbo_fix.wav --cuda --t3-cuda --fp16` (exit code: 1)
+  S3Gen Input Tokens Shape: [1, 385]
+  Conditioning Tensor Shape: [1, 80, 770]
+SUCCESS! Audio saved to: output.wav
 </file>
 
 <file path=".github/workflows/install_check.yml">
@@ -602,65 +789,6 @@ fn main() -> anyhow::Result<()> {
     println!("\n=== VERIFICATION COMPLETE ===");
     Ok(())
 }
-</file>
-
-<file path="candle/extract_debug.py">
-import torch
-import numpy as np
-import librosa
-from safetensors.torch import save_file
-
-def mel_spectrogram(y, n_fft=1920, num_mels=80, sampling_rate=24000, hop_size=480, win_size=1920,
-                    fmin=0, fmax=8000, center=False):
-    if isinstance(y, np.ndarray):
-        y = torch.tensor(y).float()
-    if len(y.shape) == 1:
-        y = y[None, ]
-
-    # Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
-    pad = (n_fft - hop_size) // 2
-    y_padded = torch.nn.functional.pad(y.unsqueeze(1), (pad, pad), mode="reflect").squeeze(1)
-
-    spec = torch.stft(
-        y_padded,
-        n_fft,
-        hop_length=hop_size,
-        win_length=win_size,
-        window=torch.hann_window(win_size).to(y.device),
-        center=center,
-        pad_mode="reflect",
-        normalized=False,
-        onesided=True,
-        return_complex=True,
-    )
-    spec = torch.sqrt(torch.view_as_real(spec).pow(2).sum(-1) + (1e-9))
-
-    mel_basis = librosa.filters.mel(sr=sampling_rate, n_fft=n_fft, n_mels=num_mels, fmin=fmin, fmax=fmax)
-    mel_basis = torch.from_numpy(mel_basis).float().to(y.device)
-    
-    spec = torch.matmul(mel_basis, spec)
-    spec = torch.log(torch.clamp(spec, min=1e-5))
-
-    return spec
-
-def main():
-    # Load reference.wav
-    audio_path = 'reference.wav'
-    wav, sr = librosa.load(audio_path, sr=24000)
-    
-    # Extract mel
-    mel = mel_spectrogram(wav)
-    
-    # Save to safetensors
-    tensors = {
-        "ref_audio": torch.from_numpy(wav),
-        "ref_mel": mel.squeeze(0), # [80, T]
-    }
-    save_file(tensors, "debug_tensors.safetensors")
-    print(f"Saved debug_tensors.safetensors: audio={wav.shape}, mel={mel.shape}")
-
-if __name__ == "__main__":
-    main()
 </file>
 
 <file path="demo.rs">
@@ -7391,390 +7519,6 @@ fn main() -> anyhow::Result<()> {
 }
 </file>
 
-<file path="candle/src/s3tokenizer.rs">
-//! S3Tokenizer V2 implementation based on SenseVoice-Large.
-//! Ported derived from: https://github.com/xingchensong/S3Tokenizer
-
-use candle_core::{DType, Device, Module, Result, Tensor, D};
-use candle_nn::{Conv1d, Conv1dConfig, LayerNorm, Linear, VarBuilder};
-
-#[derive(Debug, Clone)]
-pub struct ModelConfig {
-    pub n_mels: usize,
-    pub n_audio_ctx: usize,
-    pub n_audio_state: usize,
-    pub n_audio_head: usize,
-    pub n_audio_layer: usize,
-    pub n_codebook_size: usize,
-    pub use_sdpa: bool,
-}
-
-impl Default for ModelConfig {
-    fn default() -> Self {
-        Self {
-            n_mels: 128,
-            n_audio_ctx: 1500,
-            n_audio_state: 1280,
-            n_audio_head: 20,
-            n_audio_layer: 6,
-            n_codebook_size: 6561, // 3^8
-            use_sdpa: false,
-        }
-    }
-}
-
-/// Finite Scalar Quantization Codebook
-pub struct FSQCodebook {
-    project_down: Linear,
-    level: usize,
-}
-
-impl FSQCodebook {
-    pub fn new(dim: usize, level: usize, vb: VarBuilder) -> Result<Self> {
-        let project_down = candle_nn::linear(dim, 8, vb.pp("project_down"))?;
-        Ok(Self {
-            project_down,
-            level,
-        })
-    }
-
-    pub fn encode(&self, x: &Tensor) -> Result<Tensor> {
-        let (b, t, d) = x.dims3()?;
-        let x = x.reshape((b * t, d))?;
-
-        // h = project_down(x).tanh()
-        let h = self.project_down.forward(&x)?.tanh()?;
-
-        // h = h * 0.9990000128746033
-        let h = (h * 0.9990000128746033)?;
-
-        // h = h.round() + 1
-        let h = (h.round()? + 1.0)?;
-
-        // levels = level ^ arange(8)
-        let device = x.device();
-        let powers: Vec<f32> = (0..8).map(|i| (self.level as f32).powi(i as i32)).collect();
-        let powers = Tensor::from_vec(powers, (8,), device)?.to_dtype(h.dtype())?;
-
-        // mu = sum(h * powers)
-        let mu = h.broadcast_mul(&powers.unsqueeze(0)?)?.sum(1)?;
-
-        mu.reshape((b, t))?.to_dtype(DType::U32)
-    }
-}
-
-/// Rotary Positional Embedding Utilities
-pub fn precompute_freqs_cis(dim: usize, end: usize, device: &Device) -> Result<(Tensor, Tensor)> {
-    let theta: f32 = 10000.0;
-    let inv_freq: Vec<f32> = (0..dim)
-        .step_by(2)
-        .map(|i| 1.0 / (theta.powf(i as f32 / dim as f32)))
-        .collect();
-    let inv_freq = Tensor::from_vec(inv_freq, (dim / 2,), device)?;
-
-    let t = Tensor::arange(0.0, end as f32, device)?;
-    let freqs = t.unsqueeze(1)?.matmul(&inv_freq.unsqueeze(0)?)?; // (end, dim/2)
-
-    let cos = freqs.cos()?;
-    let sin = freqs.sin()?;
-
-    // Concatenate for simpler application to half-vectors
-    let cos = Tensor::cat(&[&cos, &cos], 1)?; // (end, dim)
-    let sin = Tensor::cat(&[&sin, &sin], 1)?; // (end, dim)
-
-    Ok((cos, sin))
-}
-
-pub fn apply_rotary_emb(
-    xq: &Tensor,
-    xk: &Tensor,
-    cos: &Tensor,
-    sin: &Tensor,
-) -> Result<(Tensor, Tensor)> {
-    // xq: (B, T, H, D), cos: (T, D)
-    let (_b, _t, _h, d_full) = xq.dims4()?;
-    let d = d_full / 2;
-
-    let xq_l = xq.narrow(D::Minus1, 0, d)?;
-    let xq_r = xq.narrow(D::Minus1, d, d)?;
-
-    let xk_l = xk.narrow(D::Minus1, 0, d)?;
-    let xk_r = xk.narrow(D::Minus1, d, d)?;
-
-    // xq_r_rot = cat(-xq_r, xq_l)
-    let xq_rot = Tensor::cat(&[&xq_r.neg()?, &xq_l], D::Minus1)?;
-    let xk_rot = Tensor::cat(&[&xk_r.neg()?, &xk_l], D::Minus1)?;
-
-    // Broadcast cos/sin: (1, T, 1, D)
-    let cos = cos.unsqueeze(0)?.unsqueeze(2)?;
-    let sin = sin.unsqueeze(0)?.unsqueeze(2)?;
-
-    let xq_unbound = (xq.broadcast_mul(&cos)? + xq_rot.broadcast_mul(&sin)?)?;
-    let xk_unbound = (xk.broadcast_mul(&cos)? + xk_rot.broadcast_mul(&sin)?)?;
-
-    Ok((xq_unbound, xk_unbound))
-}
-
-/// Feedforward Sequential Memory Network Block
-pub struct FSMNMultiHeadAttention {
-    n_head: usize,
-    _n_state: usize,
-    query: Linear,
-    key: Linear,
-    value: Linear,
-    out: Linear,
-    fsmn_block: Conv1d,
-    kernel_size: usize,
-}
-
-impl FSMNMultiHeadAttention {
-    pub fn new(n_state: usize, n_head: usize, kernel_size: usize, vb: VarBuilder) -> Result<Self> {
-        let query = candle_nn::linear_no_bias(n_state, n_state, vb.pp("query"))?;
-        let key = candle_nn::linear_no_bias(n_state, n_state, vb.pp("key"))?;
-        let value = candle_nn::linear_no_bias(n_state, n_state, vb.pp("value"))?;
-        let out = candle_nn::linear(n_state, n_state, vb.pp("out"))?;
-
-        let fsmn_config = Conv1dConfig {
-            padding: 0,
-            stride: 1,
-            dilation: 1,
-            groups: n_state,
-            ..Default::default()
-        };
-        // FSMN block uses no bias in Python
-        let fsmn_weight = vb
-            .pp("fsmn_block")
-            .get((n_state, 1, kernel_size), "weight")?;
-        let fsmn_block = Conv1d::new(fsmn_weight, None, fsmn_config);
-
-        Ok(Self {
-            n_head,
-            _n_state: n_state,
-            query,
-            key,
-            value,
-            out,
-            fsmn_block,
-            kernel_size,
-        })
-    }
-
-    fn forward_fsmn(&self, x: &Tensor, mask: Option<&Tensor>) -> Result<Tensor> {
-        // x: (B, T, D)
-        let mut inputs = x.clone();
-        if let Some(m) = mask {
-            inputs = inputs.broadcast_mul(m)?;
-        }
-
-        // Pad for same-length FSMN
-        let left_pad = (self.kernel_size - 1) / 2;
-        let right_pad = self.kernel_size - 1 - left_pad;
-
-        let x_padded = inputs
-            .transpose(1, 2)?
-            .pad_with_zeros(D::Minus1, left_pad, right_pad)?;
-        let mut fsmn_out = self.fsmn_block.forward(&x_padded)?;
-        fsmn_out = fsmn_out.transpose(1, 2)?;
-
-        let res = (fsmn_out + inputs)?;
-        if let Some(m) = mask {
-            res.broadcast_mul(m)
-        } else {
-            Ok(res)
-        }
-    }
-
-    pub fn forward(
-        &self,
-        x: &Tensor,
-        mask: Option<&Tensor>,
-        mask_pad: Option<&Tensor>,
-        cos: Option<&Tensor>,
-        sin: Option<&Tensor>,
-    ) -> Result<Tensor> {
-        let (b, t, d) = x.dims3()?;
-        let head_dim = d / self.n_head;
-
-        let q = self.query.forward(x)?;
-        let k = self.key.forward(x)?;
-        let v = self.value.forward(x)?;
-
-        let mut q = q.reshape((b, t, self.n_head, head_dim))?;
-        let mut k = k.reshape((b, t, self.n_head, head_dim))?;
-        let v_reshaped = v.reshape((b, t, self.n_head, head_dim))?;
-
-        if let (Some(c), Some(s)) = (cos, sin) {
-            let (q_rot, k_rot) = apply_rotary_emb(&q, &k, c, s)?;
-            q = q_rot;
-            k = k_rot;
-        }
-
-        let fsm_memory = self.forward_fsmn(&v, mask_pad)?;
-
-        // Attention calculation
-        let q = q.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
-        let k = k.transpose(1, 2)?.transpose(2, 3)?.contiguous()?; // (B, H, D/H, T)
-
-        let scale = (head_dim as f32).powf(-0.5);
-        let mut qk = (q.matmul(&k)? * (scale as f64))?;
-
-        if let Some(m) = mask {
-            qk = qk.broadcast_add(m)?;
-        }
-
-        let soft_qk = candle_nn::ops::softmax(&qk, D::Minus1)?;
-        let v_heads = v_reshaped.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
-        let attn_out = soft_qk.matmul(&v_heads)?; // (B, H, T, D/H)
-
-        let wv = attn_out.transpose(1, 2)?.reshape((b, t, d))?;
-        let out = self.out.forward(&wv)?;
-
-        out + fsm_memory
-    }
-}
-
-pub struct ResidualAttentionBlock {
-    attn: FSMNMultiHeadAttention,
-    attn_ln: LayerNorm,
-    mlp: Vec<Box<dyn Module>>,
-    mlp_ln: LayerNorm,
-}
-
-impl ResidualAttentionBlock {
-    pub fn new(n_state: usize, n_head: usize, vb: VarBuilder) -> Result<Self> {
-        let attn = FSMNMultiHeadAttention::new(n_state, n_head, 31, vb.pp("attn"))?;
-        let attn_ln = candle_nn::layer_norm(n_state, 1e-5, vb.pp("attn_ln"))?;
-
-        let n_mlp = n_state * 4;
-        let mlp_0 = candle_nn::linear(n_state, n_mlp, vb.pp("mlp.0"))?;
-        let mlp_2 = candle_nn::linear(n_mlp, n_state, vb.pp("mlp.2"))?;
-
-        let mlp_ln = candle_nn::layer_norm(n_state, 1e-5, vb.pp("mlp_ln"))?;
-
-        Ok(Self {
-            attn,
-            attn_ln,
-            mlp: vec![Box::new(mlp_0), Box::new(mlp_2)],
-            mlp_ln,
-        })
-    }
-
-    pub fn forward(
-        &self,
-        x: &Tensor,
-        mask: Option<&Tensor>,
-        mask_pad: Option<&Tensor>,
-        cos: Option<&Tensor>,
-        sin: Option<&Tensor>,
-    ) -> Result<Tensor> {
-        let x_ln = self.attn_ln.forward(x)?;
-        let attn_out = self.attn.forward(&x_ln, mask, mask_pad, cos, sin)?;
-        let x = (x + attn_out)?;
-
-        let x_ln_mlp = self.mlp_ln.forward(&x)?;
-        let mut res = x_ln_mlp;
-        // Manual MLP forward to handle GELU easily if not using Sequential
-        res = self.mlp[0].forward(&res)?;
-        res = res.gelu()?;
-        res = self.mlp[1].forward(&res)?;
-
-        x + res
-    }
-}
-
-pub struct AudioEncoderV2 {
-    conv1: Conv1d,
-    conv2: Conv1d,
-    blocks: Vec<ResidualAttentionBlock>,
-    cos: Tensor,
-    sin: Tensor,
-    _stride: usize,
-}
-
-impl AudioEncoderV2 {
-    pub fn new(config: &ModelConfig, vb: VarBuilder) -> Result<Self> {
-        let n_state = config.n_audio_state;
-        let c1_config = Conv1dConfig {
-            padding: 1,
-            stride: 2,
-            dilation: 1,
-            groups: 1,
-            ..Default::default()
-        };
-        let conv1 = candle_nn::conv1d(config.n_mels, n_state, 3, c1_config, vb.pp("conv1"))?;
-
-        let c2_config = Conv1dConfig {
-            padding: 1,
-            stride: 2,
-            dilation: 1,
-            groups: 1,
-            ..Default::default()
-        };
-        let conv2 = candle_nn::conv1d(n_state, n_state, 3, c2_config, vb.pp("conv2"))?;
-
-        let mut blocks = Vec::new();
-        let vb_blocks = vb.pp("blocks");
-        for i in 0..config.n_audio_layer {
-            blocks.push(ResidualAttentionBlock::new(
-                n_state,
-                config.n_audio_head,
-                vb_blocks.pp(&i.to_string()),
-            )?);
-        }
-
-        // Precompute RoPE: 64 is head_dim, 2048 matches Python's 1024*2
-        let (cos, sin) = precompute_freqs_cis(n_state / config.n_audio_head, 2048, vb.device())?;
-
-        Ok(Self {
-            conv1,
-            conv2,
-            blocks,
-            cos,
-            sin,
-            _stride: 2,
-        })
-    }
-
-    pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        // x: (B, Mel, T)
-        let mut x = self.conv1.forward(x)?.gelu()?;
-        x = self.conv2.forward(&x)?.gelu()?;
-
-        x = x.transpose(1, 2)?; // (B, T/4, D)
-        let (_, t, _) = x.dims3()?;
-
-        let cos = self.cos.narrow(0, 0, t)?;
-        let sin = self.sin.narrow(0, 0, t)?;
-
-        for block in &self.blocks {
-            x = block.forward(&x, None, None, Some(&cos), Some(&sin))?;
-        }
-
-        Ok(x)
-    }
-}
-
-pub struct S3TokenizerV2 {
-    encoder: AudioEncoderV2,
-    quantizer: FSQCodebook,
-}
-
-impl S3TokenizerV2 {
-    pub fn new(config: &ModelConfig, vb: VarBuilder) -> Result<Self> {
-        let vb = vb.pp("s3_model");
-        let encoder = AudioEncoderV2::new(config, vb.pp("encoder"))?;
-        let quantizer = FSQCodebook::new(config.n_audio_state, 3, vb.pp("quantizer._codebook"))?;
-
-        Ok(Self { encoder, quantizer })
-    }
-
-    pub fn encode(&self, mel: &Tensor) -> Result<Tensor> {
-        let hidden = self.encoder.forward(mel)?;
-        self.quantizer.encode(&hidden)
-    }
-}
-</file>
-
 <file path="candle/src/sampling.rs">
 use candle_core::{DType, Result, Tensor};
 use rand::{distributions::Distribution, thread_rng};
@@ -9478,210 +9222,6 @@ class ChatterboxMultilingualTTS:
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
 </file>
 
-<file path="candle/examples/split_generate.rs">
-use candle_core::{DType, Device, Tensor};
-use candle_nn::VarBuilder;
-use hf_hub::api::sync::Api;
-use tokenizers::Tokenizer;
-
-fn main() -> anyhow::Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-    let text = args
-        .iter()
-        .position(|a| a == "--text")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("Hello, world.");
-    let ref_audio = args
-        .iter()
-        .position(|a| a == "--ref-audio")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("reference.wav");
-    let output = args
-        .iter()
-        .position(|a| a == "--output")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("output.wav");
-    let use_cuda = args.iter().any(|a| a == "--cuda");
-    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
-    let use_fp16 = args.iter().any(|a| a == "--fp16");
-    let device = if use_cuda {
-        Device::new_cuda(0)?
-    } else {
-        Device::Cpu
-    };
-    let t3_device = if use_t3_cuda {
-        Device::new_cuda(0)?
-    } else {
-        device.clone()
-    };
-    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
-
-    println!("Downloading model files...");
-    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
-    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
-    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
-    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
-    let ve_path = turbo_repo.get("ve.safetensors")?;
-    let s3tokenizer_path = api
-        .model("ResembleAI/s3tokenizer-v2".to_string())
-        .get("model.safetensors")?;
-    let tokenizer_path = api
-        .model("ResembleAI/chatterbox".to_string())
-        .get("tokenizer.json")?;
-
-    // STEP 1: Text
-    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let encoding = tokenizer
-        .encode(text, true)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
-    let text_tokens_tensor =
-        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
-
-    // STEP 2: Reference Audio Processing
-    let (ref_samples, ref_sr) =
-        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    // VoiceEncoder (T3) needs 40 Mel bins at 16kHz
-    let config_16k_40 = candle::audio::MelConfig {
-        n_fft: 1024,
-        hop_length: 160,
-        win_length: 1024,
-        n_mels: 40,
-        fmax: 8000.0,
-    };
-    let mel_40 = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &config_16k_40,
-    )?;
-
-    // S3Tokenizer needs 80 Mel bins at 16kHz
-    let mel_80_16k = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &candle::audio::MelConfig::for_16k(),
-    )?;
-
-    // CAMPPlus & S3Gen need 80 Mel bins at 24kHz
-    let mel_80_24k = candle::audio::compute_mel_spectrogram(
-        &ref_samples_24k,
-        candle::audio::S3GEN_SR,
-        &device,
-        &candle::audio::MelConfig::for_24k(80),
-    )?;
-
-    // STEP 3: S3 Prompt Tokens (Needs 80 mel padded to 128)
-    let speech_prompt_tokens = {
-        let vb = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
-        };
-        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
-            &candle::s3tokenizer::ModelConfig::default(),
-            vb,
-        )?;
-        let (b, c, t) = mel_80_16k.dims3()?;
-        let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_80_16k, &padding], 1)?)?
-    };
-
-    // STEP 4: T3 Embedding (Needs 40 mel)
-    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
-    let spk_emb_256 = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
-        let ve = candle::voice_encoder::VoiceEncoder::new(
-            candle::voice_encoder::VoiceEncoderConfig::default(),
-            vb,
-        )?;
-        // VoiceEncoder expects (B, T, 40)
-        ve.forward(&mel_40.transpose(1, 2)?)?
-    };
-
-    // STEP 5: S3Gen Embedding (Needs 80 mel)
-    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
-    let spk_emb_80 = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
-        campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)? // Use 24k mel
-    };
-
-    // STEP 6: T3 Generation
-    println!("\n[Step 6/6] Generating tokens with T3...");
-    let speech_tokens = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
-        let t3_config = candle::t3_model::T3Config {
-            text_tokens_dict_size: 50276,
-            speech_tokens_dict_size: 6563,
-            hidden_size: 1024,
-            num_layers: 24,
-            num_heads: 16,
-            vocab_size: 50276,
-            speaker_embed_size: 256,
-            start_speech_token: 6561,
-            stop_speech_token: 6562,
-            speech_cond_prompt_len: Some(375),
-            use_perceiver_resampler: false,
-            emotion_adv: false,
-            n_positions: 8196,
-        };
-        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
-        t3.generate(
-            &text_tokens_tensor.to_device(&t3_device)?,
-            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
-            Some(&speech_prompt_tokens.to_device(&t3_device)?),
-            None,
-            500,
-            0.8,
-            0.95,
-            50,
-            1.2,
-            42,
-        )?
-    };
-
-    // STEP 7: Synthesis
-    println!("\n[Step 7/6] Synthesizing audio...");
-    let speech_tokens_filtered = {
-        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-        let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
-        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
-    };
-
-    let audio_tensor = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
-        s3gen.forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?
-    };
-
-    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
-    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    println!("SUCCESS! Audio saved to: {}", output);
-
-    Ok(())
-}
-</file>
-
 <file path="candle/src/modules.rs">
 use candle_core::{Result, Tensor, Module};
 use candle_nn::{Conv1d, Conv1dConfig, LayerNorm, Linear, VarBuilder};
@@ -9904,6 +9444,390 @@ impl ConformerEncoderLayer {
 
         let x = self.norm.forward(&x)?;
         Ok(x)
+    }
+}
+</file>
+
+<file path="candle/src/s3tokenizer.rs">
+//! S3Tokenizer V2 implementation based on SenseVoice-Large.
+//! Ported derived from: https://github.com/xingchensong/S3Tokenizer
+
+use candle_core::{DType, Device, Module, Result, Tensor, D};
+use candle_nn::{Conv1d, Conv1dConfig, LayerNorm, Linear, VarBuilder};
+
+#[derive(Debug, Clone)]
+pub struct ModelConfig {
+    pub n_mels: usize,
+    pub n_audio_ctx: usize,
+    pub n_audio_state: usize,
+    pub n_audio_head: usize,
+    pub n_audio_layer: usize,
+    pub n_codebook_size: usize,
+    pub use_sdpa: bool,
+}
+
+impl Default for ModelConfig {
+    fn default() -> Self {
+        Self {
+            n_mels: 128,
+            n_audio_ctx: 1500,
+            n_audio_state: 1280,
+            n_audio_head: 20,
+            n_audio_layer: 6,
+            n_codebook_size: 6561, // 3^8
+            use_sdpa: false,
+        }
+    }
+}
+
+/// Finite Scalar Quantization Codebook
+pub struct FSQCodebook {
+    project_down: Linear,
+    level: usize,
+}
+
+impl FSQCodebook {
+    pub fn new(dim: usize, level: usize, vb: VarBuilder) -> Result<Self> {
+        let project_down = candle_nn::linear(dim, 8, vb.pp("project_down"))?;
+        Ok(Self {
+            project_down,
+            level,
+        })
+    }
+
+    pub fn encode(&self, x: &Tensor) -> Result<Tensor> {
+        let (b, t, d) = x.dims3()?;
+        let x = x.reshape((b * t, d))?;
+
+        // h = project_down(x).tanh()
+        let h = self.project_down.forward(&x)?.tanh()?;
+
+        // h = h * 0.9990000128746033
+        let h = (h * 0.9990000128746033)?;
+
+        // h = h.round() + 1
+        let h = (h.round()? + 1.0)?;
+
+        // levels = level ^ arange(8)
+        let device = x.device();
+        let powers: Vec<f32> = (0..8).map(|i| (self.level as f32).powi(i as i32)).collect();
+        let powers = Tensor::from_vec(powers, (8,), device)?.to_dtype(h.dtype())?;
+
+        // mu = sum(h * powers)
+        let mu = h.broadcast_mul(&powers.unsqueeze(0)?)?.sum(1)?;
+
+        mu.reshape((b, t))?.to_dtype(DType::U32)
+    }
+}
+
+/// Rotary Positional Embedding Utilities
+pub fn precompute_freqs_cis(dim: usize, end: usize, device: &Device) -> Result<(Tensor, Tensor)> {
+    let theta: f32 = 10000.0;
+    let inv_freq: Vec<f32> = (0..dim)
+        .step_by(2)
+        .map(|i| 1.0 / (theta.powf(i as f32 / dim as f32)))
+        .collect();
+    let inv_freq = Tensor::from_vec(inv_freq, (dim / 2,), device)?;
+
+    let t = Tensor::arange(0.0, end as f32, device)?;
+    let freqs = t.unsqueeze(1)?.matmul(&inv_freq.unsqueeze(0)?)?; // (end, dim/2)
+
+    let cos = freqs.cos()?;
+    let sin = freqs.sin()?;
+
+    // Concatenate for simpler application to half-vectors
+    let cos = Tensor::cat(&[&cos, &cos], 1)?; // (end, dim)
+    let sin = Tensor::cat(&[&sin, &sin], 1)?; // (end, dim)
+
+    Ok((cos, sin))
+}
+
+pub fn apply_rotary_emb(
+    xq: &Tensor,
+    xk: &Tensor,
+    cos: &Tensor,
+    sin: &Tensor,
+) -> Result<(Tensor, Tensor)> {
+    // xq: (B, T, H, D), cos: (T, D)
+    let (_b, _t, _h, d_full) = xq.dims4()?;
+    let d = d_full / 2;
+
+    let xq_l = xq.narrow(D::Minus1, 0, d)?;
+    let xq_r = xq.narrow(D::Minus1, d, d)?;
+
+    let xk_l = xk.narrow(D::Minus1, 0, d)?;
+    let xk_r = xk.narrow(D::Minus1, d, d)?;
+
+    // xq_r_rot = cat(-xq_r, xq_l)
+    let xq_rot = Tensor::cat(&[&xq_r.neg()?, &xq_l], D::Minus1)?;
+    let xk_rot = Tensor::cat(&[&xk_r.neg()?, &xk_l], D::Minus1)?;
+
+    // Broadcast cos/sin: (1, T, 1, D)
+    let cos = cos.unsqueeze(0)?.unsqueeze(2)?;
+    let sin = sin.unsqueeze(0)?.unsqueeze(2)?;
+
+    let xq_unbound = (xq.broadcast_mul(&cos)? + xq_rot.broadcast_mul(&sin)?)?;
+    let xk_unbound = (xk.broadcast_mul(&cos)? + xk_rot.broadcast_mul(&sin)?)?;
+
+    Ok((xq_unbound, xk_unbound))
+}
+
+/// Feedforward Sequential Memory Network Block
+pub struct FSMNMultiHeadAttention {
+    n_head: usize,
+    _n_state: usize,
+    query: Linear,
+    key: Linear,
+    value: Linear,
+    out: Linear,
+    fsmn_block: Conv1d,
+    kernel_size: usize,
+}
+
+impl FSMNMultiHeadAttention {
+    pub fn new(n_state: usize, n_head: usize, kernel_size: usize, vb: VarBuilder) -> Result<Self> {
+        let query = candle_nn::linear_no_bias(n_state, n_state, vb.pp("query"))?;
+        let key = candle_nn::linear_no_bias(n_state, n_state, vb.pp("key"))?;
+        let value = candle_nn::linear_no_bias(n_state, n_state, vb.pp("value"))?;
+        let out = candle_nn::linear(n_state, n_state, vb.pp("out"))?;
+
+        let fsmn_config = Conv1dConfig {
+            padding: 0,
+            stride: 1,
+            dilation: 1,
+            groups: n_state,
+            ..Default::default()
+        };
+        // FSMN block uses no bias in Python
+        let fsmn_weight = vb
+            .pp("fsmn_block")
+            .get((n_state, 1, kernel_size), "weight")?;
+        let fsmn_block = Conv1d::new(fsmn_weight, None, fsmn_config);
+
+        Ok(Self {
+            n_head,
+            _n_state: n_state,
+            query,
+            key,
+            value,
+            out,
+            fsmn_block,
+            kernel_size,
+        })
+    }
+
+    fn forward_fsmn(&self, x: &Tensor, mask: Option<&Tensor>) -> Result<Tensor> {
+        // x: (B, T, D)
+        let mut inputs = x.clone();
+        if let Some(m) = mask {
+            inputs = inputs.broadcast_mul(m)?;
+        }
+
+        // Pad for same-length FSMN
+        let left_pad = (self.kernel_size - 1) / 2;
+        let right_pad = self.kernel_size - 1 - left_pad;
+
+        let x_padded = inputs
+            .transpose(1, 2)?
+            .pad_with_zeros(D::Minus1, left_pad, right_pad)?;
+        let mut fsmn_out = self.fsmn_block.forward(&x_padded)?;
+        fsmn_out = fsmn_out.transpose(1, 2)?;
+
+        let res = (fsmn_out + inputs)?;
+        if let Some(m) = mask {
+            res.broadcast_mul(m)
+        } else {
+            Ok(res)
+        }
+    }
+
+    pub fn forward(
+        &self,
+        x: &Tensor,
+        mask: Option<&Tensor>,
+        mask_pad: Option<&Tensor>,
+        cos: Option<&Tensor>,
+        sin: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        let (b, t, d) = x.dims3()?;
+        let head_dim = d / self.n_head;
+
+        let q = self.query.forward(x)?;
+        let k = self.key.forward(x)?;
+        let v = self.value.forward(x)?;
+
+        let mut q = q.reshape((b, t, self.n_head, head_dim))?;
+        let mut k = k.reshape((b, t, self.n_head, head_dim))?;
+        let v_reshaped = v.reshape((b, t, self.n_head, head_dim))?;
+
+        if let (Some(c), Some(s)) = (cos, sin) {
+            let (q_rot, k_rot) = apply_rotary_emb(&q, &k, c, s)?;
+            q = q_rot;
+            k = k_rot;
+        }
+
+        let fsm_memory = self.forward_fsmn(&v, mask_pad)?;
+
+        // Attention calculation
+        let q = q.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
+        let k = k.transpose(1, 2)?.transpose(2, 3)?.contiguous()?; // (B, H, D/H, T)
+
+        let scale = (head_dim as f32).powf(-0.5);
+        let mut qk = (q.matmul(&k)? * (scale as f64))?;
+
+        if let Some(m) = mask {
+            qk = qk.broadcast_add(m)?;
+        }
+
+        let soft_qk = candle_nn::ops::softmax(&qk, D::Minus1)?;
+        let v_heads = v_reshaped.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
+        let attn_out = soft_qk.matmul(&v_heads)?; // (B, H, T, D/H)
+
+        let wv = attn_out.transpose(1, 2)?.reshape((b, t, d))?;
+        let out = self.out.forward(&wv)?;
+
+        out + fsm_memory
+    }
+}
+
+pub struct ResidualAttentionBlock {
+    attn: FSMNMultiHeadAttention,
+    attn_ln: LayerNorm,
+    mlp: Vec<Box<dyn Module>>,
+    mlp_ln: LayerNorm,
+}
+
+impl ResidualAttentionBlock {
+    pub fn new(n_state: usize, n_head: usize, vb: VarBuilder) -> Result<Self> {
+        let attn = FSMNMultiHeadAttention::new(n_state, n_head, 31, vb.pp("attn"))?;
+        let attn_ln = candle_nn::layer_norm(n_state, 1e-5, vb.pp("attn_ln"))?;
+
+        let n_mlp = n_state * 4;
+        let mlp_0 = candle_nn::linear(n_state, n_mlp, vb.pp("mlp.0"))?;
+        let mlp_2 = candle_nn::linear(n_mlp, n_state, vb.pp("mlp.2"))?;
+
+        let mlp_ln = candle_nn::layer_norm(n_state, 1e-5, vb.pp("mlp_ln"))?;
+
+        Ok(Self {
+            attn,
+            attn_ln,
+            mlp: vec![Box::new(mlp_0), Box::new(mlp_2)],
+            mlp_ln,
+        })
+    }
+
+    pub fn forward(
+        &self,
+        x: &Tensor,
+        mask: Option<&Tensor>,
+        mask_pad: Option<&Tensor>,
+        cos: Option<&Tensor>,
+        sin: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        let x_ln = self.attn_ln.forward(x)?;
+        let attn_out = self.attn.forward(&x_ln, mask, mask_pad, cos, sin)?;
+        let x = (x + attn_out)?;
+
+        let x_ln_mlp = self.mlp_ln.forward(&x)?;
+        let mut res = x_ln_mlp;
+        // Manual MLP forward to handle GELU easily if not using Sequential
+        res = self.mlp[0].forward(&res)?;
+        res = res.gelu()?;
+        res = self.mlp[1].forward(&res)?;
+
+        x + res
+    }
+}
+
+pub struct AudioEncoderV2 {
+    conv1: Conv1d,
+    conv2: Conv1d,
+    blocks: Vec<ResidualAttentionBlock>,
+    cos: Tensor,
+    sin: Tensor,
+    _stride: usize,
+}
+
+impl AudioEncoderV2 {
+    pub fn new(config: &ModelConfig, vb: VarBuilder) -> Result<Self> {
+        let n_state = config.n_audio_state;
+        let c1_config = Conv1dConfig {
+            padding: 1,
+            stride: 2,
+            dilation: 1,
+            groups: 1,
+            ..Default::default()
+        };
+        let conv1 = candle_nn::conv1d(config.n_mels, n_state, 3, c1_config, vb.pp("conv1"))?;
+
+        let c2_config = Conv1dConfig {
+            padding: 1,
+            stride: 2,
+            dilation: 1,
+            groups: 1,
+            ..Default::default()
+        };
+        let conv2 = candle_nn::conv1d(n_state, n_state, 3, c2_config, vb.pp("conv2"))?;
+
+        let mut blocks = Vec::new();
+        let vb_blocks = vb.pp("blocks");
+        for i in 0..config.n_audio_layer {
+            blocks.push(ResidualAttentionBlock::new(
+                n_state,
+                config.n_audio_head,
+                vb_blocks.pp(&i.to_string()),
+            )?);
+        }
+
+        // Precompute RoPE: 64 is head_dim, 2048 matches Python's 1024*2
+        let (cos, sin) = precompute_freqs_cis(n_state / config.n_audio_head, 2048, vb.device())?;
+
+        Ok(Self {
+            conv1,
+            conv2,
+            blocks,
+            cos,
+            sin,
+            _stride: 2,
+        })
+    }
+
+    pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        // x: (B, Mel, T)
+        let mut x = self.conv1.forward(x)?.gelu()?;
+        x = self.conv2.forward(&x)?.gelu()?;
+
+        x = x.transpose(1, 2)?; // (B, T/4, D)
+        let (_, t, _) = x.dims3()?;
+
+        let cos = self.cos.narrow(0, 0, t)?;
+        let sin = self.sin.narrow(0, 0, t)?;
+
+        for block in &self.blocks {
+            x = block.forward(&x, None, None, Some(&cos), Some(&sin))?;
+        }
+
+        Ok(x)
+    }
+}
+
+pub struct S3TokenizerV2 {
+    encoder: AudioEncoderV2,
+    quantizer: FSQCodebook,
+}
+
+impl S3TokenizerV2 {
+    pub fn new(config: &ModelConfig, vb: VarBuilder) -> Result<Self> {
+        let vb = vb.pp("s3_model");
+        let encoder = AudioEncoderV2::new(config, vb.pp("encoder"))?;
+        let quantizer = FSQCodebook::new(config.n_audio_state, 3, vb.pp("quantizer._codebook"))?;
+
+        Ok(Self { encoder, quantizer })
+    }
+
+    pub fn encode(&self, mel: &Tensor) -> Result<Tensor> {
+        let hidden = self.encoder.forward(mel)?;
+        self.quantizer.encode(&hidden)
     }
 }
 </file>
@@ -11013,505 +10937,282 @@ s3tokenizer-v2-model/model.safetensors
 s3tokenizer-v2-model/pytorch_model.bin
 </file>
 
-<file path="candle/src/audio.rs">
-use candle_core::{DType, Device, Result, Tensor};
-use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
-use rubato::{FftFixedIn, Resampler};
-use std::path::Path;
+<file path="candle/examples/split_generate.rs">
+use candle_core::{DType, Device, Tensor};
+use candle_nn::VarBuilder;
+use hf_hub::api::sync::Api;
+use tokenizers::Tokenizer;
 
-pub const S3GEN_SR: u32 = 24000;
-pub const S3_SR: u32 = 16000;
+fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
+    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
+    let mel = mel.clamp(1e-10, f32::MAX)?;
+    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
 
-pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
-    let reader = WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
-    let spec = reader.spec();
-    let sample_rate = spec.sample_rate;
-    let channels = spec.channels as usize;
+    // Dynamic range compression
+    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
+    let log_mel = log_mel.maximum(max_val - 8.0)?;
 
-    let samples: Vec<f32> = match spec.sample_format {
-        SampleFormat::Int => {
-            let bits = spec.bits_per_sample;
-            let max_val = (1i32 << (bits - 1)) as f32;
-            reader
-                .into_samples::<i32>()
-                .filter_map(|s| s.ok())
-                .map(|s| s as f32 / max_val)
-                .collect()
-        }
-        SampleFormat::Float => reader
-            .into_samples::<f32>()
-            .filter_map(|s| s.ok())
-            .collect(),
-    };
-
-    let mono = if channels > 1 {
-        samples
-            .chunks(channels)
-            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
-            .collect()
-    } else {
-        samples
-    };
-
-    Ok((mono, sample_rate))
+    let result = ((log_mel + 4.0)? / 4.0)?;
+    Ok(result)
 }
 
-pub fn save_wav<P: AsRef<Path>>(
-    path: P,
-    samples: &[f32],
-    sample_rate: u32,
-) -> std::result::Result<(), String> {
-    let spec = WavSpec {
-        channels: 1,
-        sample_rate,
-        bits_per_sample: 16,
-        sample_format: SampleFormat::Int,
-    };
-    let mut writer =
-        WavWriter::create(path, spec).map_err(|e| format!("Failed to create WAV: {}", e))?;
-    for &sample in samples {
-        let clamped = sample.clamp(-1.0, 1.0);
-        writer
-            .write_sample((clamped * 32767.0) as i16)
-            .map_err(|e| format!("Failed to write sample: {}", e))?;
-    }
-    writer
-        .finalize()
-        .map_err(|e| format!("Failed to finalize WAV: {}", e))?;
-    Ok(())
-}
-
-pub fn resample(
-    samples: &[f32],
-    from_sr: u32,
-    to_sr: u32,
-) -> std::result::Result<Vec<f32>, String> {
-    if from_sr == to_sr {
-        return Ok(samples.to_vec());
-    }
-    let chunk_size = 1024;
-    let mut resampler = FftFixedIn::<f32>::new(from_sr as usize, to_sr as usize, chunk_size, 2, 1)
-        .map_err(|e| format!("Failed to create resampler: {}", e))?;
-    let mut output = Vec::new();
-    let mut input_frames = samples.to_vec();
-    let remainder = input_frames.len() % chunk_size;
-    if remainder != 0 {
-        input_frames.extend(std::iter::repeat(0.0).take(chunk_size - remainder));
-    }
-    for chunk in input_frames.chunks(chunk_size) {
-        let input = vec![chunk.to_vec()];
-        let mut resampled = resampler
-            .process(&input, None)
-            .map_err(|e| format!("Resample error: {}", e))?;
-        output.append(&mut resampled[0]);
-    }
-    Ok(output)
-}
-
-pub struct MelConfig {
-    pub n_fft: usize,
-    pub hop_length: usize,
-    pub win_length: usize,
-    pub n_mels: usize,
-    pub fmax: f32,
-}
-
-impl MelConfig {
-    pub fn for_16k() -> Self {
-        Self {
-            n_fft: 1024,
-            hop_length: 160,
-            win_length: 1024,
-            n_mels: 80,
-            fmax: 8000.0,
-        }
-    }
-
-    pub fn for_24k(n_mels: usize) -> Self {
-        Self {
-            n_fft: 1024,
-            hop_length: 240,
-            win_length: 1024,
-            n_mels,
-            fmax: 12000.0,
-        }
-    }
-}
-
-pub fn compute_mel_spectrogram(
-    samples: &[f32],
-    sample_rate: u32,
-    device: &Device,
-    config: &MelConfig,
-) -> Result<Tensor> {
-    use realfft::RealFftPlanner;
-    let n_fft = config.n_fft;
-    let hop_length = config.hop_length;
-    let win_length = config.win_length;
-    let n_mels = config.n_mels;
-    let fmax = config.fmax;
-
-    let window: Vec<f32> = (0..win_length)
-        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
-        .collect();
-
-    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
-    let pad = (n_fft - hop_length) / 2;
-    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
-    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
-    for i in (1..=pad).rev() {
-        padded.push(samples[i]);
-    }
-    padded.extend_from_slice(samples);
-    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
-    let n = samples.len();
-    for i in 1..=pad {
-        padded.push(samples[n - 1 - i]);
-    }
-
-    let n_frames = (padded.len() - n_fft) / hop_length + 1;
-    let mut planner = RealFftPlanner::<f32>::new();
-    let fft = planner.plan_fft_forward(n_fft);
-    let mut power_spectrogram = vec![vec![0.0f32; n_fft / 2 + 1]; n_frames];
-
-    for (frame_idx, frame_start) in (0..padded.len() - n_fft + 1)
-        .step_by(hop_length)
-        .enumerate()
-    {
-        if frame_idx >= n_frames {
-            break;
-        }
-        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
-            .iter()
-            .zip(window.iter())
-            .map(|(s, w)| s * w)
-            .collect();
-        let mut spectrum = fft.make_output_vec();
-        fft.process(&mut windowed, &mut spectrum)
-            .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
-        for (i, c) in spectrum.iter().enumerate() {
-            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
-            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
-            // Then it applies mel and spectral_normalize (log)
-            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
-        }
-    }
-
-    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
-    let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
-    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
-        for (m, filter) in mel_filters.iter().enumerate() {
-            let mut sum = 0.0f32;
-            for (i, &weight) in filter.iter().enumerate() {
-                sum += weight * mag_frame[i];
-            }
-            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
-            mel_spec[t][m] = (sum.max(1e-5)).ln();
-        }
-    }
-
-    let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
-    // Return (B, C, T) where C=80
-    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
-        .permute((0, 2, 1))?
-        .contiguous()?
-        .to_dtype(DType::F32)
-}
-
-fn create_mel_filterbank(
-    sample_rate: u32,
-    n_fft: usize,
-    n_mels: usize,
-    fmax: f32,
-) -> Vec<Vec<f32>> {
-    let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
-    let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
-    let mel_min = hz_to_mel(0.0);
-    let mel_max = hz_to_mel(fmax);
-    let mel_points: Vec<f32> = (0..=n_mels + 1)
-        .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
-        .collect();
-    let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
-    let n_bins = n_fft / 2 + 1;
-    let bin_points: Vec<usize> = hz_points
+fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    let text = args
         .iter()
-        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
-        .collect();
-    let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
+        .position(|a| a == "--text")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("Hello, world.");
+    let ref_audio = args
+        .iter()
+        .position(|a| a == "--ref-audio")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("reference.wav");
+    let output = args
+        .iter()
+        .position(|a| a == "--output")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("output.wav");
+    let use_cuda = args.iter().any(|a| a == "--cuda");
+    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
+    let use_fp16 = args.iter().any(|a| a == "--fp16");
+    let device = if use_cuda {
+        Device::new_cuda(0)?
+    } else {
+        Device::Cpu
+    };
+    let t3_device = if use_t3_cuda {
+        Device::new_cuda(0)?
+    } else {
+        device.clone()
+    };
+    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
 
-    for m in 0..n_mels {
-        let left_hz = hz_points[m];
-        let _center_hz = hz_points[m + 1];
-        let right_hz = hz_points[m + 2];
-
-        let left = bin_points[m];
-        let center = bin_points[m + 1];
-        let right = bin_points[m + 2];
-
-        // Slaney normalization factor
-        let enorm = 2.0 / (right_hz - left_hz);
-
-        for k in left..center {
-            if center > left {
-                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
-            }
-        }
-        for k in center..right {
-            if right > center {
-                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
-            }
-        }
-    }
-    filterbank
-}
-
-pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
-    let rms: f32 = (samples.iter().map(|s| s * s).sum::<f32>() / samples.len() as f32).sqrt();
-    if rms > 1e-10 {
-        let gain = 10.0f32
-            .powf((target_db - 20.0 * rms.log10()) / 20.0)
-            .min(10.0);
-        for sample in samples.iter_mut() {
-            *sample *= gain;
-        }
-    }
-}
-</file>
-
-<file path="candle/src/gpt2.rs">
-use candle_core::{DType, IndexOp, Module, Result, Tensor};
-use candle_nn::{Activation, Embedding, LayerNorm, Linear, VarBuilder};
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Config {
-    pub vocab_size: usize,
-    pub n_positions: usize,
-    pub n_embd: usize,
-    pub n_layer: usize,
-    pub n_head: usize,
-    pub activation_function: Activation,
-    pub layer_norm_epsilon: f64,
-    pub n_inner: Option<usize>,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            vocab_size: 50257,
-            n_positions: 1024,
-            n_embd: 768,
-            n_layer: 12,
-            n_head: 12,
-            activation_function: Activation::Gelu,
-            layer_norm_epsilon: 1e-5,
-            n_inner: None,
+    println!("Downloading model files...");
+    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
+    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
+    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
+    println!("[DEBUG] T3 Path: {:?}", t3_path);
+    {
+        let file = std::fs::File::open(&t3_path).unwrap();
+        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
+        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
+        let mut names: Vec<_> = safetensors.names().into_iter().collect();
+        names.sort();
+        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
+        for name in names {
+            println!("  {}", name);
         }
     }
-}
+    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
+    let ve_path = turbo_repo.get("ve.safetensors")?;
+    let s3tokenizer_path = api
+        .model("ResembleAI/s3tokenizer-v2".to_string())
+        .get("model.safetensors")?;
+    let tokenizer_path = api
+        .model("ResembleAI/chatterbox".to_string())
+        .get("tokenizer.json")?;
 
-fn conv1d(nf: usize, nx: usize, vb: VarBuilder) -> Result<Linear> {
-    // let weight = vb.get((nf, nx), "weight")?; // (out, in)
-    // Transpose
-    let weight = vb.get((nx, nf), "weight")?;
-    let weight = weight.transpose(0, 1)?;
-    let bias = vb.get(nf, "bias")?;
-    Ok(Linear::new(weight, Some(bias)))
-}
+    // STEP 1: Text
+    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let encoding = tokenizer
+        .encode(text, true)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
+    let text_tokens_tensor =
+        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
 
-struct MLP {
-    c_fc: Linear,
-    c_proj: Linear,
-    act: Activation,
-}
+    // STEP 2: Reference Audio Processing
+    let (ref_samples, ref_sr) =
+        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
 
-impl MLP {
-    fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
-        let n_inner = cfg.n_inner.unwrap_or(4 * cfg.n_embd);
-        let c_fc = conv1d(n_inner, cfg.n_embd, vb.pp("c_fc"))?;
-        let c_proj = conv1d(cfg.n_embd, n_inner, vb.pp("c_proj"))?;
-        Ok(Self {
-            c_fc,
-            c_proj,
-            act: cfg.activation_function,
-        })
-    }
+    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
 
-    fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        let x = self.c_fc.forward(x)?;
-        let x = self.act.forward(&x)?;
-        self.c_proj.forward(&x)
-    }
-}
+    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
+    let config_16k_40 = candle::audio::MelConfig {
+        n_fft: 1024,
+        hop_length: 160,
+        win_length: 1024,
+        n_mels: 40,
+        fmax: 8000.0,
+    };
+    let mel_40_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_16k_40,
+    )?;
 
-struct Attention {
-    c_attn: Linear,
-    c_proj: Linear,
-    n_head: usize,
-    _n_embd: usize,
-    _scale: bool,
-}
+    let mel_80_16k_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &candle::audio::MelConfig::for_16k(),
+    )?;
 
-impl Attention {
-    fn new(cfg: &Config, scale: bool, vb: VarBuilder) -> Result<Self> {
-        let n_embd = cfg.n_embd;
-        let n_head = cfg.n_head;
-        let c_attn = conv1d(3 * n_embd, n_embd, vb.pp("c_attn"))?;
-        let c_proj = conv1d(n_embd, n_embd, vb.pp("c_proj"))?;
-        Ok(Self {
-            c_attn,
-            c_proj,
-            n_head,
-            _n_embd: n_embd,
-            _scale: scale,
-        })
-    }
+    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_24k,
+        candle::audio::S3GEN_SR,
+        &device,
+        &candle::audio::MelConfig::for_24k(80),
+    )?;
 
-    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
-        let (b, t, c) = x.dims3()?;
-        let qkv = self.c_attn.forward(x)?;
-        let qkv = qkv.reshape((b, t, 3, self.n_head, c / self.n_head))?;
-        let qkv = qkv.permute((2, 0, 3, 1, 4))?;
-        let q = qkv.i(0)?.contiguous()?;
-        let k = qkv.i(1)?.contiguous()?;
-        let v = qkv.i(2)?.contiguous()?;
-
-        let k_t = k.transpose(2, 3)?;
-        let mut att = (q.matmul(&k_t)? / (c as f64 / self.n_head as f64).sqrt())?;
-
-        if let Some(bias) = bias {
-            att = att.broadcast_add(bias)?;
-        }
-
-        att = candle_nn::ops::softmax(&att, 3)?;
-        let y = att.matmul(&v)?;
-        let y = y.permute((0, 2, 1, 3))?.reshape((b, t, c))?;
-
-        self.c_proj.forward(&y)
-    }
-}
-
-struct Block {
-    ln_1: LayerNorm,
-    attn: Attention,
-    ln_2: LayerNorm,
-    mlp: MLP,
-}
-
-impl Block {
-    fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
-        let ln_1 = candle_nn::layer_norm(cfg.n_embd, cfg.layer_norm_epsilon, vb.pp("ln_1"))?;
-        let attn = Attention::new(cfg, true, vb.pp("attn"))?;
-        let ln_2 = candle_nn::layer_norm(cfg.n_embd, cfg.layer_norm_epsilon, vb.pp("ln_2"))?;
-        let mlp = MLP::new(cfg, vb.pp("mlp"))?;
-        Ok(Self {
-            ln_1,
-            attn,
-            ln_2,
-            mlp,
-        })
-    }
-
-    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
-        let residual = x;
-        let x = self.ln_1.forward(x)?;
-        let x = self.attn.forward(&x, bias)?;
-        let x = (x + residual)?;
-
-        let residual = &x;
-        let x = self.ln_2.forward(&x)?;
-        let x = self.mlp.forward(&x)?;
-        let x = (x + residual)?;
-        Ok(x)
-    }
-}
-
-pub struct GPT2Model {
-    wte: Embedding,
-    wpe: Embedding,
-    h: Vec<Block>,
-    ln_f: LayerNorm,
-    _config: Config,
-}
-
-impl GPT2Model {
-    pub fn new(config: Config, vb: VarBuilder) -> Result<Self> {
-        let wte = candle_nn::embedding(config.vocab_size, config.n_embd, vb.pp("wte"))?;
-        let wpe = candle_nn::embedding(config.n_positions, config.n_embd, vb.pp("wpe"))?;
-
-        let mut h = Vec::new();
-        let blocks_vb = vb.pp("h");
-        for i in 0..config.n_layer {
-            h.push(Block::new(&config, blocks_vb.pp(i))?);
-        }
-
-        let ln_f = candle_nn::layer_norm(config.n_embd, config.layer_norm_epsilon, vb.pp("ln_f"))?;
-
-        Ok(Self {
-            wte,
-            wpe,
-            h,
-            ln_f,
-            _config: config,
-        })
-    }
-
-    pub fn forward(&self, input_ids: &Tensor) -> Result<Tensor> {
-        let (_b, t) = input_ids.dims2()?;
-        let input_embeds = self.wte.forward(input_ids)?;
-        let position_ids = Tensor::arange(0, t as u32, input_ids.device())?.unsqueeze(0)?;
-        let position_embeds = self.wpe.forward(&position_ids)?;
-
-        let mut hidden_states = (input_embeds + position_embeds)?;
-
-        let mask_indexes = Tensor::arange(0, t as u32, input_ids.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?;
-        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
-
-        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(hidden_states.dtype())?;
-        let wide_mask_val = if hidden_states.dtype() == DType::F16 {
-            1e4
-        } else {
-            1e9
+    // --- STEP 3: S3 Prompt Tokens ---
+    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_80_16k_linear)?;
+    let speech_prompt_tokens = {
+        let vb = unsafe {
+            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
         };
-        let mask = ((mask - 1.0)? * wide_mask_val)?;
+        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
+            &candle::s3tokenizer::ModelConfig::default(),
+            vb,
+        )?;
+        let (b, c, t) = mel_for_tokenizer.dims3()?;
+        let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
+        s3tok.encode(&Tensor::cat(&[&mel_for_tokenizer, &padding], 1)?)?
+    };
 
-        for block in &self.h {
-            hidden_states = block.forward(&hidden_states, Some(&mask))?;
-        }
+    // --- STEP 4: T3 Embedding (Voice Encoder) ---
+    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
+    let spk_emb_256 = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
+        let ve = candle::voice_encoder::VoiceEncoder::new(
+            candle::voice_encoder::VoiceEncoderConfig::default(),
+            vb,
+        )?;
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
+        let mel_40_power = mel_40_linear.sqr()?;
+        // VoiceEncoder expects (B, T, 40)
+        ve.forward(&mel_40_power.transpose(1, 2)?)?
+    };
 
-        self.ln_f.forward(&hidden_states)
-    }
+    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
+    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
+    // CAMPPlus expects Mean-Normalized Log-Mel
+    let mel_80_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+    let mean = mel_80_log.mean_keepdim(2)?;
+    let mel_for_campplus = mel_80_log.broadcast_sub(&mean)?;
 
-    // Helper to allow custom embeddings input
-    pub fn forward_embeds(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
-        let (_b, t, _c) = inputs_embeds.dims3()?;
-        let position_ids = Tensor::arange(0, t as u32, inputs_embeds.device())?.unsqueeze(0)?;
-        let position_embeds = self.wpe.forward(&position_ids)?;
+    let spk_emb_80 = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
+        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
+    };
 
-        let mut hidden_states = (inputs_embeds + position_embeds)?;
-
-        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
-        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
-
-        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(inputs_embeds.dtype())?;
-        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
-            1e4
-        } else {
-            1e9
+    // STEP 6: T3 Generation
+    println!("\n[Step 6/6] Generating tokens with T3...");
+    let speech_tokens = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
+        let t3_config = candle::t3_model::T3Config {
+            text_tokens_dict_size: 50276,
+            speech_tokens_dict_size: 6563,
+            hidden_size: 1024,
+            num_layers: 24,
+            num_heads: 16,
+            vocab_size: 50276,
+            speaker_embed_size: 256,
+            start_speech_token: 6561,
+            stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
+            n_positions: 8196,
         };
-        let mask = ((mask - 1.0)? * wide_mask_val)?;
+        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
+        t3.generate(
+            &text_tokens_tensor.to_device(&t3_device)?,
+            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
+            Some(&speech_prompt_tokens.to_device(&t3_device)?),
+            None,
+            500,
+            0.8,
+            0.95,
+            50,
+            1.2,
+            42,
+        )?
+    };
 
-        for block in &self.h {
-            hidden_states = block.forward(&hidden_states, Some(&mask))?;
-        }
+    // STEP 7: Synthesis
+    println!("\n[Step 7/6] Synthesizing audio...");
 
-        self.ln_f.forward(&hidden_states)
-    }
+    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
+    let speech_tokens_filtered = {
+        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+        let filtered: Vec<u32> = tokens
+            .into_iter()
+            .filter(|&t| t != 6561 && t != 6562)
+            .collect();
+        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
+    };
+
+    // Concatenate prompt tokens + generated tokens
+    // Note: speech_prompt_tokens was calculated in Step 3.
+    // We assume speech_prompt_tokens is (1, N_PROMPT).
+    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
+    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
+
+    let audio_tensor = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
+
+        // 2. Prepare Reference Mel for Conditioning
+        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
+        // mel_80_24k_linear is (1, 80, T_ref)
+        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+
+        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
+        // The S3Gen Encoder upsamples tokens by 2x.
+        // So output length = input_tokens_len * 2.
+        let (_, n_toks) = s3_input_tokens.dims2()?;
+        let target_len = n_toks * 2;
+        let (b, c, ref_len) = ref_mel_log.dims3()?;
+
+        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
+        let safe_ref_len = ref_len.min(target_len);
+        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
+
+        // Create padding
+        let padding_len = target_len - safe_ref_len;
+        let cond = if padding_len > 0 {
+            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
+            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
+        } else {
+            ref_mel_log_trimmed
+        };
+
+        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
+
+        // 4. Forward with corrected inputs
+        s3gen.forward(
+            &s3_input_tokens,
+            Some(&spk_emb_80),
+            Some(&cond), // Pass the time-aligned conditioning, not the mean!
+        )?
+    };
+
+    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
+    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    println!("SUCCESS! Audio saved to: {}", output);
+
+    Ok(())
 }
 </file>
 
@@ -11684,124 +11385,6 @@ fn main() -> anyhow::Result<()> {
     );
 
     Ok(())
-}
-</file>
-
-<file path="candle/src/voice_encoder.rs">
-use candle_core::{IndexOp, Result, Tensor};
-use candle_nn::rnn::LSTMState;
-use candle_nn::{LSTMConfig, Module, VarBuilder, LSTM, RNN};
-
-pub struct VoiceEncoderConfig {
-    pub ve_hidden_size: usize,
-    pub speaker_embed_size: usize,
-    pub num_mels: usize,
-    pub num_layers: usize,
-    pub ve_final_relu: bool,
-}
-
-impl Default for VoiceEncoderConfig {
-    fn default() -> Self {
-        // FIXED: num_mels must be 40 to match ve.safetensors
-        Self {
-            ve_hidden_size: 256,
-            speaker_embed_size: 256,
-            num_mels: 40,
-            num_layers: 3,
-            ve_final_relu: true,
-        }
-    }
-}
-
-pub struct VoiceEncoder {
-    lstm: Vec<LSTM>,
-    proj: candle_nn::Linear,
-    config: VoiceEncoderConfig,
-}
-
-impl VoiceEncoder {
-    pub fn new(config: VoiceEncoderConfig, vb: VarBuilder) -> Result<Self> {
-        let mut lstms = Vec::new();
-        let lstm_vb = vb.pp("lstm");
-
-        for i in 0..config.num_layers {
-            let lstm_config = LSTMConfig {
-                layer_idx: i,
-                direction: candle_nn::rnn::Direction::Forward,
-                ..Default::default()
-            };
-
-            let input_size = if i == 0 {
-                config.num_mels
-            } else {
-                config.ve_hidden_size
-            };
-            let lstm = LSTM::new(
-                input_size,
-                config.ve_hidden_size,
-                lstm_config,
-                lstm_vb.clone(),
-            )?;
-            lstms.push(lstm);
-        }
-
-        let proj = candle_nn::linear(
-            config.ve_hidden_size,
-            config.speaker_embed_size,
-            vb.pp("proj"),
-        )?;
-
-        Ok(Self {
-            lstm: lstms,
-            proj,
-            config,
-        })
-    }
-
-    pub fn forward(&self, mels: &Tensor) -> Result<Tensor> {
-        // mels: (B, T, 40)
-        let (b, t, _m) = mels.dims3()?;
-        eprintln!("[VoiceEncoder] input mels: b={}, t={}, m={}", b, t, _m);
-        let mut hidden_states = mels.clone();
-
-        for (layer_idx, layer) in self.lstm.iter().enumerate() {
-            eprintln!(
-                "[VoiceEncoder] LSTM layer {}: creating zeros (b={}, h={})",
-                layer_idx, b, self.config.ve_hidden_size
-            );
-            let h = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
-            let c = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
-            let mut state = LSTMState { h, c };
-
-            let mut outputs = Vec::new();
-            for i in 0..t {
-                let input_step = hidden_states.i((.., i, ..))?.contiguous()?;
-                state = layer.step(&input_step, &state)?;
-                outputs.push(state.h.clone());
-            }
-            eprintln!(
-                "[VoiceEncoder] LSTM layer {}: stacking {} outputs",
-                layer_idx,
-                outputs.len()
-            );
-            hidden_states = Tensor::stack(&outputs, 1)?;
-            eprintln!(
-                "[VoiceEncoder] LSTM layer {}: hidden_states: {:?}",
-                layer_idx,
-                hidden_states.dims()
-            );
-        }
-
-        let last_hidden = hidden_states.i((.., t - 1, ..))?;
-        let mut raw_embeds = self.proj.forward(&last_hidden)?;
-
-        if self.config.ve_final_relu {
-            raw_embeds = raw_embeds.relu()?;
-        }
-
-        let norm = raw_embeds.sqr()?.sum_keepdim(1)?.sqrt()?;
-        raw_embeds.broadcast_div(&norm)
-    }
 }
 </file>
 
@@ -12216,6 +11799,271 @@ path = "src/lib.rs"
 [[bin]]
 name = "chatterbox"
 path = "src/main.rs"
+</file>
+
+<file path="candle/src/audio.rs">
+use candle_core::{DType, Device, Result, Tensor};
+use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
+use rubato::{FftFixedIn, Resampler};
+use std::path::Path;
+
+pub const S3GEN_SR: u32 = 24000;
+pub const S3_SR: u32 = 16000;
+
+pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
+    let reader = WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
+    let spec = reader.spec();
+    let sample_rate = spec.sample_rate;
+    let channels = spec.channels as usize;
+
+    let samples: Vec<f32> = match spec.sample_format {
+        SampleFormat::Int => {
+            let bits = spec.bits_per_sample;
+            let max_val = (1i32 << (bits - 1)) as f32;
+            reader
+                .into_samples::<i32>()
+                .filter_map(|s| s.ok())
+                .map(|s| s as f32 / max_val)
+                .collect()
+        }
+        SampleFormat::Float => reader
+            .into_samples::<f32>()
+            .filter_map(|s| s.ok())
+            .collect(),
+    };
+
+    let mono = if channels > 1 {
+        samples
+            .chunks(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    } else {
+        samples
+    };
+
+    Ok((mono, sample_rate))
+}
+
+pub fn save_wav<P: AsRef<Path>>(
+    path: P,
+    samples: &[f32],
+    sample_rate: u32,
+) -> std::result::Result<(), String> {
+    let spec = WavSpec {
+        channels: 1,
+        sample_rate,
+        bits_per_sample: 16,
+        sample_format: SampleFormat::Int,
+    };
+    let mut writer =
+        WavWriter::create(path, spec).map_err(|e| format!("Failed to create WAV: {}", e))?;
+    for &sample in samples {
+        let clamped = sample.clamp(-1.0, 1.0);
+        writer
+            .write_sample((clamped * 32767.0) as i16)
+            .map_err(|e| format!("Failed to write sample: {}", e))?;
+    }
+    writer
+        .finalize()
+        .map_err(|e| format!("Failed to finalize WAV: {}", e))?;
+    Ok(())
+}
+
+pub fn resample(
+    samples: &[f32],
+    from_sr: u32,
+    to_sr: u32,
+) -> std::result::Result<Vec<f32>, String> {
+    if from_sr == to_sr {
+        return Ok(samples.to_vec());
+    }
+    let chunk_size = 1024;
+    let mut resampler = FftFixedIn::<f32>::new(from_sr as usize, to_sr as usize, chunk_size, 2, 1)
+        .map_err(|e| format!("Failed to create resampler: {}", e))?;
+    let mut output = Vec::new();
+    let mut input_frames = samples.to_vec();
+    let remainder = input_frames.len() % chunk_size;
+    if remainder != 0 {
+        input_frames.extend(std::iter::repeat(0.0).take(chunk_size - remainder));
+    }
+    for chunk in input_frames.chunks(chunk_size) {
+        let input = vec![chunk.to_vec()];
+        let mut resampled = resampler
+            .process(&input, None)
+            .map_err(|e| format!("Resample error: {}", e))?;
+        output.append(&mut resampled[0]);
+    }
+    Ok(output)
+}
+
+pub struct MelConfig {
+    pub n_fft: usize,
+    pub hop_length: usize,
+    pub win_length: usize,
+    pub n_mels: usize,
+    pub fmax: f32,
+}
+
+impl MelConfig {
+    pub fn for_16k() -> Self {
+        Self {
+            n_fft: 1024,
+            hop_length: 160,
+            win_length: 1024,
+            n_mels: 80,
+            fmax: 8000.0,
+        }
+    }
+
+    pub fn for_24k(n_mels: usize) -> Self {
+        Self {
+            n_fft: 1920,
+            hop_length: 480,
+            win_length: 1920,
+            n_mels,
+            fmax: 8000.0,
+        }
+    }
+}
+
+pub fn compute_mel_spectrogram(
+    samples: &[f32],
+    sample_rate: u32,
+    device: &Device,
+    config: &MelConfig,
+) -> Result<Tensor> {
+    use realfft::RealFftPlanner;
+    let n_fft = config.n_fft;
+    let hop_length = config.hop_length;
+    let win_length = config.win_length;
+    let n_mels = config.n_mels;
+    let fmax = config.fmax;
+
+    let window: Vec<f32> = (0..win_length)
+        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
+        .collect();
+
+    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
+    let pad = (n_fft - hop_length) / 2;
+    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
+    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
+    for i in (1..=pad).rev() {
+        padded.push(samples[i]);
+    }
+    padded.extend_from_slice(samples);
+    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
+    let n = samples.len();
+    for i in 1..=pad {
+        padded.push(samples[n - 1 - i]);
+    }
+
+    let n_frames = (padded.len() - n_fft) / hop_length + 1;
+    let mut planner = RealFftPlanner::<f32>::new();
+    let fft = planner.plan_fft_forward(n_fft);
+    let mut power_spectrogram = vec![vec![0.0f32; n_fft / 2 + 1]; n_frames];
+
+    for (frame_idx, frame_start) in (0..padded.len() - n_fft + 1)
+        .step_by(hop_length)
+        .enumerate()
+    {
+        if frame_idx >= n_frames {
+            break;
+        }
+        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
+            .iter()
+            .zip(window.iter())
+            .map(|(s, w)| s * w)
+            .collect();
+        let mut spectrum = fft.make_output_vec();
+        fft.process(&mut windowed, &mut spectrum)
+            .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
+        for (i, c) in spectrum.iter().enumerate() {
+            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
+            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
+            // Then it applies mel and spectral_normalize (log)
+            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
+        }
+    }
+
+    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
+    let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
+    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
+        for (m, filter) in mel_filters.iter().enumerate() {
+            let mut sum = 0.0f32;
+            for (i, &weight) in filter.iter().enumerate() {
+                sum += weight * mag_frame[i];
+            }
+            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
+            mel_spec[t][m] = sum.max(1e-5);
+        }
+    }
+
+    let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
+    // Return (B, C, T) where C=80
+    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
+        .permute((0, 2, 1))?
+        .contiguous()?
+        .to_dtype(DType::F32)
+}
+
+fn create_mel_filterbank(
+    sample_rate: u32,
+    n_fft: usize,
+    n_mels: usize,
+    fmax: f32,
+) -> Vec<Vec<f32>> {
+    let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
+    let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
+    let mel_min = hz_to_mel(0.0);
+    let mel_max = hz_to_mel(fmax);
+    let mel_points: Vec<f32> = (0..=n_mels + 1)
+        .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
+        .collect();
+    let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
+    let n_bins = n_fft / 2 + 1;
+    let bin_points: Vec<usize> = hz_points
+        .iter()
+        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
+        .collect();
+    let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
+
+    for m in 0..n_mels {
+        let left_hz = hz_points[m];
+        let _center_hz = hz_points[m + 1];
+        let right_hz = hz_points[m + 2];
+
+        let left = bin_points[m];
+        let center = bin_points[m + 1];
+        let right = bin_points[m + 2];
+
+        // Slaney normalization factor
+        let enorm = 2.0 / (right_hz - left_hz);
+
+        for k in left..center {
+            if center > left {
+                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
+            }
+        }
+        for k in center..right {
+            if right > center {
+                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
+            }
+        }
+    }
+    filterbank
+}
+
+pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
+    let rms: f32 = (samples.iter().map(|s| s * s).sum::<f32>() / samples.len() as f32).sqrt();
+    if rms > 1e-10 {
+        let gain = 10.0f32
+            .powf((target_db - 20.0 * rms.log10()) / 20.0)
+            .min(10.0);
+        for sample in samples.iter_mut() {
+            *sample *= gain;
+        }
+    }
+}
 </file>
 
 <file path="candle/src/campplus.rs">
@@ -12714,6 +12562,387 @@ impl CAMPPlus {
 }
 </file>
 
+<file path="candle/src/gpt2.rs">
+use candle_core::{DType, IndexOp, Module, Result, Tensor};
+use candle_nn::{Activation, Embedding, LayerNorm, Linear, VarBuilder};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Config {
+    pub vocab_size: usize,
+    pub n_positions: usize,
+    pub n_embd: usize,
+    pub n_layer: usize,
+    pub n_head: usize,
+    pub activation_function: Activation,
+    pub layer_norm_epsilon: f64,
+    pub n_inner: Option<usize>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            vocab_size: 50257,
+            n_positions: 1024,
+            n_embd: 768,
+            n_layer: 12,
+            n_head: 12,
+            activation_function: Activation::Gelu,
+            layer_norm_epsilon: 1e-5,
+            n_inner: None,
+        }
+    }
+}
+
+fn conv1d(nf: usize, nx: usize, vb: VarBuilder) -> Result<Linear> {
+    // let weight = vb.get((nf, nx), "weight")?; // (out, in)
+    // Transpose
+    let weight = vb.get((nx, nf), "weight")?;
+    let weight = weight.transpose(0, 1)?;
+    let bias = vb.get(nf, "bias")?;
+    Ok(Linear::new(weight, Some(bias)))
+}
+
+struct MLP {
+    c_fc: Linear,
+    c_proj: Linear,
+    act: Activation,
+}
+
+impl MLP {
+    fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
+        let n_inner = cfg.n_inner.unwrap_or(4 * cfg.n_embd);
+        let c_fc = conv1d(n_inner, cfg.n_embd, vb.pp("c_fc"))?;
+        let c_proj = conv1d(cfg.n_embd, n_inner, vb.pp("c_proj"))?;
+        Ok(Self {
+            c_fc,
+            c_proj,
+            act: cfg.activation_function,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let x = self.c_fc.forward(x)?;
+        let x = self.act.forward(&x)?;
+        self.c_proj.forward(&x)
+    }
+}
+
+struct Attention {
+    c_attn: Linear,
+    c_proj: Linear,
+    n_head: usize,
+    _n_embd: usize,
+    _scale: bool,
+}
+
+impl Attention {
+    fn new(cfg: &Config, scale: bool, vb: VarBuilder) -> Result<Self> {
+        let n_embd = cfg.n_embd;
+        let n_head = cfg.n_head;
+        let c_attn = conv1d(3 * n_embd, n_embd, vb.pp("c_attn"))?;
+        let c_proj = conv1d(n_embd, n_embd, vb.pp("c_proj"))?;
+        Ok(Self {
+            c_attn,
+            c_proj,
+            n_head,
+            _n_embd: n_embd,
+            _scale: scale,
+        })
+    }
+
+    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
+        let (b, t, c) = x.dims3()?;
+        let qkv = self.c_attn.forward(x)?;
+        let qkv = qkv.reshape((b, t, 3, self.n_head, c / self.n_head))?;
+        let qkv = qkv.permute((2, 0, 3, 1, 4))?;
+        let q = qkv.i(0)?.contiguous()?;
+        let k = qkv.i(1)?.contiguous()?;
+        let v = qkv.i(2)?.contiguous()?;
+
+        let k_t = k.transpose(2, 3)?;
+        let mut att = (q.matmul(&k_t)? / (c as f64 / self.n_head as f64).sqrt())?;
+
+        if let Some(bias) = bias {
+            att = att.broadcast_add(bias)?;
+        }
+
+        att = candle_nn::ops::softmax(&att, 3)?;
+        let y = att.matmul(&v)?;
+        let y = y.permute((0, 2, 1, 3))?.reshape((b, t, c))?;
+
+        self.c_proj.forward(&y)
+    }
+}
+
+struct Block {
+    ln_1: LayerNorm,
+    attn: Attention,
+    ln_2: LayerNorm,
+    mlp: MLP,
+}
+
+impl Block {
+    fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
+        let ln_1 = candle_nn::layer_norm(cfg.n_embd, cfg.layer_norm_epsilon, vb.pp("ln_1"))?;
+        let attn = Attention::new(cfg, true, vb.pp("attn"))?;
+        let ln_2 = candle_nn::layer_norm(cfg.n_embd, cfg.layer_norm_epsilon, vb.pp("ln_2"))?;
+        let mlp = MLP::new(cfg, vb.pp("mlp"))?;
+        Ok(Self {
+            ln_1,
+            attn,
+            ln_2,
+            mlp,
+        })
+    }
+
+    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
+        let residual = x;
+        let x = self.ln_1.forward(x)?;
+        let x = self.attn.forward(&x, bias)?;
+        let x = (x + residual)?;
+
+        let residual = &x;
+        let x = self.ln_2.forward(&x)?;
+        let x = self.mlp.forward(&x)?;
+        let x = (x + residual)?;
+        Ok(x)
+    }
+}
+
+pub struct GPT2Model {
+    wte: Embedding,
+    wpe: Embedding,
+    h: Vec<Block>,
+    ln_f: LayerNorm,
+    _config: Config,
+}
+
+impl GPT2Model {
+    pub fn new(config: Config, vb: VarBuilder) -> Result<Self> {
+        let wte = candle_nn::embedding(config.vocab_size, config.n_embd, vb.pp("wte"))?;
+        let wpe = candle_nn::embedding(config.n_positions, config.n_embd, vb.pp("wpe"))?;
+
+        let mut h = Vec::new();
+        let blocks_vb = vb.pp("h");
+        for i in 0..config.n_layer {
+            h.push(Block::new(&config, blocks_vb.pp(i))?);
+        }
+
+        let ln_f = candle_nn::layer_norm(config.n_embd, config.layer_norm_epsilon, vb.pp("ln_f"))?;
+
+        Ok(Self {
+            wte,
+            wpe,
+            h,
+            ln_f,
+            _config: config,
+        })
+    }
+
+    pub fn forward(&self, input_ids: &Tensor) -> Result<Tensor> {
+        let (_b, t) = input_ids.dims2()?;
+        let input_embeds = self.wte.forward(input_ids)?;
+        let position_ids = Tensor::arange(0, t as u32, input_ids.device())?.unsqueeze(0)?;
+        let position_embeds = self.wpe.forward(&position_ids)?;
+
+        let mut hidden_states = (input_embeds + position_embeds)?;
+
+        let mask_indexes = Tensor::arange(0, t as u32, input_ids.device())?;
+        let mask_indexes_row = mask_indexes.unsqueeze(1)?;
+        let mask_indexes_col = mask_indexes.unsqueeze(0)?;
+        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+
+        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
+        let mask = mask.to_dtype(hidden_states.dtype())?;
+        let wide_mask_val = if hidden_states.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
+
+        for block in &self.h {
+            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+        }
+
+        self.ln_f.forward(&hidden_states)
+    }
+
+    // Helper to allow custom embeddings input
+    pub fn forward_embeds(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
+        let (_b, t, _c) = inputs_embeds.dims3()?;
+        let position_ids = Tensor::arange(0, t as u32, inputs_embeds.device())?.unsqueeze(0)?;
+        let position_embeds = self.wpe.forward(&position_ids)?;
+
+        let mut hidden_states = (inputs_embeds + position_embeds)?;
+
+        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
+        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
+        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
+        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+
+        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
+        let mask = mask.to_dtype(inputs_embeds.dtype())?;
+        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
+
+        for block in &self.h {
+            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+        }
+
+        self.ln_f.forward(&hidden_states)
+    }
+
+    // Forward without adding positional embeddings (caller handles it)
+    pub fn forward_embeds_no_pos(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
+        let (_b, t, _c) = inputs_embeds.dims3()?;
+        let mut hidden_states = inputs_embeds.clone();
+
+        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
+        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
+        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
+        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+
+        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
+        let mask = mask.to_dtype(inputs_embeds.dtype())?;
+        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
+
+        for block in &self.h {
+            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+        }
+
+        self.ln_f.forward(&hidden_states)
+    }
+}
+</file>
+
+<file path="candle/src/voice_encoder.rs">
+use candle_core::{IndexOp, Result, Tensor};
+use candle_nn::rnn::LSTMState;
+use candle_nn::{LSTMConfig, Module, VarBuilder, LSTM, RNN};
+
+pub struct VoiceEncoderConfig {
+    pub ve_hidden_size: usize,
+    pub speaker_embed_size: usize,
+    pub num_mels: usize,
+    pub num_layers: usize,
+    pub ve_final_relu: bool,
+}
+
+impl Default for VoiceEncoderConfig {
+    fn default() -> Self {
+        // FIXED: num_mels must be 40 to match ve.safetensors
+        Self {
+            ve_hidden_size: 256,
+            speaker_embed_size: 256,
+            num_mels: 40,
+            num_layers: 3,
+            ve_final_relu: true,
+        }
+    }
+}
+
+pub struct VoiceEncoder {
+    lstm: Vec<LSTM>,
+    proj: candle_nn::Linear,
+    config: VoiceEncoderConfig,
+}
+
+impl VoiceEncoder {
+    pub fn new(config: VoiceEncoderConfig, vb: VarBuilder) -> Result<Self> {
+        let mut lstms = Vec::new();
+        let lstm_vb = vb.pp("lstm");
+
+        for i in 0..config.num_layers {
+            let lstm_config = LSTMConfig {
+                layer_idx: i,
+                direction: candle_nn::rnn::Direction::Forward,
+                ..Default::default()
+            };
+
+            let input_size = if i == 0 {
+                config.num_mels
+            } else {
+                config.ve_hidden_size
+            };
+            let lstm = LSTM::new(
+                input_size,
+                config.ve_hidden_size,
+                lstm_config,
+                lstm_vb.clone(),
+            )?;
+            lstms.push(lstm);
+        }
+
+        let proj = candle_nn::linear(
+            config.ve_hidden_size,
+            config.speaker_embed_size,
+            vb.pp("proj"),
+        )?;
+
+        Ok(Self {
+            lstm: lstms,
+            proj,
+            config,
+        })
+    }
+
+    pub fn forward(&self, mels: &Tensor) -> Result<Tensor> {
+        // mels: (B, T, 40)
+        let (b, t, _m) = mels.dims3()?;
+        eprintln!("[VoiceEncoder] input mels: b={}, t={}, m={}", b, t, _m);
+        let mut hidden_states = mels.clone();
+
+        for (layer_idx, layer) in self.lstm.iter().enumerate() {
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: creating zeros (b={}, h={})",
+                layer_idx, b, self.config.ve_hidden_size
+            );
+            let h = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
+            let c = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
+            let mut state = LSTMState { h, c };
+
+            let mut outputs = Vec::new();
+            for i in 0..t {
+                let input_step = hidden_states.i((.., i, ..))?.contiguous()?;
+                state = layer.step(&input_step, &state)?;
+                outputs.push(state.h.clone());
+            }
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: stacking {} outputs",
+                layer_idx,
+                outputs.len()
+            );
+            hidden_states = Tensor::stack(&outputs, 1)?;
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: hidden_states: {:?}",
+                layer_idx,
+                hidden_states.dims()
+            );
+        }
+
+        let last_hidden = hidden_states.i((.., t - 1, ..))?;
+        let mut raw_embeds = self.proj.forward(&last_hidden)?;
+
+        if self.config.ve_final_relu {
+            raw_embeds = raw_embeds.relu()?;
+        }
+
+        let norm = raw_embeds.sqr()?.sum_keepdim(1)?.sqrt()?;
+        raw_embeds.broadcast_div(&norm)
+    }
+}
+</file>
+
 <file path="src/chatterbox/models/t3/t3.py">
 # Copyright (c) 2025 Resemble AI
 # MIT License
@@ -13207,311 +13436,6 @@ class T3(nn.Module):
         return all_tokens
 </file>
 
-<file path="candle/src/t3_model.rs">
-use crate::gpt2::{Config as GPT2Config, GPT2Model};
-use candle_core::{IndexOp, Result, Tensor};
-use candle_nn::{Embedding, Linear, Module, VarBuilder};
-
-pub struct T3Config {
-    pub text_tokens_dict_size: usize,
-    pub speech_tokens_dict_size: usize,
-    pub hidden_size: usize,
-    pub num_layers: usize,
-    pub num_heads: usize,
-    pub vocab_size: usize,
-    pub speaker_embed_size: usize,
-    pub start_speech_token: u32,
-    pub stop_speech_token: u32,
-    pub speech_cond_prompt_len: Option<usize>,
-    pub use_perceiver_resampler: bool,
-    pub emotion_adv: bool,
-    pub n_positions: usize,
-}
-
-impl Default for T3Config {
-    fn default() -> Self {
-        Self {
-            text_tokens_dict_size: 50276,
-            speech_tokens_dict_size: 6563,
-            hidden_size: 1024, // GPT2 Medium
-            num_layers: 24,
-            num_heads: 16,
-            vocab_size: 50276, // Placeholder
-            speaker_embed_size: 256,
-            start_speech_token: 6561,
-            stop_speech_token: 6562,
-            speech_cond_prompt_len: Some(375),
-            use_perceiver_resampler: false,
-            emotion_adv: false,
-            n_positions: 8196,
-        }
-    }
-}
-
-pub struct T3CondEnc {
-    spkr_enc: Linear,
-    emotion_adv_fc: Option<Linear>,
-    // perceiver: Option<Perceiver>, // Placeholder for now if needed
-    config: T3Config,
-}
-
-impl T3CondEnc {
-    pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
-        let spkr_enc = candle_nn::linear(
-            config.speaker_embed_size,
-            config.hidden_size,
-            vb.pp("spkr_enc"),
-        )?;
-
-        let emotion_adv_fc = if config.emotion_adv {
-            Some(candle_nn::linear_no_bias(
-                1,
-                config.hidden_size,
-                vb.pp("emotion_adv_fc"),
-            )?)
-        } else {
-            None
-        };
-
-        Ok(Self {
-            spkr_enc,
-            emotion_adv_fc,
-            config,
-        })
-    }
-
-    pub fn forward(
-        &self,
-        spk_emb: &Tensor,
-        cond_prompt_speech_emb: Option<&Tensor>,
-        emotion_adv: Option<&Tensor>,
-    ) -> Result<Tensor> {
-        // spk_emb: (B, E)
-        let cond_spkr = self.spkr_enc.forward(spk_emb)?; // (B, H)
-        let cond_spkr = cond_spkr.unsqueeze(1)?; // (B, 1, H)
-
-        // Empty tensor for cat if needed (B, 0, H)
-        // Note: Candle doesn't easily support 0-dim concats in all backends, but let's try standard Vec logic
-        let mut embeds = vec![cond_spkr];
-
-        // CLAP embed (placeholder)
-
-        // Cond prompt speech emb
-        if let Some(prompt_emb) = cond_prompt_speech_emb {
-            // Assuming prompt_emb is already projected or compatible (B, L, H)
-            // If using Perceiver, we would process it here.
-            // Current T3 Turbo uses `speech_cond_prompt_len` but `use_perceiver_resampler = False`.
-            // In `cond_enc.py`:
-            // if cond_prompt_speech_emb is None: empty
-            // elif hp.use_perceiver_resampler: perceiver(cond_prompt_speech_emb)
-            // It seems if not using perceiver, it just passes it through?
-            // Wait, `cond_enc.py` code:
-            // "if cond_prompt_speech_emb is None ... elif hp.use_perceiver_resampler ... "
-            // It doesn't explicitly say what happens if `!use_perceiver_resampler` and `cond_prompt_speech_emb` is present.
-            // But looking at `ChatterboxTTS.prepare_conditionals`, `cond_prompt_speech_tokens` are created.
-            // In T3 `inference` (Python), it creates `T3Cond`.
-            // The `T3CondEnc` in Python seems to use `cond_prompt_speech_emb` from `T3Cond`.
-            // But `prepare_conditionals` sets `cond_prompt_speech_tokens`, not `emb`.
-            // Ah, `T3.forward` calls `prepare_input_embeds`.
-            // In Python `T3`:
-            // `cond_prompt_speech_emb` is derived from `cond.cond_prompt_speech_tokens` via `speech_emb` embedding layer?
-            // No, `T3CondEnc` takes `T3Cond` which has `cond_prompt_speech_emb`.
-            // Let's check where `cond_prompt_speech_emb` comes from in `T3.forward`.
-
-            embeds.push(prompt_emb.clone());
-        }
-
-        if self.config.emotion_adv {
-            if let Some(emo) = emotion_adv {
-                // emo: (B, 1, 1) or (B, 1)
-                let emo_proj = self.emotion_adv_fc.as_ref().unwrap().forward(emo)?; // (B, 1, H) or similar
-                                                                                    // Ensure dims
-                let emo_proj = if emo_proj.rank() == 2 {
-                    emo_proj.unsqueeze(1)?
-                } else {
-                    emo_proj
-                };
-                embeds.push(emo_proj);
-            }
-        }
-
-        Tensor::cat(&embeds, 1)
-    }
-}
-
-pub struct T3 {
-    gpt2: GPT2Model,
-    text_emb: Embedding,
-    speech_emb: Embedding,
-    _text_head: Linear,
-    speech_head: Linear,
-    cond_enc: T3CondEnc,
-    config: T3Config,
-}
-
-impl T3 {
-    pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
-        let gpt2_config = GPT2Config {
-            vocab_size: config.vocab_size,
-            n_embd: config.hidden_size,
-            n_layer: config.num_layers,
-            n_head: config.num_heads,
-            n_positions: config.n_positions,
-            ..Default::default()
-        };
-
-        let gpt2 = GPT2Model::new(gpt2_config, vb.pp("tfmr"))?;
-        let text_emb = candle_nn::embedding(
-            config.text_tokens_dict_size,
-            config.hidden_size,
-            vb.pp("text_emb"),
-        )?;
-        let speech_emb = candle_nn::embedding(
-            config.speech_tokens_dict_size,
-            config.hidden_size,
-            vb.pp("speech_emb"),
-        )?;
-        let _text_head = candle_nn::linear_no_bias(
-            config.hidden_size,
-            config.text_tokens_dict_size,
-            vb.pp("text_head"),
-        )?;
-        let speech_head = candle_nn::linear(
-            config.hidden_size,
-            config.speech_tokens_dict_size,
-            vb.pp("speech_head"),
-        )?;
-
-        // cond_enc might need config clone
-        let cond_enc = T3CondEnc::new(
-            T3Config {
-                text_tokens_dict_size: config.text_tokens_dict_size,
-                speech_tokens_dict_size: config.speech_tokens_dict_size,
-                hidden_size: config.hidden_size,
-                num_layers: config.num_layers,
-                num_heads: config.num_heads,
-                vocab_size: config.vocab_size,
-                speaker_embed_size: config.speaker_embed_size,
-                start_speech_token: config.start_speech_token,
-                stop_speech_token: config.stop_speech_token,
-                speech_cond_prompt_len: config.speech_cond_prompt_len,
-                use_perceiver_resampler: config.use_perceiver_resampler,
-                emotion_adv: config.emotion_adv,
-                n_positions: config.n_positions,
-            },
-            vb.pp("cond_enc"),
-        )?;
-
-        Ok(Self {
-            gpt2,
-            text_emb,
-            speech_emb,
-            _text_head,
-            speech_head,
-            cond_enc,
-            config,
-        })
-    }
-
-    pub fn prepare_input_embeds(
-        &self,
-        text_tokens: &Tensor,
-        speech_tokens: &Tensor,
-        spk_emb: &Tensor,
-        cond_prompt_speech_tokens: Option<&Tensor>,
-        emotion_adv: Option<&Tensor>,
-    ) -> Result<Tensor> {
-        // text_tokens: (B, Lt)
-        // speech_tokens: (B, Ls)
-        // spk_emb: (B, E)
-
-        // Handle prompt tokens embedding if present
-        let cond_prompt_speech_emb = if let Some(tokens) = cond_prompt_speech_tokens {
-            Some(self.speech_emb.forward(tokens)?)
-        } else {
-            None
-        };
-
-        let cond_emb =
-            self.cond_enc
-                .forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
-        let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
-        let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
-
-        // Concatenate along time dimension (dim 1)
-        // cond, text, speech
-        Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)
-    }
-
-    pub fn generate(
-        &self,
-        text_tokens: &Tensor,
-        spk_emb: &Tensor,
-        cond_prompt_speech_tokens: Option<&Tensor>,
-        emotion_adv: Option<&Tensor>,
-        max_gen_len: usize,
-        temperature: f32,
-        top_p: f32,
-        top_k: usize,
-        repetition_penalty: f32,
-        seed: u64,
-    ) -> Result<Tensor> {
-        let (b, _lt) = text_tokens.dims2()?;
-        let device = text_tokens.device();
-
-        let mut logits_processor = crate::sampling::LogitsProcessor::new(
-            seed,
-            Some(temperature as f64),
-            Some(top_p as f64),
-            Some(top_k),
-        );
-
-        // Start with start_speech_token
-        let start_token = Tensor::new(&[[self.config.start_speech_token]], device)?; // (1, 1)
-        let mut speech_tokens_v = vec![self.config.start_speech_token];
-        let mut speech_tokens_tensor = start_token.repeat((b, 1))?; // (B, 1)
-
-        for i in 0..max_gen_len {
-            if i % 10 == 0 {
-                eprintln!("[T3] Generating token {}/{}...", i, max_gen_len);
-            }
-            let embeds = self.prepare_input_embeds(
-                text_tokens,
-                &speech_tokens_tensor,
-                spk_emb,
-                cond_prompt_speech_tokens,
-                emotion_adv,
-            )?;
-
-            // Forward pass
-            let hidden_states = self.gpt2.forward_embeds(&embeds)?; // (B, L, H)
-
-            // Get last token logits
-            let last_hidden = hidden_states.i((.., hidden_states.dim(1)? - 1, ..))?; // (B, H)
-            let logits = self.speech_head.forward(&last_hidden)?; // (B, Vocab)
-
-            // Sample for each batch (assuming B=1 for now as per Python sync inference)
-            let logits_0 = logits.i(0)?;
-            let next_token =
-                logits_processor.sample(&logits_0, &speech_tokens_v, Some(repetition_penalty))?;
-
-            speech_tokens_v.push(next_token);
-            let next_token_tensor = Tensor::new(&[[next_token]], device)?;
-
-            // Append
-            speech_tokens_tensor = Tensor::cat(&[&speech_tokens_tensor, &next_token_tensor], 1)?;
-
-            // Check EOS
-            if next_token == self.config.stop_speech_token {
-                break;
-            }
-        }
-
-        Ok(speech_tokens_tensor)
-    }
-}
-</file>
-
 <file path="src/chatterbox/tts.py">
 from dataclasses import dataclass
 from pathlib import Path
@@ -13787,6 +13711,334 @@ class ChatterboxTTS:
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
 </file>
 
+<file path="candle/src/t3_model.rs">
+use crate::gpt2::{Config as GPT2Config, GPT2Model};
+use candle_core::{IndexOp, Result, Tensor};
+use candle_nn::{Embedding, Linear, Module, VarBuilder};
+
+pub struct T3Config {
+    pub text_tokens_dict_size: usize,
+    pub speech_tokens_dict_size: usize,
+    pub hidden_size: usize,
+    pub num_layers: usize,
+    pub num_heads: usize,
+    pub vocab_size: usize,
+    pub speaker_embed_size: usize,
+    pub start_speech_token: u32,
+    pub stop_speech_token: u32,
+    pub speech_cond_prompt_len: Option<usize>,
+    pub use_perceiver_resampler: bool,
+    pub emotion_adv: bool,
+    pub n_positions: usize,
+}
+
+impl Default for T3Config {
+    fn default() -> Self {
+        Self {
+            text_tokens_dict_size: 50276,
+            speech_tokens_dict_size: 6563,
+            hidden_size: 1024, // GPT2 Medium
+            num_layers: 24,
+            num_heads: 16,
+            vocab_size: 50276, // Placeholder
+            speaker_embed_size: 256,
+            start_speech_token: 6561,
+            stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
+            n_positions: 8196,
+        }
+    }
+}
+
+pub struct T3CondEnc {
+    spkr_enc: Linear,
+    emotion_adv_fc: Option<Linear>,
+    // perceiver: Option<Perceiver>, // Placeholder for now if needed
+    config: T3Config,
+}
+
+impl T3CondEnc {
+    pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
+        let spkr_enc = candle_nn::linear(
+            config.speaker_embed_size,
+            config.hidden_size,
+            vb.pp("spkr_enc"),
+        )?;
+
+        let emotion_adv_fc = if config.emotion_adv {
+            Some(candle_nn::linear_no_bias(
+                1,
+                config.hidden_size,
+                vb.pp("emotion_adv_fc"),
+            )?)
+        } else {
+            None
+        };
+
+        Ok(Self {
+            spkr_enc,
+            emotion_adv_fc,
+            config,
+        })
+    }
+
+    pub fn forward(
+        &self,
+        spk_emb: &Tensor,
+        cond_prompt_speech_emb: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        // spk_emb: (B, E)
+        let cond_spkr = self.spkr_enc.forward(spk_emb)?; // (B, H)
+        let cond_spkr = cond_spkr.unsqueeze(1)?; // (B, 1, H)
+
+        // Empty tensor for cat if needed (B, 0, H)
+        // Note: Candle doesn't easily support 0-dim concats in all backends, but let's try standard Vec logic
+        let mut embeds = vec![cond_spkr];
+
+        // CLAP embed (placeholder)
+
+        // Cond prompt speech emb
+        if let Some(prompt_emb) = cond_prompt_speech_emb {
+            // Assuming prompt_emb is already projected or compatible (B, L, H)
+            // If using Perceiver, we would process it here.
+            // Current T3 Turbo uses `speech_cond_prompt_len` but `use_perceiver_resampler = False`.
+            // In `cond_enc.py`:
+            // if cond_prompt_speech_emb is None: empty
+            // elif hp.use_perceiver_resampler: perceiver(cond_prompt_speech_emb)
+            // It seems if not using perceiver, it just passes it through?
+            // Wait, `cond_enc.py` code:
+            // "if cond_prompt_speech_emb is None ... elif hp.use_perceiver_resampler ... "
+            // It doesn't explicitly say what happens if `!use_perceiver_resampler` and `cond_prompt_speech_emb` is present.
+            // But looking at `ChatterboxTTS.prepare_conditionals`, `cond_prompt_speech_tokens` are created.
+            // In T3 `inference` (Python), it creates `T3Cond`.
+            // The `T3CondEnc` in Python seems to use `cond_prompt_speech_emb` from `T3Cond`.
+            // But `prepare_conditionals` sets `cond_prompt_speech_tokens`, not `emb`.
+            // Ah, `T3.forward` calls `prepare_input_embeds`.
+            // In Python `T3`:
+            // `cond_prompt_speech_emb` is derived from `cond.cond_prompt_speech_tokens` via `speech_emb` embedding layer?
+            // No, `T3CondEnc` takes `T3Cond` which has `cond_prompt_speech_emb`.
+            // Let's check where `cond_prompt_speech_emb` comes from in `T3.forward`.
+
+            embeds.push(prompt_emb.clone());
+        }
+
+        if self.config.emotion_adv {
+            if let Some(emo) = emotion_adv {
+                // emo: (B, 1, 1) or (B, 1)
+                let emo_proj = self.emotion_adv_fc.as_ref().unwrap().forward(emo)?; // (B, 1, H) or similar
+                                                                                    // Ensure dims
+                let emo_proj = if emo_proj.rank() == 2 {
+                    emo_proj.unsqueeze(1)?
+                } else {
+                    emo_proj
+                };
+                embeds.push(emo_proj);
+            }
+        }
+
+        Tensor::cat(&embeds, 1)
+    }
+}
+
+pub struct T3 {
+    gpt2: GPT2Model,
+    text_emb: Embedding,
+    speech_emb: Embedding,
+    pos_emb: Embedding,
+    _text_head: Linear,
+    speech_head: Linear,
+    cond_enc: T3CondEnc,
+    config: T3Config,
+}
+
+impl T3 {
+    pub fn new(config: T3Config, vb: VarBuilder) -> Result<Self> {
+        let gpt2_config = GPT2Config {
+            vocab_size: config.vocab_size,
+            n_embd: config.hidden_size,
+            n_layer: config.num_layers,
+            n_head: config.num_heads,
+            n_positions: config.n_positions,
+            ..Default::default()
+        };
+
+        let gpt2 = GPT2Model::new(gpt2_config, vb.pp("tfmr"))?;
+        let text_emb = candle_nn::embedding(
+            config.text_tokens_dict_size,
+            config.hidden_size,
+            vb.pp("text_emb"),
+        )?;
+        let speech_emb = candle_nn::embedding(
+            config.speech_tokens_dict_size,
+            config.hidden_size,
+            vb.pp("speech_emb"),
+        )?;
+        // Use shared position embeddings from transformer
+        let pos_emb = candle_nn::embedding(
+            config.n_positions,
+            config.hidden_size,
+            vb.pp("tfmr").pp("wpe"),
+        )?;
+        let _text_head = candle_nn::linear_no_bias(
+            config.hidden_size,
+            config.text_tokens_dict_size,
+            vb.pp("text_head"),
+        )?;
+        let speech_head = candle_nn::linear(
+            config.hidden_size,
+            config.speech_tokens_dict_size,
+            vb.pp("speech_head"),
+        )?;
+
+        // cond_enc might need config clone
+        let cond_enc = T3CondEnc::new(
+            T3Config {
+                text_tokens_dict_size: config.text_tokens_dict_size,
+                speech_tokens_dict_size: config.speech_tokens_dict_size,
+                hidden_size: config.hidden_size,
+                num_layers: config.num_layers,
+                num_heads: config.num_heads,
+                vocab_size: config.vocab_size,
+                speaker_embed_size: config.speaker_embed_size,
+                start_speech_token: config.start_speech_token,
+                stop_speech_token: config.stop_speech_token,
+                speech_cond_prompt_len: config.speech_cond_prompt_len,
+                use_perceiver_resampler: config.use_perceiver_resampler,
+                emotion_adv: config.emotion_adv,
+                n_positions: config.n_positions,
+            },
+            vb.pp("cond_enc"),
+        )?;
+
+        Ok(Self {
+            gpt2,
+            text_emb,
+            speech_emb,
+            pos_emb,
+            _text_head,
+            speech_head,
+            cond_enc,
+            config,
+        })
+    }
+
+    pub fn prepare_input_embeds(
+        &self,
+        text_tokens: &Tensor,
+        speech_tokens: &Tensor,
+        spk_emb: &Tensor,
+        cond_prompt_speech_tokens: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        // text_tokens: (B, Lt)
+        // speech_tokens: (B, Ls)
+        // spk_emb: (B, E)
+
+        // Handle prompt tokens embedding if present
+        let cond_prompt_speech_emb = if let Some(tokens) = cond_prompt_speech_tokens {
+            Some(self.speech_emb.forward(tokens)?)
+        } else {
+            None
+        };
+
+        let cond_emb =
+            self.cond_enc
+                .forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
+        let (_b, lc, _h) = cond_emb.dims3()?;
+        let cond_pos_ids = Tensor::arange(0u32, lc as u32, spk_emb.device())?.unsqueeze(0)?;
+        let cond_pos = self.pos_emb.forward(&cond_pos_ids)?;
+        let cond_emb = (cond_emb + cond_pos)?;
+
+        let (_b, lt) = text_tokens.dims2()?;
+        let text_pos_ids = Tensor::arange(0u32, lt as u32, text_tokens.device())?.unsqueeze(0)?;
+        let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
+        let text_pos = self.pos_emb.forward(&text_pos_ids)?;
+        let text_emb = (text_emb + text_pos)?;
+
+        let (_b, ls) = speech_tokens.dims2()?;
+        let speech_pos_ids =
+            Tensor::arange(0u32, ls as u32, speech_tokens.device())?.unsqueeze(0)?;
+        let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
+        let speech_pos = self.pos_emb.forward(&speech_pos_ids)?;
+        let speech_emb = (speech_emb + speech_pos)?;
+
+        // Concatenate along time dimension (dim 1)
+        // cond, text, speech
+        Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)
+    }
+
+    pub fn generate(
+        &self,
+        text_tokens: &Tensor,
+        spk_emb: &Tensor,
+        cond_prompt_speech_tokens: Option<&Tensor>,
+        emotion_adv: Option<&Tensor>,
+        max_gen_len: usize,
+        temperature: f32,
+        top_p: f32,
+        top_k: usize,
+        repetition_penalty: f32,
+        seed: u64,
+    ) -> Result<Tensor> {
+        let (b, _lt) = text_tokens.dims2()?;
+        let device = text_tokens.device();
+
+        let mut logits_processor = crate::sampling::LogitsProcessor::new(
+            seed,
+            Some(temperature as f64),
+            Some(top_p as f64),
+            Some(top_k),
+        );
+
+        // Start with start_speech_token
+        let start_token = Tensor::new(&[[self.config.start_speech_token]], device)?; // (1, 1)
+        let mut speech_tokens_v = vec![self.config.start_speech_token];
+        let mut speech_tokens_tensor = start_token.repeat((b, 1))?; // (B, 1)
+
+        for i in 0..max_gen_len {
+            if i % 10 == 0 {
+                eprintln!("[T3] Generating token {}/{}...", i, max_gen_len);
+            }
+            let embeds = self.prepare_input_embeds(
+                text_tokens,
+                &speech_tokens_tensor,
+                spk_emb,
+                cond_prompt_speech_tokens,
+                emotion_adv,
+            )?;
+
+            // Forward pass
+            let hidden_states = self.gpt2.forward_embeds_no_pos(&embeds)?; // (B, L, H)
+
+            // Get last token logits
+            let last_hidden = hidden_states.i((.., hidden_states.dim(1)? - 1, ..))?; // (B, H)
+            let logits = self.speech_head.forward(&last_hidden)?; // (B, Vocab)
+
+            // Sample for each batch (assuming B=1 for now as per Python sync inference)
+            let logits_0 = logits.i(0)?;
+            let next_token =
+                logits_processor.sample(&logits_0, &speech_tokens_v, Some(repetition_penalty))?;
+
+            speech_tokens_v.push(next_token);
+            let next_token_tensor = Tensor::new(&[[next_token]], device)?;
+
+            // Append
+            speech_tokens_tensor = Tensor::cat(&[&speech_tokens_tensor, &next_token_tensor], 1)?;
+
+            // Check EOS
+            if next_token == self.config.stop_speech_token {
+                break;
+            }
+        }
+
+        Ok(speech_tokens_tensor)
+    }
+}
+</file>
+
 <file path="candle/src/hifigan.rs">
 //! HiFTGenerator Vocoder - converts mel spectrograms to audio waveforms.
 //!
@@ -14008,7 +14260,7 @@ impl F0Predictor {
         }
         x = x.transpose(1, 2)?; // (B, C, T) -> (B, T, C)
         let x = self.classifier.forward(&x)?; // (B, T, 1)
-        Ok((x.abs()? * 500.0)?) // Scale normalized range [0, 1] to Hz [0, 500]
+        Ok(x.abs()?) // Scale normalized range [0, 1] to Hz [0, 500]
     }
 }
 
@@ -14661,10 +14913,20 @@ impl ChatterboxTTS {
             &audio::MelConfig::for_24k(80),
         )?;
 
-        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
-        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
         let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
-        let spk_emb_80 = self.s3gen.campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)?;
+
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
 
         // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
         let prompt_tokens = {
@@ -14864,14 +15126,22 @@ impl ChatterboxTurboTTS {
         )?;
         eprintln!("[generate_speech] mel_80 (24k): {:?}", mel_80_24k.dims());
 
-        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
-        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
         let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
 
         eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
         eprintln!("[generate_speech] Running CAMPPlus...");
-        // CAMPPlus should probably use 24kHz mel as it's part of S3Gen
-        let spk_emb_80 = self.s3gen.campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)?;
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
         eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
         // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
@@ -15028,7 +15298,7 @@ impl DecoderAttention {
             .contiguous()?;
 
         let k_t = k.transpose(2, 3)?.contiguous()?;
-        let att = (q.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
+        let att = (q.contiguous()?.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
 
         let att = candle_nn::ops::softmax(&att, 3)?;
         let out = att.matmul(&v)?;
@@ -15163,7 +15433,8 @@ impl SinusoidalPosEmb {
         let freqs = (Tensor::arange(0u32, half_dim as u32, x.device())?.to_dtype(DType::F32)?
             * (-emb as f64))?
             .exp()?;
-        let emb = x.unsqueeze(1)?.broadcast_mul(&freqs.unsqueeze(0)?)?;
+        let x_scaled = (x * 1000.0)?;
+        let emb = x_scaled.unsqueeze(1)?.broadcast_mul(&freqs.unsqueeze(0)?)?;
         let emb = Tensor::cat(&[&emb.sin()?, &emb.cos()?], 1)?;
         Ok(emb)
     }
@@ -15380,8 +15651,12 @@ impl RelPositionMultiHeadedAttention {
             .reshape((b, t, self.num_heads, self.head_dim))?
             .transpose(1, 2)?
             .contiguous()?;
-        let q_u = q.broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?;
-        let q_v = q.broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?;
+        let q_u = q
+            .broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?
+            .contiguous()?;
+        let q_v = q
+            .broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?
+            .contiguous()?;
         let matrix_ac = q_u.matmul(&k.transpose(2, 3)?.contiguous()?)?;
         let matrix_bd = q_v.matmul(&p.transpose(2, 3)?.contiguous()?)?;
         let scores = (matrix_ac.broadcast_add(&matrix_bd)? / (self.head_dim as f64).sqrt())?;
@@ -15920,7 +16195,7 @@ impl S3Gen {
                 resblock_kernel_sizes: vec![3, 7, 11],
                 resblock_dilation_sizes: vec![vec![1, 3, 5], vec![1, 3, 5], vec![1, 3, 5]],
                 n_fft: 16,
-                hop_len: 2,
+                hop_len: 4,
             };
             match crate::hifigan::HiFTGenerator::new(config, vb.pp("mel2wav")) {
                 Ok(h) => {

@@ -184,7 +184,8 @@ impl SinusoidalPosEmb {
         let freqs = (Tensor::arange(0u32, half_dim as u32, x.device())?.to_dtype(DType::F32)?
             * (-emb as f64))?
             .exp()?;
-        let emb = x.unsqueeze(1)?.broadcast_mul(&freqs.unsqueeze(0)?)?;
+        let x_scaled = (x * 1000.0)?;
+        let emb = x_scaled.unsqueeze(1)?.broadcast_mul(&freqs.unsqueeze(0)?)?;
         let emb = Tensor::cat(&[&emb.sin()?, &emb.cos()?], 1)?;
         Ok(emb)
     }
@@ -401,14 +402,14 @@ impl RelPositionMultiHeadedAttention {
             .reshape((b, t, self.num_heads, self.head_dim))?
             .transpose(1, 2)?
             .contiguous()?;
-        let q_u = q.broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?;
-        let q_v = q.broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?;
-        let matrix_ac = q_u
-            .contiguous()?
-            .matmul(&k.transpose(2, 3)?.contiguous()?)?;
-        let matrix_bd = q_v
-            .contiguous()?
-            .matmul(&p.transpose(2, 3)?.contiguous()?)?;
+        let q_u = q
+            .broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?
+            .contiguous()?;
+        let q_v = q
+            .broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?
+            .contiguous()?;
+        let matrix_ac = q_u.matmul(&k.transpose(2, 3)?.contiguous()?)?;
+        let matrix_bd = q_v.matmul(&p.transpose(2, 3)?.contiguous()?)?;
         let scores = (matrix_ac.broadcast_add(&matrix_bd)? / (self.head_dim as f64).sqrt())?;
         let attn = candle_nn::ops::softmax(&scores, 3)?;
         let x = attn.matmul(&v)?;
