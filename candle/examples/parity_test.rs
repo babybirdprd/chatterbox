@@ -235,7 +235,19 @@ fn main() -> Result<()> {
         AudioProcessor::compute_mel_spectrogram(&samples_16k, &Device::Cpu, &cfg_camp)?;
 
     // Apply log and mean normalization to match Kaldi fbank output
-    let mel_camp_log = mel_camp_rust.clamp(1e-5, f32::MAX)?.log()?;
+    // Use floor that matches Kaldi's apparent minimum (exp(-16) ≈ 1.1e-7)
+    let mel_camp_log = mel_camp_rust.clamp(1e-7, f32::MAX)?.log()?;
+
+    // Debug: Check log mel before normalization
+    let log_min = mel_camp_log.min_all()?.to_scalar::<f32>()?;
+    let log_max = mel_camp_log.max_all()?.to_scalar::<f32>()?;
+    let log_mean = mel_camp_log.mean_all()?.to_scalar::<f32>()?;
+    println!(
+        "Rust log mel (before norm): min={:.4}, max={:.4}, mean={:.4}",
+        log_min, log_max, log_mean
+    );
+    println!("Python Kaldi fbank (before norm): min=-15.94, max=5.52, mean=-4.78");
+
     let mean = mel_camp_log.mean_keepdim(2)?;
     let mel_camp_norm = mel_camp_log
         .broadcast_sub(&mean)?
@@ -248,6 +260,24 @@ fn main() -> Result<()> {
         "Rust mel_camp_norm shape: {:?}, Python mel_camp shape: {:?}",
         mel_camp_norm.shape(),
         mel_camp_py.shape()
+    );
+    let rust_min = mel_camp_norm
+        .to_dtype(DType::F32)?
+        .min_all()?
+        .to_scalar::<f32>()?;
+    let rust_max = mel_camp_norm
+        .to_dtype(DType::F32)?
+        .max_all()?
+        .to_scalar::<f32>()?;
+    let py_min = mel_camp_py.min_all()?.to_scalar::<f32>()?;
+    let py_max = mel_camp_py.max_all()?.to_scalar::<f32>()?;
+    println!(
+        "Rust log+norm range: min={:.4}, max={:.4}",
+        rust_min, rust_max
+    );
+    println!(
+        "Python log+norm range: min={:.4}, max={:.4}",
+        py_min, py_max
     );
     check(
         "Mel CAMPPlus (log+norm)",
