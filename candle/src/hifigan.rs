@@ -211,9 +211,9 @@ impl F0Predictor {
             x = conv.forward(&x)?;
             x = x.elu(1.0)?;
         }
-        x = x.transpose(1, 2)?;
-        let x = self.classifier.forward(&x)?;
-        x.abs()?.squeeze(2)
+        x = x.transpose(1, 2)?; // (B, C, T) -> (B, T, C)
+        let x = self.classifier.forward(&x)?; // (B, T, 1)
+        x.abs() // Keep [B, T, 1] shape for SourceModule
     }
 }
 

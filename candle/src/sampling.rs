@@ -6,6 +6,7 @@ pub struct LogitsProcessor {
     temperature: Option<f64>,
     top_p: Option<f64>,
     top_k: Option<usize>,
+    min_p: Option<f64>,
 }
 
 impl LogitsProcessor {
@@ -15,6 +16,16 @@ impl LogitsProcessor {
         top_p: Option<f64>,
         top_k: Option<usize>,
     ) -> Self {
+        Self::new_with_min_p(_seed, temperature, top_p, top_k, None)
+    }
+
+    pub fn new_with_min_p(
+        _seed: u64,
+        temperature: Option<f64>,
+        top_p: Option<f64>,
+        top_k: Option<usize>,
+        min_p: Option<f64>,
+    ) -> Self {
         // In a real implementation we might use a seeded RNG, but thread_rng is fine for now
         // if the user provided a seed, we could use StdRng::seed_from_u64(seed)
         Self {
@@ -22,6 +33,7 @@ impl LogitsProcessor {
             temperature,
             top_p,
             top_k,
+            min_p,
         }
     }
 
@@ -85,7 +97,27 @@ impl LogitsProcessor {
         // Softmax
         let logits_t = Tensor::from_vec(logits_v, (logits.dim(0)?,), device)?;
         let probs = candle_nn::ops::softmax(&logits_t, 0)?;
-        let probs_v: Vec<f32> = probs.to_vec1()?;
+        let mut probs_v: Vec<f32> = probs.to_vec1()?;
+
+        // 3. Min-P filtering: zero out probabilities below max_prob * min_p threshold
+        if let Some(min_p_threshold) = self.min_p {
+            if min_p_threshold > 0.0 {
+                let max_prob = probs_v.iter().cloned().fold(0.0f32, f32::max);
+                let threshold = max_prob * min_p_threshold as f32;
+                for p in probs_v.iter_mut() {
+                    if *p < threshold {
+                        *p = 0.0;
+                    }
+                }
+                // Re-normalize
+                let sum: f32 = probs_v.iter().sum();
+                if sum > 0.0 {
+                    for p in probs_v.iter_mut() {
+                        *p /= sum;
+                    }
+                }
+            }
+        }
 
         // 3. Top-P (Nucleus) filtering (applied to probabilities)
         let sampled_idx = if let Some(p) = self.top_p {

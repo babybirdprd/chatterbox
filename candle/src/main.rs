@@ -99,6 +99,7 @@ fn main() -> anyhow::Result<()> {
         repetition_penalty: args.repetition_penalty,
         seed: args.seed,
         normalize_loudness: args.normalize,
+        ..Default::default()
     };
 
     println!("Generating speech for: \"{}\"", args.text);

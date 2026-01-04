@@ -101,7 +101,9 @@ impl ChatterboxTTS {
         let mel_40 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 40)?;
         let mel_80 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 80)?;
 
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40)?;
+        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
+        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
         let spk_emb_80 = self.s3gen.campplus.forward(&mel_80)?.narrow(1, 0, 80)?;
 
         // S3Tokenizer expects (B, 128, T) mel - transpose and pad from (B, T, 80)
@@ -252,7 +254,9 @@ impl ChatterboxTurboTTS {
         let mel_40 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 40)?;
         let mel_80 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 80)?;
 
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40)?;
+        // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
+        let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
         let spk_emb_80 = self.s3gen.campplus.forward(&mel_80)?.narrow(1, 0, 80)?;
 
         // S3Tokenizer expects (B, 128, T) mel - transpose and pad from (B, T, 80)

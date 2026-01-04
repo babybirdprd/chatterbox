@@ -274,9 +274,9 @@ impl CAMLayer {
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let y = self.linear_local.forward(x)?;
-        let mean = x.mean_keepdim(2)?;
-        let seg = self.seg_pooling(x, 100)?;
-        let context = (mean + seg)?;
+        let mean = x.mean_keepdim(2)?; // [B, C, 1]
+        let seg = self.seg_pooling(x, 100)?; // [B, C, T]
+        let context = mean.broadcast_add(&seg)?; // [B, C, T]
         let context = self.linear1.forward(&context)?.relu()?;
         let gate = candle_nn::ops::sigmoid(&self.linear2.forward(&context)?)?;
         y.broadcast_mul(&gate)
@@ -470,8 +470,11 @@ impl CAMPPlus {
     }
 
     pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        let x = x.transpose(1, 2)?.unsqueeze(1)?;
+        // Input x: (B, C, T) = (B, F, T) - mel spectrogram in channel-first format
+        // FCM expects (B, 1, F, T) - unsqueeze adds channel dim for 2D convolutions
+        let x = x.unsqueeze(1)?; // (B, 1, F, T)
         let mut x = self.head.forward(&x)?;
+
         x = self.tdnn.forward(&x)?;
         for (block, transit) in &self.blocks {
             x = block.forward(&x)?;

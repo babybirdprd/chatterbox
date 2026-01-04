@@ -47,3 +47,5 @@ checkpoints/
 # Ignore generated sample .wav files
 **/*.wav
 candle/target
+s3tokenizer-v2-model/model.safetensors
+s3tokenizer-v2-model/pytorch_model.bin

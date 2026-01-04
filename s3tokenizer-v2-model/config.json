@@ -1,0 +1,20 @@
+{
+  "architectures": [
+    "S3TokenizerModel"
+  ],
+  "dtype": "float32",
+  "hidden_size": 1280,
+  "hop_length": 160,
+  "model_type": "s3tokenizer",
+  "n_audio_ctx": 1500,
+  "n_audio_head": 20,
+  "n_audio_layer": 6,
+  "n_audio_state": 1280,
+  "n_fft": 400,
+  "n_mels": 128,
+  "sampling_rate": 16000,
+  "token_rate": 25,
+  "transformers_version": "5.0.0.dev0",
+  "use_sdpa": false,
+  "vocab_size": 6561
+}
