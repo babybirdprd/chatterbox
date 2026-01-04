@@ -66,7 +66,12 @@ fn load_wn_conv_transpose1d(
     vb: VarBuilder,
 ) -> Result<ConvTranspose1d> {
     let weight_v = vb.get((in_c, out_c, k), "parametrizations.weight.original1")?;
-    let weight_g = vb.get((in_c, 1, 1), "parametrizations.weight.original0")?;
+    let weight_g = vb
+        .get((in_c, 1, 1), "parametrizations.weight.original0")
+        .or_else(|_| {
+            vb.get(in_c, "parametrizations.weight.original0")?
+                .reshape((in_c, 1, 1))
+        })?;
     let bias = vb.get(out_c, "bias")?;
 
     // weight = g * v / ||v|| (norm over out_channels and kernel)
@@ -213,7 +218,7 @@ impl F0Predictor {
         }
         x = x.transpose(1, 2)?; // (B, C, T) -> (B, T, C)
         let x = self.classifier.forward(&x)?; // (B, T, 1)
-        x.abs() // Keep [B, T, 1] shape for SourceModule
+        Ok(x.abs()?) // Scale normalized range [0, 1] to Hz [0, 500]
     }
 }
 
@@ -560,7 +565,8 @@ impl HiFTGenerator {
         // source_squeezed: (B, 1, T) -> (B, T)
         let (s_real, s_imag) =
             simple_stft(&source.squeeze(1)?, self.config.n_fft, self.config.hop_len)?;
-        let s_stft = Tensor::cat(&[&s_real, &s_imag], 1)?;
+
+        let s_stft = Tensor::cat(&[&s_real, &s_imag], 1)?; // (B, 18, T)
 
         let mut x = self.conv_pre.forward(mel)?;
         let num_kernels = self.config.resblock_kernel_sizes.len();
@@ -606,11 +612,11 @@ impl HiFTGenerator {
         x = candle_nn::ops::leaky_relu(&x, 0.01)?;
         x = self.conv_post.forward(&x)?;
 
-        let half = (self.config.n_fft / 2) + 1;
-        let magnitude = x.narrow(1, 0, half)?.exp()?;
-        let phase = x.narrow(1, half, half)?.sin()?;
+        let chunks = x.chunk(2, 1)?;
+        let real = chunks[0].clone();
+        let imag = chunks[1].clone();
 
-        let audio = simple_istft(&magnitude, &phase, self.config.n_fft, self.config.hop_len)?;
+        let audio = simple_istft(&real, &imag, self.config.n_fft, self.config.hop_len)?;
         audio.clamp(-0.99f32, 0.99f32)
     }
 }
@@ -675,25 +681,20 @@ fn simple_stft(x: &Tensor, n_fft: usize, hop_len: usize) -> Result<(Tensor, Tens
 }
 
 /// Real iSTFT implementation using realfft crate with overlap-add synthesis
-fn simple_istft(
-    magnitude: &Tensor,
-    phase: &Tensor,
-    n_fft: usize,
-    hop_len: usize,
-) -> Result<Tensor> {
+fn simple_istft(real: &Tensor, imag: &Tensor, n_fft: usize, hop_len: usize) -> Result<Tensor> {
     use realfft::RealFftPlanner;
     use rustfft::num_complex::Complex;
-    let (b, n_bins, n_frames) = magnitude.dims3()?;
-    let device = magnitude.device();
+    let (b, n_bins, n_frames) = real.dims3()?;
+    let device = real.device();
     if n_frames == 0 {
-        return Tensor::zeros((b, 1), DType::F32, device);
+        return Tensor::zeros((b, 1, 0), DType::F32, device);
     }
     let out_len = (n_frames - 1) * hop_len + n_fft;
     let window: Vec<f32> = (0..n_fft)
         .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / n_fft as f32).cos()))
         .collect();
-    let mag_data = magnitude.to_vec3::<f32>()?;
-    let phase_data = phase.to_vec3::<f32>()?;
+    let real_data = real.to_vec3::<f32>()?;
+    let imag_data = imag.to_vec3::<f32>()?;
     let mut planner = RealFftPlanner::<f32>::new();
     let ifft = planner.plan_fft_inverse(n_fft);
     let mut all_output = Vec::with_capacity(b * out_len);
@@ -705,13 +706,11 @@ fn simple_istft(
         for frame_idx in 0..n_frames {
             let mut spectrum = ifft.make_input_vec();
             for i in 0..n_bins {
-                let mag = mag_data[batch_idx][i][frame_idx].min(1e2);
-                let ph = phase_data[batch_idx][i][frame_idx];
-                let re = mag * ph.cos();
+                let re = real_data[batch_idx][i][frame_idx];
                 let im = if i == 0 || i == n_bins - 1 {
                     0.0
                 } else {
-                    mag * ph.sin()
+                    imag_data[batch_idx][i][frame_idx]
                 };
                 spectrum[i] = Complex::new(re, im);
             }

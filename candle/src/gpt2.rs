@@ -231,4 +231,30 @@ impl GPT2Model {
 
         self.ln_f.forward(&hidden_states)
     }
+
+    // Forward without adding positional embeddings (caller handles it)
+    pub fn forward_embeds_no_pos(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
+        let (_b, t, _c) = inputs_embeds.dims3()?;
+        let mut hidden_states = inputs_embeds.clone();
+
+        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
+        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
+        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
+        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+
+        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
+        let mask = mask.to_dtype(inputs_embeds.dtype())?;
+        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
+            1e4
+        } else {
+            1e9
+        };
+        let mask = ((mask - 1.0)? * wide_mask_val)?;
+
+        for block in &self.h {
+            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+        }
+
+        self.ln_f.forward(&hidden_states)
+    }
 }

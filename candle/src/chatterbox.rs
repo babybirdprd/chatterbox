@@ -300,13 +300,7 @@ impl ChatterboxTurboTTS {
         std::io::stderr().flush().unwrap();
 
         // VoiceEncoder expects 16kHz mel (40 channels)
-        let mel_40 = audio::compute_mel_spectrogram(
-            &ref_samples_16k,
-            S3_SR,
-            &self.device,
-            &audio::MelConfig::for_24k(40),
-        )?; // Wait! 16k?
-            // Actually VoiceEncoder is 16k, but what hop? 100Hz = 160.
+        // VoiceEncoder expects 16kHz mel (40 channels)
         let config_16k_40 = audio::MelConfig {
             n_fft: 1024,
             hop_length: 160,

@@ -133,6 +133,7 @@ pub struct T3 {
     gpt2: GPT2Model,
     text_emb: Embedding,
     speech_emb: Embedding,
+    pos_emb: Embedding,
     _text_head: Linear,
     speech_head: Linear,
     cond_enc: T3CondEnc,
@@ -160,6 +161,12 @@ impl T3 {
             config.speech_tokens_dict_size,
             config.hidden_size,
             vb.pp("speech_emb"),
+        )?;
+        // Use shared position embeddings from transformer
+        let pos_emb = candle_nn::embedding(
+            config.n_positions,
+            config.hidden_size,
+            vb.pp("tfmr").pp("wpe"),
         )?;
         let _text_head = candle_nn::linear_no_bias(
             config.hidden_size,
@@ -196,6 +203,7 @@ impl T3 {
             gpt2,
             text_emb,
             speech_emb,
+            pos_emb,
             _text_head,
             speech_head,
             cond_enc,
@@ -225,8 +233,23 @@ impl T3 {
         let cond_emb =
             self.cond_enc
                 .forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
+        let (_b, lc, _h) = cond_emb.dims3()?;
+        let cond_pos_ids = Tensor::arange(0u32, lc as u32, spk_emb.device())?.unsqueeze(0)?;
+        let cond_pos = self.pos_emb.forward(&cond_pos_ids)?;
+        let cond_emb = (cond_emb + cond_pos)?;
+
+        let (_b, lt) = text_tokens.dims2()?;
+        let text_pos_ids = Tensor::arange(0u32, lt as u32, text_tokens.device())?.unsqueeze(0)?;
         let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
+        let text_pos = self.pos_emb.forward(&text_pos_ids)?;
+        let text_emb = (text_emb + text_pos)?;
+
+        let (_b, ls) = speech_tokens.dims2()?;
+        let speech_pos_ids =
+            Tensor::arange(0u32, ls as u32, speech_tokens.device())?.unsqueeze(0)?;
         let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
+        let speech_pos = self.pos_emb.forward(&speech_pos_ids)?;
+        let speech_emb = (speech_emb + speech_pos)?;
 
         // Concatenate along time dimension (dim 1)
         // cond, text, speech
@@ -274,7 +297,7 @@ impl T3 {
             )?;
 
             // Forward pass
-            let hidden_states = self.gpt2.forward_embeds(&embeds)?; // (B, L, H)
+            let hidden_states = self.gpt2.forward_embeds_no_pos(&embeds)?; // (B, L, H)
 
             // Get last token logits
             let last_hidden = hidden_states.i((.., hidden_states.dim(1)? - 1, ..))?; // (B, H)

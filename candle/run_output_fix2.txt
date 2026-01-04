@@ -1,0 +1,332 @@
+   Compiling candle v0.1.0 (D:\chatterbox-rs\candle)
+    Finished `release` profile [optimized] target(s) in 1m 37s
+     Running `target\release\examples\split_generate.exe --text "Hello world this is a test" --ref-audio reference.wav --output output.wav --cuda --t3-cuda --fp16`
+Downloading model files...
+[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
+[DEBUG] Keys in t3_turbo_v1.safetensors:
+  cond_enc.spkr_enc.bias
+  cond_enc.spkr_enc.weight
+  speech_emb.weight
+  speech_head.bias
+  speech_head.weight
+  text_emb.weight
+  text_head.weight
+  tfmr.h.0.attn.c_attn.bias
+  tfmr.h.0.attn.c_attn.weight
+  tfmr.h.0.attn.c_proj.bias
+  tfmr.h.0.attn.c_proj.weight
+  tfmr.h.0.ln_1.bias
+  tfmr.h.0.ln_1.weight
+  tfmr.h.0.ln_2.bias
+  tfmr.h.0.ln_2.weight
+  tfmr.h.0.mlp.c_fc.bias
+  tfmr.h.0.mlp.c_fc.weight
+  tfmr.h.0.mlp.c_proj.bias
+  tfmr.h.0.mlp.c_proj.weight
+  tfmr.h.1.attn.c_attn.bias
+  tfmr.h.1.attn.c_attn.weight
+  tfmr.h.1.attn.c_proj.bias
+  tfmr.h.1.attn.c_proj.weight
+  tfmr.h.1.ln_1.bias
+  tfmr.h.1.ln_1.weight
+  tfmr.h.1.ln_2.bias
+  tfmr.h.1.ln_2.weight
+  tfmr.h.1.mlp.c_fc.bias
+  tfmr.h.1.mlp.c_fc.weight
+  tfmr.h.1.mlp.c_proj.bias
+  tfmr.h.1.mlp.c_proj.weight
+  tfmr.h.10.attn.c_attn.bias
+  tfmr.h.10.attn.c_attn.weight
+  tfmr.h.10.attn.c_proj.bias
+  tfmr.h.10.attn.c_proj.weight
+  tfmr.h.10.ln_1.bias
+  tfmr.h.10.ln_1.weight
+  tfmr.h.10.ln_2.bias
+  tfmr.h.10.ln_2.weight
+  tfmr.h.10.mlp.c_fc.bias
+  tfmr.h.10.mlp.c_fc.weight
+  tfmr.h.10.mlp.c_proj.bias
+  tfmr.h.10.mlp.c_proj.weight
+  tfmr.h.11.attn.c_attn.bias
+  tfmr.h.11.attn.c_attn.weight
+  tfmr.h.11.attn.c_proj.bias
+  tfmr.h.11.attn.c_proj.weight
+  tfmr.h.11.ln_1.bias
+  tfmr.h.11.ln_1.weight
+  tfmr.h.11.ln_2.bias
+  tfmr.h.11.ln_2.weight
+  tfmr.h.11.mlp.c_fc.bias
+  tfmr.h.11.mlp.c_fc.weight
+  tfmr.h.11.mlp.c_proj.bias
+  tfmr.h.11.mlp.c_proj.weight
+  tfmr.h.12.attn.c_attn.bias
+  tfmr.h.12.attn.c_attn.weight
+  tfmr.h.12.attn.c_proj.bias
+  tfmr.h.12.attn.c_proj.weight
+  tfmr.h.12.ln_1.bias
+  tfmr.h.12.ln_1.weight
+  tfmr.h.12.ln_2.bias
+  tfmr.h.12.ln_2.weight
+  tfmr.h.12.mlp.c_fc.bias
+  tfmr.h.12.mlp.c_fc.weight
+  tfmr.h.12.mlp.c_proj.bias
+  tfmr.h.12.mlp.c_proj.weight
+  tfmr.h.13.attn.c_attn.bias
+  tfmr.h.13.attn.c_attn.weight
+  tfmr.h.13.attn.c_proj.bias
+  tfmr.h.13.attn.c_proj.weight
+  tfmr.h.13.ln_1.bias
+  tfmr.h.13.ln_1.weight
+  tfmr.h.13.ln_2.bias
+  tfmr.h.13.ln_2.weight
+  tfmr.h.13.mlp.c_fc.bias
+  tfmr.h.13.mlp.c_fc.weight
+  tfmr.h.13.mlp.c_proj.bias
+  tfmr.h.13.mlp.c_proj.weight
+  tfmr.h.14.attn.c_attn.bias
+  tfmr.h.14.attn.c_attn.weight
+  tfmr.h.14.attn.c_proj.bias
+  tfmr.h.14.attn.c_proj.weight
+  tfmr.h.14.ln_1.bias
+  tfmr.h.14.ln_1.weight
+  tfmr.h.14.ln_2.bias
+  tfmr.h.14.ln_2.weight
+  tfmr.h.14.mlp.c_fc.bias
+  tfmr.h.14.mlp.c_fc.weight
+  tfmr.h.14.mlp.c_proj.bias
+  tfmr.h.14.mlp.c_proj.weight
+  tfmr.h.15.attn.c_attn.bias
+  tfmr.h.15.attn.c_attn.weight
+  tfmr.h.15.attn.c_proj.bias
+  tfmr.h.15.attn.c_proj.weight
+  tfmr.h.15.ln_1.bias
+  tfmr.h.15.ln_1.weight
+  tfmr.h.15.ln_2.bias
+  tfmr.h.15.ln_2.weight
+  tfmr.h.15.mlp.c_fc.bias
+  tfmr.h.15.mlp.c_fc.weight
+  tfmr.h.15.mlp.c_proj.bias
+  tfmr.h.15.mlp.c_proj.weight
+  tfmr.h.16.attn.c_attn.bias
+  tfmr.h.16.attn.c_attn.weight
+  tfmr.h.16.attn.c_proj.bias
+  tfmr.h.16.attn.c_proj.weight
+  tfmr.h.16.ln_1.bias
+  tfmr.h.16.ln_1.weight
+  tfmr.h.16.ln_2.bias
+  tfmr.h.16.ln_2.weight
+  tfmr.h.16.mlp.c_fc.bias
+  tfmr.h.16.mlp.c_fc.weight
+  tfmr.h.16.mlp.c_proj.bias
+  tfmr.h.16.mlp.c_proj.weight
+  tfmr.h.17.attn.c_attn.bias
+  tfmr.h.17.attn.c_attn.weight
+  tfmr.h.17.attn.c_proj.bias
+  tfmr.h.17.attn.c_proj.weight
+  tfmr.h.17.ln_1.bias
+  tfmr.h.17.ln_1.weight
+  tfmr.h.17.ln_2.bias
+  tfmr.h.17.ln_2.weight
+  tfmr.h.17.mlp.c_fc.bias
+  tfmr.h.17.mlp.c_fc.weight
+  tfmr.h.17.mlp.c_proj.bias
+  tfmr.h.17.mlp.c_proj.weight
+  tfmr.h.18.attn.c_attn.bias
+  tfmr.h.18.attn.c_attn.weight
+  tfmr.h.18.attn.c_proj.bias
+  tfmr.h.18.attn.c_proj.weight
+  tfmr.h.18.ln_1.bias
+  tfmr.h.18.ln_1.weight
+  tfmr.h.18.ln_2.bias
+  tfmr.h.18.ln_2.weight
+  tfmr.h.18.mlp.c_fc.bias
+  tfmr.h.18.mlp.c_fc.weight
+  tfmr.h.18.mlp.c_proj.bias
+  tfmr.h.18.mlp.c_proj.weight
+  tfmr.h.19.attn.c_attn.bias
+  tfmr.h.19.attn.c_attn.weight
+  tfmr.h.19.attn.c_proj.bias
+  tfmr.h.19.attn.c_proj.weight
+  tfmr.h.19.ln_1.bias
+  tfmr.h.19.ln_1.weight
+  tfmr.h.19.ln_2.bias
+  tfmr.h.19.ln_2.weight
+  tfmr.h.19.mlp.c_fc.bias
+  tfmr.h.19.mlp.c_fc.weight
+  tfmr.h.19.mlp.c_proj.bias
+  tfmr.h.19.mlp.c_proj.weight
+  tfmr.h.2.attn.c_attn.bias
+  tfmr.h.2.attn.c_attn.weight
+  tfmr.h.2.attn.c_proj.bias
+  tfmr.h.2.attn.c_proj.weight
+  tfmr.h.2.ln_1.bias
+  tfmr.h.2.ln_1.weight
+  tfmr.h.2.ln_2.bias
+  tfmr.h.2.ln_2.weight
+  tfmr.h.2.mlp.c_fc.bias
+  tfmr.h.2.mlp.c_fc.weight
+  tfmr.h.2.mlp.c_proj.bias
+  tfmr.h.2.mlp.c_proj.weight
+  tfmr.h.20.attn.c_attn.bias
+  tfmr.h.20.attn.c_attn.weight
+  tfmr.h.20.attn.c_proj.bias
+  tfmr.h.20.attn.c_proj.weight
+  tfmr.h.20.ln_1.bias
+  tfmr.h.20.ln_1.weight
+  tfmr.h.20.ln_2.bias
+  tfmr.h.20.ln_2.weight
+  tfmr.h.20.mlp.c_fc.bias
+  tfmr.h.20.mlp.c_fc.weight
+  tfmr.h.20.mlp.c_proj.bias
+  tfmr.h.20.mlp.c_proj.weight
+  tfmr.h.21.attn.c_attn.bias
+  tfmr.h.21.attn.c_attn.weight
+  tfmr.h.21.attn.c_proj.bias
+  tfmr.h.21.attn.c_proj.weight
+  tfmr.h.21.ln_1.bias
+  tfmr.h.21.ln_1.weight
+  tfmr.h.21.ln_2.bias
+  tfmr.h.21.ln_2.weight
+  tfmr.h.21.mlp.c_fc.bias
+  tfmr.h.21.mlp.c_fc.weight
+  tfmr.h.21.mlp.c_proj.bias
+  tfmr.h.21.mlp.c_proj.weight
+  tfmr.h.22.attn.c_attn.bias
+  tfmr.h.22.attn.c_attn.weight
+  tfmr.h.22.attn.c_proj.bias
+  tfmr.h.22.attn.c_proj.weight
+  tfmr.h.22.ln_1.bias
+  tfmr.h.22.ln_1.weight
+  tfmr.h.22.ln_2.bias
+  tfmr.h.22.ln_2.weight
+  tfmr.h.22.mlp.c_fc.bias
+  tfmr.h.22.mlp.c_fc.weight
+  tfmr.h.22.mlp.c_proj.bias
+  tfmr.h.22.mlp.c_proj.weight
+  tfmr.h.23.attn.c_attn.bias
+  tfmr.h.23.attn.c_attn.weight
+  tfmr.h.23.attn.c_proj.bias
+  tfmr.h.23.attn.c_proj.weight
+  tfmr.h.23.ln_1.bias
+  tfmr.h.23.ln_1.weight
+  tfmr.h.23.ln_2.bias
+  tfmr.h.23.ln_2.weight
+  tfmr.h.23.mlp.c_fc.bias
+  tfmr.h.23.mlp.c_fc.weight
+  tfmr.h.23.mlp.c_proj.bias
+  tfmr.h.23.mlp.c_proj.weight
+  tfmr.h.3.attn.c_attn.bias
+  tfmr.h.3.attn.c_attn.weight
+  tfmr.h.3.attn.c_proj.bias
+  tfmr.h.3.attn.c_proj.weight
+  tfmr.h.3.ln_1.bias
+  tfmr.h.3.ln_1.weight
+  tfmr.h.3.ln_2.bias
+  tfmr.h.3.ln_2.weight
+  tfmr.h.3.mlp.c_fc.bias
+  tfmr.h.3.mlp.c_fc.weight
+  tfmr.h.3.mlp.c_proj.bias
+  tfmr.h.3.mlp.c_proj.weight
+  tfmr.h.4.attn.c_attn.bias
+  tfmr.h.4.attn.c_attn.weight
+  tfmr.h.4.attn.c_proj.bias
+  tfmr.h.4.attn.c_proj.weight
+  tfmr.h.4.ln_1.bias
+  tfmr.h.4.ln_1.weight
+  tfmr.h.4.ln_2.bias
+  tfmr.h.4.ln_2.weight
+  tfmr.h.4.mlp.c_fc.bias
+  tfmr.h.4.mlp.c_fc.weight
+  tfmr.h.4.mlp.c_proj.bias
+  tfmr.h.4.mlp.c_proj.weight
+  tfmr.h.5.attn.c_attn.bias
+  tfmr.h.5.attn.c_attn.weight
+  tfmr.h.5.attn.c_proj.bias
+  tfmr.h.5.attn.c_proj.weight
+  tfmr.h.5.ln_1.bias
+  tfmr.h.5.ln_1.weight
+  tfmr.h.5.ln_2.bias
+  tfmr.h.5.ln_2.weight
+  tfmr.h.5.mlp.c_fc.bias
+  tfmr.h.5.mlp.c_fc.weight
+  tfmr.h.5.mlp.c_proj.bias
+  tfmr.h.5.mlp.c_proj.weight
+  tfmr.h.6.attn.c_attn.bias
+  tfmr.h.6.attn.c_attn.weight
+  tfmr.h.6.attn.c_proj.bias
+  tfmr.h.6.attn.c_proj.weight
+  tfmr.h.6.ln_1.bias
+  tfmr.h.6.ln_1.weight
+  tfmr.h.6.ln_2.bias
+  tfmr.h.6.ln_2.weight
+  tfmr.h.6.mlp.c_fc.bias
+  tfmr.h.6.mlp.c_fc.weight
+  tfmr.h.6.mlp.c_proj.bias
+  tfmr.h.6.mlp.c_proj.weight
+  tfmr.h.7.attn.c_attn.bias
+  tfmr.h.7.attn.c_attn.weight
+  tfmr.h.7.attn.c_proj.bias
+  tfmr.h.7.attn.c_proj.weight
+  tfmr.h.7.ln_1.bias
+  tfmr.h.7.ln_1.weight
+  tfmr.h.7.ln_2.bias
+  tfmr.h.7.ln_2.weight
+  tfmr.h.7.mlp.c_fc.bias
+  tfmr.h.7.mlp.c_fc.weight
+  tfmr.h.7.mlp.c_proj.bias
+  tfmr.h.7.mlp.c_proj.weight
+  tfmr.h.8.attn.c_attn.bias
+  tfmr.h.8.attn.c_attn.weight
+  tfmr.h.8.attn.c_proj.bias
+  tfmr.h.8.attn.c_proj.weight
+  tfmr.h.8.ln_1.bias
+  tfmr.h.8.ln_1.weight
+  tfmr.h.8.ln_2.bias
+  tfmr.h.8.ln_2.weight
+  tfmr.h.8.mlp.c_fc.bias
+  tfmr.h.8.mlp.c_fc.weight
+  tfmr.h.8.mlp.c_proj.bias
+  tfmr.h.8.mlp.c_proj.weight
+  tfmr.h.9.attn.c_attn.bias
+  tfmr.h.9.attn.c_attn.weight
+  tfmr.h.9.attn.c_proj.bias
+  tfmr.h.9.attn.c_proj.weight
+  tfmr.h.9.ln_1.bias
+  tfmr.h.9.ln_1.weight
+  tfmr.h.9.ln_2.bias
+  tfmr.h.9.ln_2.weight
+  tfmr.h.9.mlp.c_fc.bias
+  tfmr.h.9.mlp.c_fc.weight
+  tfmr.h.9.mlp.c_proj.bias
+  tfmr.h.9.mlp.c_proj.weight
+  tfmr.ln_f.bias
+  tfmr.ln_f.weight
+  tfmr.wpe.weight
+  tfmr.wte.weight
+
+[Step 4/6] Extracting speaker embedding with VoiceEncoder...
+[VoiceEncoder] input mels: b=1, t=951, m=40
+[VoiceEncoder] LSTM layer 0: creating zeros (b=1, h=256)
+[VoiceEncoder] LSTM layer 0: stacking 951 outputs
+[VoiceEncoder] LSTM layer 0: hidden_states: [1, 951, 256]
+[VoiceEncoder] LSTM layer 1: creating zeros (b=1, h=256)
+[VoiceEncoder] LSTM layer 1: stacking 951 outputs
+[VoiceEncoder] LSTM layer 1: hidden_states: [1, 951, 256]
+[VoiceEncoder] LSTM layer 2: creating zeros (b=1, h=256)
+[VoiceEncoder] LSTM layer 2: stacking 951 outputs
+[VoiceEncoder] LSTM layer 2: hidden_states: [1, 951, 256]
+[Step 5/6] Extracting synthesis embedding with CAMPPlus...
+
+[Step 6/6] Generating tokens with T3...
+[T3] Generating token 0/500...
+[T3] Generating token 10/500...
+[T3] Generating token 20/500...
+[T3] Generating token 30/500...
+[T3] Generating token 40/500...
+[T3] Generating token 50/500...
+[T3] Generating token 60/500...
+[T3] Generating token 70/500...
+[T3] Generating token 80/500...
+[T3] Generating token 90/500...
+[T3] Generating token 100/500...
+[T3] Generating token 110/500...

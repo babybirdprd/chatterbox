@@ -113,11 +113,11 @@ impl MelConfig {
 
     pub fn for_24k(n_mels: usize) -> Self {
         Self {
-            n_fft: 1024,
-            hop_length: 240,
-            win_length: 1024,
+            n_fft: 1920,
+            hop_length: 480,
+            win_length: 1920,
             n_mels,
-            fmax: 12000.0,
+            fmax: 8000.0,
         }
     }
 }

@@ -42,6 +42,18 @@ fn main() -> anyhow::Result<()> {
     let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
     let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
     let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
+    println!("[DEBUG] T3 Path: {:?}", t3_path);
+    {
+        let file = std::fs::File::open(&t3_path).unwrap();
+        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
+        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
+        let mut names: Vec<_> = safetensors.names().into_iter().collect();
+        names.sort();
+        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
+        for name in names {
+            println!("  {}", name);
+        }
+    }
     let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
     let ve_path = turbo_repo.get("ve.safetensors")?;
     let s3tokenizer_path = api
@@ -117,11 +129,9 @@ fn main() -> anyhow::Result<()> {
             &candle::s3tokenizer::ModelConfig::default(),
             vb,
         )?;
-        let mel_t = mel_80_16k.transpose(1, 2)?; // Use 16k mel
-        let (b, c, t) = mel_t.dims3()?;
+        let (b, c, t) = mel_80_16k.dims3()?;
         let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_80_16k, &padding], 1)?)? // NOTE: compute_mel returns [B, C, T] now, no transpose needed if it was already [B, C, T]?
-                                                                  // Wait, compute_mel returns [B, C, T] (permuted from B, T, C). Pad along C=1.
+        s3tok.encode(&Tensor::cat(&[&mel_80_16k, &padding], 1)?)?
     };
 
     // STEP 4: T3 Embedding (Needs 40 mel)
@@ -183,7 +193,7 @@ fn main() -> anyhow::Result<()> {
     println!("\n[Step 7/6] Synthesizing audio...");
     let speech_tokens_filtered = {
         let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-        let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+        let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t != 6562).collect();
         Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
     };
 

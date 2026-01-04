@@ -37,23 +37,27 @@ impl DecoderAttention {
 
         let q = q
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let k = k
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let v = v
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
 
-        let k_t = k.transpose(2, 3)?;
-        let att = (q.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
+        let k_t = k.transpose(2, 3)?.contiguous()?;
+        let att = (q.contiguous()?.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
 
         let att = candle_nn::ops::softmax(&att, 3)?;
         let out = att.matmul(&v)?;
 
-        let out = out
-            .transpose(1, 2)?
-            .reshape((b, t, self.num_heads * self.head_dim))?;
+        let out =
+            out.transpose(1, 2)?
+                .contiguous()?
+                .reshape((b, t, self.num_heads * self.head_dim))?;
         self.to_out.forward(&out)
     }
 }
@@ -382,25 +386,33 @@ impl RelPositionMultiHeadedAttention {
         let v = self.linear_v.forward(x)?;
         let q = q
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let k = k
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let v = v
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let p = self.linear_pos.forward(pos_emb)?;
         let p = p
             .reshape((b, t, self.num_heads, self.head_dim))?
-            .transpose(1, 2)?;
+            .transpose(1, 2)?
+            .contiguous()?;
         let q_u = q.broadcast_add(&self.pos_bias_u.unsqueeze(0)?.unsqueeze(2)?)?;
         let q_v = q.broadcast_add(&self.pos_bias_v.unsqueeze(0)?.unsqueeze(2)?)?;
-        let matrix_ac = q_u.matmul(&k.transpose(2, 3)?)?;
-        let matrix_bd = q_v.matmul(&p.transpose(2, 3)?)?;
+        let matrix_ac = q_u
+            .contiguous()?
+            .matmul(&k.transpose(2, 3)?.contiguous()?)?;
+        let matrix_bd = q_v
+            .contiguous()?
+            .matmul(&p.transpose(2, 3)?.contiguous()?)?;
         let scores = (matrix_ac.broadcast_add(&matrix_bd)? / (self.head_dim as f64).sqrt())?;
         let attn = candle_nn::ops::softmax(&scores, 3)?;
         let x = attn.matmul(&v)?;
-        let x = x.transpose(1, 2)?.reshape((b, t, c))?;
+        let x = x.transpose(1, 2)?.contiguous()?.reshape((b, t, c))?;
         self.linear_out.forward(&x)
     }
 }
@@ -933,7 +945,7 @@ impl S3Gen {
                 resblock_kernel_sizes: vec![3, 7, 11],
                 resblock_dilation_sizes: vec![vec![1, 3, 5], vec![1, 3, 5], vec![1, 3, 5]],
                 n_fft: 16,
-                hop_len: 2,
+                hop_len: 4,
             };
             match crate::hifigan::HiFTGenerator::new(config, vb.pp("mel2wav")) {
                 Ok(h) => {

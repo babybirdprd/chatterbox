@@ -218,8 +218,8 @@ impl FSMNMultiHeadAttention {
         let fsm_memory = self.forward_fsmn(&v, mask_pad)?;
 
         // Attention calculation
-        let q = q.transpose(1, 2)?; // (B, H, T, D/H)
-        let k = k.transpose(1, 2)?.transpose(2, 3)?; // (B, H, D/H, T)
+        let q = q.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
+        let k = k.transpose(1, 2)?.transpose(2, 3)?.contiguous()?; // (B, H, D/H, T)
 
         let scale = (head_dim as f32).powf(-0.5);
         let mut qk = (q.matmul(&k)? * (scale as f64))?;
@@ -229,7 +229,7 @@ impl FSMNMultiHeadAttention {
         }
 
         let soft_qk = candle_nn::ops::softmax(&qk, D::Minus1)?;
-        let v_heads = v_reshaped.transpose(1, 2)?; // (B, H, T, D/H)
+        let v_heads = v_reshaped.transpose(1, 2)?.contiguous()?; // (B, H, T, D/H)
         let attn_out = soft_qk.matmul(&v_heads)?; // (B, H, T, D/H)
 
         let wv = attn_out.transpose(1, 2)?.reshape((b, t, d))?;

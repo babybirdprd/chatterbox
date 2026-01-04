@@ -85,7 +85,7 @@ impl VoiceEncoder {
 
             let mut outputs = Vec::new();
             for i in 0..t {
-                let input_step = hidden_states.i((.., i, ..))?;
+                let input_step = hidden_states.i((.., i, ..))?.contiguous()?;
                 state = layer.step(&input_step, &state)?;
                 outputs.push(state.h.clone());
             }
