@@ -127,7 +127,7 @@ impl ChatterboxTTS {
         let cfg_camp = MelConfig::for_campplus();
         let mel_camp =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_camp)?;
-        let mel_camp_log = mel_camp.clamp(1e-5, f32::MAX)?.log()?;
+        let mel_camp_log = mel_camp.clamp(1e-7, f32::MAX)?.log()?;
         let mean = mel_camp_log.mean_keepdim(2)?;
         let mel_camp_norm = mel_camp_log.broadcast_sub(&mean)?;
 
@@ -335,7 +335,7 @@ impl ChatterboxTurboTTS {
         let cfg_camp = MelConfig::for_campplus();
         let mel_camp =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_camp)?;
-        let mel_camp_log = mel_camp.clamp(1e-5, f32::MAX)?.log()?;
+        let mel_camp_log = mel_camp.clamp(1e-7, f32::MAX)?.log()?;
         let mean = mel_camp_log.mean_keepdim(2)?;
         let mel_camp_norm = mel_camp_log.broadcast_sub(&mean)?;
 
