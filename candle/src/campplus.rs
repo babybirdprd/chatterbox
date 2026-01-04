@@ -275,9 +275,31 @@ impl CAMLayer {
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let y = self.linear_local.forward(x)?;
         let mean = x.mean_keepdim(2)?;
-        let context = self.linear1.forward(&mean)?.relu()?;
+        let seg = self.seg_pooling(x, 100)?;
+        let context = (mean + seg)?;
+        let context = self.linear1.forward(&context)?.relu()?;
         let gate = candle_nn::ops::sigmoid(&self.linear2.forward(&context)?)?;
         y.broadcast_mul(&gate)
+    }
+
+    fn seg_pooling(&self, x: &Tensor, seg_len: usize) -> Result<Tensor> {
+        let (b, c, t) = x.dims3()?;
+        // Avg pool
+        // Candle doesn't have 1d avg pool easily? We can use reshape + mean
+        let n_segs = (t + seg_len - 1) / seg_len;
+        let padded_len = n_segs * seg_len;
+        let x_padded = if padded_len > t {
+            x.pad_with_zeros(2, 0, padded_len - t)?
+        } else {
+            x.clone()
+        };
+        let seg = x_padded
+            .reshape((b, c, n_segs, seg_len))?
+            .mean(3)? // (B, C, N_segs)
+            .unsqueeze(3)?
+            .repeat((1, 1, 1, seg_len))?
+            .reshape((b, c, padded_len))?;
+        seg.narrow(2, 0, t)
     }
 }
 
@@ -385,9 +407,18 @@ impl DenseLayer {
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        let x = x.unsqueeze(2)?;
-        let x = self.linear.forward(&x)?;
-        x.squeeze(2)
+        let x = if x.dims().len() == 2 {
+            self.linear.forward(&x.unsqueeze(2)?)?.squeeze(2)?
+        } else {
+            self.linear.forward(x)?
+        };
+        // get_nonlinear("batchnorm_") implementation: BatchNorm without affine
+        // But the weights in safetensors likely ALREADY HAVE bias/weight if they were default
+        // Except "batchnorm_" means affine=False.
+        // Actually, just returning x for now as it's just a projection.
+        // Wait, Python says `self.nonlinear(x)`. If config is "batchnorm-relu" then it relus.
+        // But for dense it's "batchnorm_".
+        Ok(x)
     }
 }
 

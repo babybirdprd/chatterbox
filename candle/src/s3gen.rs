@@ -30,7 +30,7 @@ impl DecoderAttention {
     }
 
     fn forward(&self, x: &Tensor, _mask: Option<&Tensor>) -> Result<Tensor> {
-        let (b, t, c) = x.dims3()?;
+        let (b, t, _c) = x.dims3()?;
         let q = self.to_q.forward(x)?;
         let k = self.to_k.forward(x)?;
         let v = self.to_v.forward(x)?;
@@ -594,15 +594,18 @@ impl UpsampleConformerEncoder {
         for layer in &self.encoders {
             x = layer.forward(&x, &pos_emb)?;
         }
-        let x_up = self
+
+        let x = self
             .up_layer
             .forward(&x.transpose(1, 2)?)?
             .transpose(1, 2)?;
-        let x = self.up_embed.forward(&x_up)?;
+
+        let x = self.up_embed.forward(&x)?;
         let (mut x, pos_emb_up) = self.pe.forward(&x)?;
         for layer in &self.up_encoders {
             x = layer.forward(&x, &pos_emb_up)?;
         }
+
         self.after_norm.forward(&x)
     }
 }
@@ -959,84 +962,26 @@ impl S3Gen {
     /// Forward pass: converts speech tokens to audio waveform
     /// Returns mel spectrogram if HiFiGAN not available, otherwise returns audio
     pub fn forward(&self, speech_tokens: &Tensor, spks: Option<&Tensor>) -> Result<Tensor> {
-        eprintln!("[S3Gen::forward] START");
-        eprintln!(
-            "[S3Gen::forward] speech_tokens shape: {:?}",
-            speech_tokens.dims()
-        );
-        if let Some(s) = spks {
-            eprintln!("[S3Gen::forward] spks shape: {:?}", s.dims());
-        } else {
-            eprintln!("[S3Gen::forward] spks: None");
-        }
-
         let embeds = self.embedding.forward(speech_tokens)?;
-        eprintln!("[S3Gen::forward] embeds shape: {:?}", embeds.dims());
-
         let encoder_out = self.encoder.forward(&embeds)?;
-        eprintln!(
-            "[S3Gen::forward] encoder_out shape: {:?}",
-            encoder_out.dims()
-        );
-
         let mu = self.mu_proj.forward(&encoder_out)?.transpose(1, 2)?;
-        eprintln!("[S3Gen::forward] mu (transposed) shape: {:?}", mu.dims());
 
         let n_steps = if self.decoder.estimator.meanflow {
-            eprintln!("[S3Gen::forward] Using meanflow=true, n_steps=2");
             2
         } else {
-            eprintln!("[S3Gen::forward] Using meanflow=false, n_steps=32");
             32
         };
 
         let (b, _, t) = mu.dims3()?;
-        eprintln!("[S3Gen::forward] batch={}, time_steps={}", b, t);
-
         let mask = Tensor::ones((b, 1, t), mu.dtype(), mu.device())?;
-        eprintln!("[S3Gen::forward] Calling CFM decoder...");
 
         let mel = self.decoder.forward(&mu, &mask, spks, Some(&mu), n_steps)?;
-        eprintln!("[S3Gen::forward] mel output shape: {:?}", mel.dims());
-
-        // Check mel stats
-        let mel_flat = mel.flatten_all()?;
-        let mel_data: Vec<f32> = mel_flat.to_vec1()?;
-        let mel_min = mel_data.iter().cloned().fold(f32::INFINITY, f32::min);
-        let mel_max = mel_data.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-        let mel_mean = mel_data.iter().sum::<f32>() / mel_data.len() as f32;
-        eprintln!(
-            "[S3Gen::forward] mel stats: min={:.4}, max={:.4}, mean={:.4}, len={}",
-            mel_min,
-            mel_max,
-            mel_mean,
-            mel_data.len()
-        );
 
         // Convert mel to audio using HiFiGAN vocoder if available
         if let Some(ref hifigan) = self.hifigan {
-            eprintln!("[S3Gen::forward] Running HiFiGAN vocoder...");
             let audio = hifigan.inference(&mel)?;
-            eprintln!("[S3Gen::forward] audio output shape: {:?}", audio.dims());
-
-            // Check audio stats
-            let audio_flat = audio.flatten_all()?;
-            let audio_data: Vec<f32> = audio_flat.to_vec1()?;
-            let audio_min = audio_data.iter().cloned().fold(f32::INFINITY, f32::min);
-            let audio_max = audio_data.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-            let audio_mean = audio_data.iter().sum::<f32>() / audio_data.len() as f32;
-            eprintln!(
-                "[S3Gen::forward] audio stats: min={:.4}, max={:.4}, mean={:.4}, len={}",
-                audio_min,
-                audio_max,
-                audio_mean,
-                audio_data.len()
-            );
-            eprintln!("[S3Gen::forward] END (with HiFiGAN)");
             Ok(audio)
         } else {
-            eprintln!("[S3Gen::forward] WARNING: No HiFiGAN - returning raw mel!");
-            eprintln!("[S3Gen::forward] END (raw mel)");
             Ok(mel)
         }
     }

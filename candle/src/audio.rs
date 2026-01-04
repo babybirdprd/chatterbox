@@ -3,7 +3,7 @@ use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
 use rubato::{FftFixedIn, Resampler};
 use std::path::Path;
 
-pub const S3GEN_SR: u32 = 22050;
+pub const S3GEN_SR: u32 = 24000;
 pub const S3_SR: u32 = 16000;
 
 pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
@@ -99,16 +99,29 @@ pub fn compute_mel_spectrogram(
     n_mels: usize,
 ) -> Result<Tensor> {
     use realfft::RealFftPlanner;
-    let n_fft = 1024;
-    let hop_length = 256;
-    let win_length = 1024;
+    // Parameters aligned with chatterbox/models/s3gen/utils/mel.py
+    let n_fft = 1920;
+    let hop_length = 480;
+    let win_length = 1920;
+    let fmax = 8000.0;
+
     let window: Vec<f32> = (0..win_length)
         .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
         .collect();
-    let pad = n_fft / 2;
-    let mut padded = vec![0.0f32; pad];
+
+    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
+    let pad = (n_fft - hop_length) / 2;
+    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
+    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
+    for i in (1..=pad).rev() {
+        padded.push(samples[i]);
+    }
     padded.extend_from_slice(samples);
-    padded.extend(vec![0.0f32; pad]);
+    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
+    let n = samples.len();
+    for i in 1..=pad {
+        padded.push(samples[n - 1 - i]);
+    }
 
     let n_frames = (padded.len() - n_fft) / hop_length + 1;
     let mut planner = RealFftPlanner::<f32>::new();
@@ -131,38 +144,40 @@ pub fn compute_mel_spectrogram(
         fft.process(&mut windowed, &mut spectrum)
             .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
         for (i, c) in spectrum.iter().enumerate() {
-            power_spectrogram[frame_idx][i] = c.norm_sqr();
+            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
+            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
+            // Then it applies mel and spectral_normalize (log)
+            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
         }
     }
 
-    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels);
+    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
     let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
-    for (t, power_frame) in power_spectrogram.iter().enumerate() {
+    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
         for (m, filter) in mel_filters.iter().enumerate() {
             let mut sum = 0.0f32;
             for (i, &weight) in filter.iter().enumerate() {
-                sum += weight * power_frame[i];
+                sum += weight * mag_frame[i];
             }
-            mel_spec[t][m] = (sum.max(1e-10)).log10();
+            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
+            mel_spec[t][m] = (sum.max(1e-5)).ln();
         }
     }
 
-    let max_val = mel_spec
-        .iter()
-        .flat_map(|row| row.iter())
-        .cloned()
-        .fold(f32::NEG_INFINITY, f32::max);
-    for row in &mut mel_spec {
-        for val in row.iter_mut() {
-            *val = (*val - (max_val - 8.0)).max(0.0) / 8.0;
-        }
-    }
     let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
-    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?.to_dtype(DType::F32)
+    // Return (B, C, T) where C=80
+    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
+        .permute((0, 2, 1))?
+        .contiguous()?
+        .to_dtype(DType::F32)
 }
 
-fn create_mel_filterbank(sample_rate: u32, n_fft: usize, n_mels: usize) -> Vec<Vec<f32>> {
-    let fmax = sample_rate as f32 / 2.0;
+fn create_mel_filterbank(
+    sample_rate: u32,
+    n_fft: usize,
+    n_mels: usize,
+    fmax: f32,
+) -> Vec<Vec<f32>> {
     let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
     let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
     let mel_min = hz_to_mel(0.0);
@@ -173,22 +188,30 @@ fn create_mel_filterbank(sample_rate: u32, n_fft: usize, n_mels: usize) -> Vec<V
     let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
     let bin_points: Vec<usize> = hz_points
         .iter()
-        .map(|&hz| ((n_fft + 1) as f32 * hz / sample_rate as f32).floor() as usize)
+        .map(|&hz| (hz * (n_fft as f32) / sample_rate as f32).round() as usize)
         .collect();
     let n_bins = n_fft / 2 + 1;
     let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
     for m in 0..n_mels {
+        let left_hz = hz_points[m];
+        let _center_hz = hz_points[m + 1];
+        let right_hz = hz_points[m + 2];
+
         let left = bin_points[m];
         let center = bin_points[m + 1];
         let right = bin_points[m + 2];
+
+        // Slaney normalization factor
+        let enorm = 2.0 / (right_hz - left_hz);
+
         for k in left..center {
             if center > left {
-                filterbank[m][k] = (k - left) as f32 / (center - left) as f32;
+                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
             }
         }
         for k in center..right {
             if right > center {
-                filterbank[m][k] = (right - k) as f32 / (right - center) as f32;
+                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
             }
         }
     }
