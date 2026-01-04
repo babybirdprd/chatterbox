@@ -71,9 +71,14 @@ impl VoiceEncoder {
     pub fn forward(&self, mels: &Tensor) -> Result<Tensor> {
         // mels: (B, T, 40)
         let (b, t, _m) = mels.dims3()?;
+        eprintln!("[VoiceEncoder] input mels: b={}, t={}, m={}", b, t, _m);
         let mut hidden_states = mels.clone();
 
-        for layer in &self.lstm {
+        for (layer_idx, layer) in self.lstm.iter().enumerate() {
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: creating zeros (b={}, h={})",
+                layer_idx, b, self.config.ve_hidden_size
+            );
             let h = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
             let c = Tensor::zeros((b, self.config.ve_hidden_size), mels.dtype(), mels.device())?;
             let mut state = LSTMState { h, c };
@@ -84,8 +89,17 @@ impl VoiceEncoder {
                 state = layer.step(&input_step, &state)?;
                 outputs.push(state.h.clone());
             }
-
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: stacking {} outputs",
+                layer_idx,
+                outputs.len()
+            );
             hidden_states = Tensor::stack(&outputs, 1)?;
+            eprintln!(
+                "[VoiceEncoder] LSTM layer {}: hidden_states: {:?}",
+                layer_idx,
+                hidden_states.dims()
+            );
         }
 
         let last_hidden = hidden_states.i((.., t - 1, ..))?;

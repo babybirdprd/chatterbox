@@ -523,12 +523,19 @@ impl HiFTGenerator {
     }
 
     pub fn inference(&self, mel: &Tensor) -> Result<Tensor> {
+        eprintln!("[HiFTGenerator::inference] mel input: {:?}", mel.dims());
         let f0 = self.f0_predictor.forward(mel)?; // (B, T_mel, 1)
+        eprintln!("[HiFTGenerator::inference] f0: {:?}", f0.dims());
 
         let upsample_factor =
             self.config.upsample_rates.iter().product::<usize>() * self.config.hop_len;
+        eprintln!(
+            "[HiFTGenerator::inference] upsample_factor: {}",
+            upsample_factor
+        );
 
         let (sine_merge, noise, _uv) = self.source_module.forward(&f0, upsample_factor)?;
+
         let source = (sine_merge + noise)?;
 
         let audio = self.decode(mel, &source)?;

@@ -244,31 +244,63 @@ impl ChatterboxTurboTTS {
         config: GenerateConfig,
     ) -> Result<(Vec<f32>, u32)> {
         let text = normalize_text(text);
+        eprintln!("[generate_speech] Loading reference audio...");
         let (mut ref_samples, ref_sr) =
             audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
+        eprintln!(
+            "[generate_speech] ref_samples len: {}, sr: {}",
+            ref_samples.len(),
+            ref_sr
+        );
         if ref_sr != S3_SR {
             ref_samples = audio::resample(&ref_samples, ref_sr, S3_SR)
                 .map_err(|e| candle_core::Error::Msg(e))?;
         }
 
+        eprintln!("[generate_speech] Computing mel spectrograms...");
+        use std::io::Write;
+        std::io::stderr().flush().unwrap();
         let mel_40 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 40)?;
+        eprintln!("[generate_speech] mel_40: {:?}", mel_40.dims());
+        std::io::stderr().flush().unwrap();
+
+        eprintln!("[generate_speech] mel_40: {:?}", mel_40.dims());
         let mel_80 = audio::compute_mel_spectrogram(&ref_samples, S3_SR, &self.device, 80)?;
+        eprintln!("[generate_speech] mel_80: {:?}", mel_80.dims());
 
         // VoiceEncoder expects (B, T, 40), but compute_mel_spectrogram returns (B, C, T)
+        eprintln!("[generate_speech] About to transpose mel_40...");
         let mel_40_t = mel_40.transpose(1, 2)?; // (B, T, 40)
+        eprintln!("[generate_speech] mel_40_t: {:?}", mel_40_t.dims());
+        eprintln!("[generate_speech] Running VoiceEncoder...");
         let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
+
+        eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
+        eprintln!("[generate_speech] Running CAMPPlus...");
         let spk_emb_80 = self.s3gen.campplus.forward(&mel_80)?.narrow(1, 0, 80)?;
+        eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
         // S3Tokenizer expects (B, 128, T) mel - transpose and pad from (B, T, 80)
+        eprintln!("[generate_speech] Running S3Tokenizer...");
         let prompt_tokens = {
             let mel_t = mel_80.transpose(1, 2)?; // (B, 80, T)
             let (b, c, t) = mel_t.dims3()?;
+            eprintln!(
+                "[generate_speech] mel_t for tokenizer: [b={}, c={}, t={}]",
+                b, c, t
+            );
             let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &self.device)?;
             let mel_padded = Tensor::cat(&[&mel_t, &padding], 1)?; // (B, 128, T)
             self.s3tokenizer.encode(&mel_padded)?
         };
+        eprintln!(
+            "[generate_speech] prompt_tokens: {:?}",
+            prompt_tokens.dims()
+        );
         let text_tokens = self.tokenize_text(&text)?;
+        eprintln!("[generate_speech] text_tokens: {:?}", text_tokens.dims());
 
+        eprintln!("[generate_speech] Running T3.generate...");
         let speech_tokens = self.t3.generate(
             &text_tokens,
             &spk_emb_256,
@@ -281,14 +313,27 @@ impl ChatterboxTurboTTS {
             config.repetition_penalty,
             config.seed,
         )?;
+        eprintln!(
+            "[generate_speech] speech_tokens: {:?}",
+            speech_tokens.dims()
+        );
         let speech_tokens_filtered = {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+            let original_len = tokens.len();
             let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            eprintln!(
+                "[generate_speech] filtered tokens: {} (from {})",
+                filtered.len(),
+                original_len
+            );
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
+
+        eprintln!("[generate_speech] Running S3Gen.forward...");
         let audio_tensor = self
             .s3gen
             .forward(&speech_tokens_filtered, Some(&spk_emb_80))?;
+        eprintln!("[generate_speech] audio_tensor: {:?}", audio_tensor.dims());
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
         if config.normalize_loudness {
             audio::normalize_loudness(&mut samples, -27.0);

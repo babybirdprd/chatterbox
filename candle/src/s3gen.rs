@@ -962,9 +962,13 @@ impl S3Gen {
     /// Forward pass: converts speech tokens to audio waveform
     /// Returns mel spectrogram if HiFiGAN not available, otherwise returns audio
     pub fn forward(&self, speech_tokens: &Tensor, spks: Option<&Tensor>) -> Result<Tensor> {
+        eprintln!("[S3Gen::forward] speech_tokens: {:?}", speech_tokens.dims());
         let embeds = self.embedding.forward(speech_tokens)?;
+        eprintln!("[S3Gen::forward] embeds: {:?}", embeds.dims());
         let encoder_out = self.encoder.forward(&embeds)?;
+        eprintln!("[S3Gen::forward] encoder_out: {:?}", encoder_out.dims());
         let mu = self.mu_proj.forward(&encoder_out)?.transpose(1, 2)?;
+        eprintln!("[S3Gen::forward] mu (mel): {:?}", mu.dims());
 
         let n_steps = if self.decoder.estimator.meanflow {
             2
@@ -976,6 +980,7 @@ impl S3Gen {
         let mask = Tensor::ones((b, 1, t), mu.dtype(), mu.device())?;
 
         let mel = self.decoder.forward(&mu, &mask, spks, Some(&mu), n_steps)?;
+        eprintln!("[S3Gen::forward] mel after decoder: {:?}", mel.dims());
 
         // Convert mel to audio using HiFiGAN vocoder if available
         if let Some(ref hifigan) = self.hifigan {
