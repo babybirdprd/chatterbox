@@ -85,19 +85,37 @@ impl Attention {
         })
     }
 
-    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
+    fn forward(&self, x: &Tensor, bias: Option<&Tensor>, layer_past: Option<&(Tensor, Tensor)>) -> Result<(Tensor, Option<(Tensor, Tensor)>)> {
         let (b, t, c) = x.dims3()?;
         let qkv = self.c_attn.forward(x)?;
         let qkv = qkv.reshape((b, t, 3, self.n_head, c / self.n_head))?;
-        let qkv = qkv.permute((2, 0, 3, 1, 4))?;
+        let qkv = qkv.permute((2, 0, 3, 1, 4))?; // (3, B, n_head, T, head_dim)
         let q = qkv.i(0)?.contiguous()?;
         let k = qkv.i(1)?.contiguous()?;
         let v = qkv.i(2)?.contiguous()?;
 
+        let (k, v) = match layer_past {
+            Some((past_k, past_v)) => {
+                let k = Tensor::cat(&[past_k, &k], 2)?;
+                let v = Tensor::cat(&[past_v, &v], 2)?;
+                (k, v)
+            }
+            None => (k, v),
+        };
+
+        let current_cache = Some((k.clone(), v.clone()));
+
         let k_t = k.transpose(2, 3)?;
+        // q: (B, H, T_q, D)
+        // k_t: (B, H, D, T_k)
+        // att: (B, H, T_q, T_k)
         let mut att = (q.matmul(&k_t)? / (c as f64 / self.n_head as f64).sqrt())?;
 
         if let Some(bias) = bias {
+            // bias: (1, 1, T_q, T_k) or (1, 1, 1, T_k) depending on masking
+            // When using cache, T_q=1, T_k=L_past+1.
+            // Bias should match T_k.
+            // Caller must ensure bias is broadcastable.
             att = att.broadcast_add(bias)?;
         }
 
@@ -105,7 +123,8 @@ impl Attention {
         let y = att.matmul(&v)?;
         let y = y.permute((0, 2, 1, 3))?.reshape((b, t, c))?;
 
-        self.c_proj.forward(&y)
+        let out = self.c_proj.forward(&y)?;
+        Ok((out, current_cache))
     }
 }
 
@@ -130,17 +149,22 @@ impl Block {
         })
     }
 
-    fn forward(&self, x: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {
+    fn forward(
+        &self,
+        x: &Tensor,
+        bias: Option<&Tensor>,
+        layer_past: Option<&(Tensor, Tensor)>
+    ) -> Result<(Tensor, Option<(Tensor, Tensor)>)> {
         let residual = x;
         let x = self.ln_1.forward(x)?;
-        let x = self.attn.forward(&x, bias)?;
+        let (x, past) = self.attn.forward(&x, bias, layer_past)?;
         let x = (x + residual)?;
 
         let residual = &x;
         let x = self.ln_2.forward(&x)?;
         let x = self.mlp.forward(&x)?;
         let x = (x + residual)?;
-        Ok(x)
+        Ok((x, past))
     }
 }
 
@@ -174,87 +198,135 @@ impl GPT2Model {
         })
     }
 
-    pub fn forward(&self, input_ids: &Tensor) -> Result<Tensor> {
+    pub fn forward(&self, input_ids: &Tensor, past_key_values: Option<&Vec<(Tensor, Tensor)>>) -> Result<(Tensor, Vec<(Tensor, Tensor)>)> {
         let (_b, t) = input_ids.dims2()?;
+        let past_len = if let Some(past) = past_key_values {
+            if !past.is_empty() {
+                past[0].0.dim(2)?
+            } else {
+                0
+            }
+        } else {
+            0
+        };
+
         let input_embeds = self.wte.forward(input_ids)?;
-        let position_ids = Tensor::arange(0, t as u32, input_ids.device())?.unsqueeze(0)?;
+        let position_ids = Tensor::arange(past_len as u32, (past_len + t) as u32, input_ids.device())?.unsqueeze(0)?;
         let position_embeds = self.wpe.forward(&position_ids)?;
 
         let mut hidden_states = (input_embeds + position_embeds)?;
 
-        let mask_indexes = Tensor::arange(0, t as u32, input_ids.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?;
-        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+        // Masking
+        // If we are using cache (past_len > 0), t is typically 1 (decoding).
+        // We attend to past_len + t tokens.
+        // The mask should be (1, 1, 1, past_len + t) or similar?
+        // Wait, standard causal mask: each token i can attend to 0..i.
+        // If we have past, we are at index `past_len + i`. We attend to 0..past_len+i.
+        // So we need a mask that allows attention to all previous positions.
+        // Since we process `t` new tokens, for token `j` in `0..t` (absolute `past_len + j`),
+        // it attends to `0..past_len + j`.
+        // If `t=1`, it attends to `0..past_len+1`. All ones.
+        // So mask is just all ones?
+        // Wait, standard GPT2 mask is strictly causal.
+        // If `t > 1` (e.g. prefix processing), we need causal mask for the new `t` tokens,
+        // but they can all attend to `past`.
 
-        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(hidden_states.dtype())?;
-        let wide_mask_val = if hidden_states.dtype() == DType::F16 {
-            1e4
+        let mask = if t == 1 && past_len > 0 {
+             // Decoding step: attend to everything. No mask needed (or all zeros which means allow).
+             // But we might need to match shape for broadcast.
+             // bias shape: (1, 1, 1, total_len) or just None?
+             None
         } else {
-            1e9
-        };
-        let mask = ((mask - 1.0)? * wide_mask_val)?;
+            // Context encoding (or initial step)
+            let total_len = past_len + t;
+            let mask_indexes = Tensor::arange(past_len as u32, total_len as u32, input_ids.device())?; // (t)
+            let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, total_len))?; // (t, total_len)
 
-        for block in &self.h {
-            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+            let key_indexes = Tensor::arange(0u32, total_len as u32, input_ids.device())?; // (total_len)
+            let mask_indexes_col = key_indexes.unsqueeze(0)?.broadcast_as((t, total_len))?; // (t, total_len)
+
+            let mask = mask_indexes_row.ge(&mask_indexes_col)?; // (t, total_len)
+
+            let mask = mask.unsqueeze(0)?.unsqueeze(0)?; // (1, 1, t, total_len)
+            let mask = mask.to_dtype(hidden_states.dtype())?;
+            let wide_mask_val = if hidden_states.dtype() == DType::F16 {
+                1e4
+            } else {
+                1e9
+            };
+            let mask = ((mask - 1.0)? * wide_mask_val)?;
+            Some(mask)
+        };
+
+        let mut next_past = Vec::new();
+        for (i, block) in self.h.iter().enumerate() {
+            let layer_past = past_key_values.map(|p| &p[i]);
+            let (new_h, past) = block.forward(&hidden_states, mask.as_ref(), layer_past)?;
+            hidden_states = new_h;
+            if let Some(p) = past {
+                next_past.push(p);
+            }
         }
 
-        self.ln_f.forward(&hidden_states)
+        let out = self.ln_f.forward(&hidden_states)?;
+        Ok((out, next_past))
     }
 
-    // Helper to allow custom embeddings input
-    pub fn forward_embeds(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
+    // Helper to allow custom embeddings input.
+    // DOES NOT ADD POS EMBEDDINGS automatically.
+    // DOES NOT UPDATE PAST_KEY_VALUES automatically unless passed.
+    pub fn forward_embeds_no_pos(
+        &self,
+        inputs_embeds: &Tensor,
+        past_key_values: Option<&Vec<(Tensor, Tensor)>>
+    ) -> Result<(Tensor, Vec<(Tensor, Tensor)>)> {
         let (_b, t, _c) = inputs_embeds.dims3()?;
-        let position_ids = Tensor::arange(0, t as u32, inputs_embeds.device())?.unsqueeze(0)?;
-        let position_embeds = self.wpe.forward(&position_ids)?;
 
-        let mut hidden_states = (inputs_embeds + position_embeds)?;
-
-        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
-        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
-
-        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(inputs_embeds.dtype())?;
-        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
-            1e4
+        let past_len = if let Some(past) = past_key_values {
+            if !past.is_empty() {
+                past[0].0.dim(2)?
+            } else {
+                0
+            }
         } else {
-            1e9
+            0
         };
-        let mask = ((mask - 1.0)? * wide_mask_val)?;
 
-        for block in &self.h {
-            hidden_states = block.forward(&hidden_states, Some(&mask))?;
-        }
-
-        self.ln_f.forward(&hidden_states)
-    }
-
-    // Forward without adding positional embeddings (caller handles it)
-    pub fn forward_embeds_no_pos(&self, inputs_embeds: &Tensor) -> Result<Tensor> {
-        let (_b, t, _c) = inputs_embeds.dims3()?;
         let mut hidden_states = inputs_embeds.clone();
 
-        let mask_indexes = Tensor::arange(0, t as u32, inputs_embeds.device())?;
-        let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, t))?;
-        let mask_indexes_col = mask_indexes.unsqueeze(0)?.broadcast_as((t, t))?;
-        let mask = mask_indexes_row.ge(&mask_indexes_col)?;
-
-        let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
-        let mask = mask.to_dtype(inputs_embeds.dtype())?;
-        let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
-            1e4
+        let mask = if t == 1 && past_len > 0 {
+             None
         } else {
-            1e9
-        };
-        let mask = ((mask - 1.0)? * wide_mask_val)?;
+            let total_len = past_len + t;
+            let mask_indexes = Tensor::arange(past_len as u32, total_len as u32, inputs_embeds.device())?;
+            let mask_indexes_row = mask_indexes.unsqueeze(1)?.broadcast_as((t, total_len))?;
 
-        for block in &self.h {
-            hidden_states = block.forward(&hidden_states, Some(&mask))?;
+            let key_indexes = Tensor::arange(0u32, total_len as u32, inputs_embeds.device())?;
+            let mask_indexes_col = key_indexes.unsqueeze(0)?.broadcast_as((t, total_len))?;
+
+            let mask = mask_indexes_row.ge(&mask_indexes_col)?;
+            let mask = mask.unsqueeze(0)?.unsqueeze(0)?;
+            let mask = mask.to_dtype(inputs_embeds.dtype())?;
+            let wide_mask_val = if inputs_embeds.dtype() == DType::F16 {
+                1e4
+            } else {
+                1e9
+            };
+            let mask = ((mask - 1.0)? * wide_mask_val)?;
+            Some(mask)
+        };
+
+        let mut next_past = Vec::new();
+        for (i, block) in self.h.iter().enumerate() {
+            let layer_past = past_key_values.map(|p| &p[i]);
+            let (new_h, past) = block.forward(&hidden_states, mask.as_ref(), layer_past)?;
+            hidden_states = new_h;
+            if let Some(p) = past {
+                next_past.push(p);
+            }
         }
 
-        self.ln_f.forward(&hidden_states)
+        let out = self.ln_f.forward(&hidden_states)?;
+        Ok((out, next_past))
     }
 }

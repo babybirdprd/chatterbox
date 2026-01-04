@@ -23,18 +23,34 @@ fn conv1d_no_bias(
     Ok(Conv1d::new(weight, None, cfg))
 }
 
+// Helper to perform downsampling on the H dimension (dim 2)
+// effectively simulating stride=(s, 1) when underlying conv has stride=1.
+fn downsample_h(x: &Tensor, stride: usize) -> Result<Tensor> {
+    if stride <= 1 {
+        return Ok(x.clone());
+    }
+    let (_b, _c, h, _w) = x.dims4()?;
+    // We want to keep 0, stride, 2*stride, ...
+    // Using index_select on dim 2
+    let indices = Tensor::arange_step(0u32, h as u32, stride as u32, x.device())?;
+    x.index_select(&indices, 2)
+}
+
 struct BasicResBlock2D {
     conv1: Conv2d,
     bn1: BatchNorm,
     conv2: Conv2d,
     bn2: BatchNorm,
     shortcut: Option<(Conv2d, BatchNorm)>,
+    stride: usize,
 }
 
 impl BasicResBlock2D {
     fn new(in_c: usize, out_c: usize, stride: usize, vb: VarBuilder) -> Result<Self> {
+        // Python: stride=(stride, 1). Candle Conv2d only supports symmetric stride.
+        // We use stride=1 in Conv2d and manually downsample H dimension if stride > 1.
         let conv_cfg = candle_nn::Conv2dConfig {
-            stride,
+            stride: 1, // Always 1 here, we handle stride manually
             padding: 1,
             ..Default::default()
         };
@@ -54,12 +70,13 @@ impl BasicResBlock2D {
         let bn2 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn2"))?;
 
         let shortcut = if stride != 1 || in_c != out_c {
+            // Shortcut also needs (stride, 1)
             let s_conv = conv2d_no_bias(
                 in_c,
                 out_c,
                 1,
                 candle_nn::Conv2dConfig {
-                    stride,
+                    stride: 1, // Manual stride
                     ..Default::default()
                 },
                 vb.pp("shortcut.0"),
@@ -76,19 +93,27 @@ impl BasicResBlock2D {
             conv2,
             bn2,
             shortcut,
+            stride,
         })
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let residual = if let Some((s_conv, s_bn)) = &self.shortcut {
-            s_bn.forward_t(&s_conv.forward(x)?, false)?
+            let s_out = s_conv.forward(x)?;
+            let s_out = downsample_h(&s_out, self.stride)?;
+            s_bn.forward_t(&s_out, false)?
         } else {
             x.clone()
         };
 
-        let x = self.bn1.forward_t(&self.conv1.forward(x)?, false)?.relu()?;
-        let x = self.bn2.forward_t(&self.conv2.forward(&x)?, false)?;
-        (x + residual)?.relu()
+        let x1 = self.conv1.forward(x)?;
+        let x1 = downsample_h(&x1, self.stride)?;
+        let x1 = self.bn1.forward_t(&x1, false)?.relu()?;
+
+        let x2 = self.conv2.forward(&x1)?;
+        let x2 = self.bn2.forward_t(&x2, false)?;
+
+        (x2 + residual)?.relu()
     }
 }
 
@@ -144,12 +169,13 @@ impl FCM {
             vb.pp("layer2.1"),
         )?);
 
+        // conv2 also needs stride (2, 1)
         let conv2 = conv2d_no_bias(
             m_channels,
             m_channels,
             3,
             candle_nn::Conv2dConfig {
-                stride: 2,
+                stride: 1, // Manual stride
                 padding: 1,
                 ..Default::default()
             },
@@ -178,9 +204,14 @@ impl FCM {
         for block in &self.layer2 {
             x = block.forward(&x)?;
         }
+
+        // Manual stride (2, 1) for conv2
+        let x_conv2 = self.conv2.forward(&x)?;
+        let x_down = downsample_h(&x_conv2, 2)?;
+
         x = self
             .bn2
-            .forward_t(&self.conv2.forward(&x)?, false)?
+            .forward_t(&x_down, false)?
             .relu()?;
         let (b, c, f, t) = x.dims4()?;
         x.reshape((b, c * f, t))
@@ -284,8 +315,6 @@ impl CAMLayer {
 
     fn seg_pooling(&self, x: &Tensor, seg_len: usize) -> Result<Tensor> {
         let (b, c, t) = x.dims3()?;
-        // Avg pool
-        // Candle doesn't have 1d avg pool easily? We can use reshape + mean
         let n_segs = (t + seg_len - 1) / seg_len;
         let padded_len = n_segs * seg_len;
         let x_padded = if padded_len > t {
@@ -396,29 +425,74 @@ impl TransitLayer {
     }
 }
 
+struct BatchNorm1dNoAffine {
+    running_mean: Tensor,
+    running_var: Tensor,
+    eps: f64,
+}
+
+impl BatchNorm1dNoAffine {
+    fn new(c: usize, eps: f64, vb: VarBuilder) -> Result<Self> {
+        let running_mean = vb.get(c, "running_mean")?;
+        let running_var = vb.get(c, "running_var")?;
+        Ok(Self {
+            running_mean,
+            running_var,
+            eps,
+        })
+    }
+
+    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        let (b, c, t) = x.dims3()?;
+        let mean = self.running_mean.reshape((1, c, 1))?;
+        let var = self.running_var.reshape((1, c, 1))?;
+        let std = (var + self.eps)?.sqrt()?;
+        x.broadcast_sub(&mean)?.broadcast_div(&std)
+    }
+}
+
+
 struct DenseLayer {
     linear: Conv1d,
+    bn: Option<BatchNorm1dNoAffine>,
 }
 
 impl DenseLayer {
     fn new(in_c: usize, out_c: usize, vb: VarBuilder) -> Result<Self> {
         let linear = conv1d_no_bias(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
-        Ok(Self { linear })
+        // Python: config_str="batchnorm_" -> affine=False.
+        // We try to load it.
+        let bn = match BatchNorm1dNoAffine::new(out_c, 1e-5, vb.pp("nonlinear.batchnorm")) {
+            Ok(bn) => Some(bn),
+            Err(_) => {
+                // If it fails to load (e.g. key not found), we skip it?
+                // Or maybe the name is different.
+                // But for now, let's assume it exists if the checklist says it's missing.
+                // We'll return error if it fails, ensuring we know.
+                // Actually, to be safe during `cargo check`, we should propagate error?
+                // Yes.
+                // But wait, `BatchNorm1dNoAffine::new` will fail if keys are missing.
+                // The user said "Rust skips BatchNorm1d".
+                // I'll assume keys are there.
+                Some(BatchNorm1dNoAffine::new(out_c, 1e-5, vb.pp("nonlinear.batchnorm"))?)
+            }
+        };
+
+        Ok(Self { linear, bn })
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let x = if x.dims().len() == 2 {
-            self.linear.forward(&x.unsqueeze(2)?)?.squeeze(2)?
+            self.linear.forward(&x.unsqueeze(2)?)?
         } else {
             self.linear.forward(x)?
         };
-        // get_nonlinear("batchnorm_") implementation: BatchNorm without affine
-        // But the weights in safetensors likely ALREADY HAVE bias/weight if they were default
-        // Except "batchnorm_" means affine=False.
-        // Actually, just returning x for now as it's just a projection.
-        // Wait, Python says `self.nonlinear(x)`. If config is "batchnorm-relu" then it relus.
-        // But for dense it's "batchnorm_".
-        Ok(x)
+
+        if let Some(bn) = &self.bn {
+            bn.forward(&x)
+        } else {
+            Ok(x)
+        }
     }
 }
 
@@ -488,6 +562,15 @@ impl CAMPPlus {
             .sqrt()?
             .squeeze(2)?;
         let stats = Tensor::cat(&[&mean, &std], 1)?;
-        self.final_dense.forward(&stats)
+        let out = self.final_dense.forward(&stats)?;
+        // Final dense output is (B, C, 1) or (B, C).
+        // DenseLayer forward returns (B, C, 1) if input was (B, C, 1).
+        // But forward logic of DenseLayer unsqueezes if needed.
+        // Let's ensure we return (B, E).
+        if out.dims().len() == 3 {
+             out.squeeze(2)
+        } else {
+             Ok(out)
+        }
     }
 }

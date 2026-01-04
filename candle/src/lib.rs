@@ -28,6 +28,8 @@ pub struct GenerateConfig {
     pub min_p: f32,
     /// Emotion exaggeration factor (maps to emotion_adv in T3)
     pub exaggeration: f32,
+    /// Classifier-Free Guidance weight (0.0 to disable)
+    pub cfg_weight: f32,
 }
 
 impl Default for GenerateConfig {
@@ -41,6 +43,7 @@ impl Default for GenerateConfig {
             normalize_loudness: true,
             min_p: 0.0,
             exaggeration: 0.0,
+            cfg_weight: 0.0,
         }
     }
 }
