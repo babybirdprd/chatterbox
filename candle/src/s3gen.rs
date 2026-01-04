@@ -962,6 +962,7 @@ impl S3Gen {
 
         // Try to load HiFTGenerator vocoder (mel2wav)
         // Config matches Python: sampling_rate=24000, upsample_rates=[8,5,3]
+        // IMPORTANT: HiFiGAN uses CPU FFT which requires F32, so force F32 dtype
         let hifigan = {
             let config = crate::hifigan::HiFTConfig {
                 in_channels: 80,
@@ -975,7 +976,9 @@ impl S3Gen {
                 n_fft: 16,
                 hop_len: 4,
             };
-            match crate::hifigan::HiFTGenerator::new(config, vb.pp("mel2wav")) {
+            // Force F32 dtype for HiFiGAN since it uses CPU FFT
+            let vb_hifi = vb.pp("mel2wav").to_dtype(DType::F32);
+            match crate::hifigan::HiFTGenerator::new(config, vb_hifi) {
                 Ok(h) => {
                     eprintln!("[S3Gen] HiFTGenerator (mel2wav) loaded successfully");
                     Some(h)
