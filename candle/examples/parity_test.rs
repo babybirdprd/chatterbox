@@ -1,10 +1,11 @@
 use anyhow::{anyhow, Result};
-use candle_core::{DType, Device, IndexOp, Tensor};
+use candle_core::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
 use clap::Parser;
 use ndarray::ArrayD;
 use ndarray_npy::read_npy;
 use std::path::{Path, PathBuf};
+use tokenizers::Tokenizer;
 
 use candle::audio::{AudioProcessor, MelConfig};
 use candle::s3tokenizer::{ModelConfig as S3TokenizerConfig, S3TokenizerV2};
@@ -168,9 +169,8 @@ fn main() -> Result<()> {
         .transpose(1, 2)?
         .to_device(&device)?
         .to_dtype(dtype)?;
-    // Use forward directly as in split_generate.rs or inference?
-    // split_generate.rs uses forward on the whole thing.
-    let spk_emb_ve_rust = ve.forward(&mel_ve_t)?;
+    // Use inference() to match Python's Sliding Window logic (rate=1.3)
+    let spk_emb_ve_rust = ve.inference(&mel_ve_t, 0.5, Some(1.3), 0.8)?;
     check(
         "VoiceEncoder Output",
         &spk_emb_ve_rust,
@@ -186,7 +186,20 @@ fn main() -> Result<()> {
 
     // S3Tokenizer
     let prompt_tokens_py = load_npy_i64(args.ref_dir.join("prompt_tokens.npy"), &Device::Cpu)?;
-    let s3tok_path = args.model_dir.join("s3tokenizer.safetensors");
+    let mut s3tok_path = args.model_dir.join("s3tokenizer.safetensors");
+    if !s3tok_path.exists() {
+        // Try the local folder from the repo root
+        let alt_path = PathBuf::from("../s3tokenizer-v2-model/model.safetensors");
+        if alt_path.exists() {
+            s3tok_path = alt_path;
+        } else {
+            // Try model.safetensors in the model_dir (might be named generically)
+            let gen_path = args.model_dir.join("model.safetensors");
+            if gen_path.exists() {
+                s3tok_path = gen_path;
+            }
+        }
+    }
     let s3tok_vb = unsafe { VarBuilder::from_mmaped_safetensors(&[s3tok_path], dtype, &device)? };
     let s3tok = S3TokenizerV2::new(&S3TokenizerConfig::default(), s3tok_vb)?;
     let mel_s3tok_input = mel_s3tok_rust.to_device(&device)?.to_dtype(dtype)?;
@@ -233,12 +246,30 @@ fn main() -> Result<()> {
     drop(campplus);
 
     // =========================================================================
-    // Phase 5: Text Tokenization (Placeholder for now)
+    // Phase 5: Text Tokenization
     // =========================================================================
     println!("\n--- Phase 5: Text Tokenization ---");
     let text_tokens_py = load_npy_i64(args.ref_dir.join("text_tokens.npy"), &Device::Cpu)?;
-    println!("Reference text tokens shape: {:?}", text_tokens_py.shape());
+    let tok_path = args.model_dir.join("tokenizer.json");
+    if tok_path.exists() {
+        let tokenizer = Tokenizer::from_file(tok_path).map_err(|e| anyhow!(e))?;
+        let text = "Hello world this is a test"; // Should match dump_intermediates.py default
+        let encoding = tokenizer.encode(text, false).map_err(|e| anyhow!(e))?;
+        let ids: Vec<u32> = encoding.get_ids().iter().map(|&id| id as u32).collect();
+        let text_tokens_rust = Tensor::from_vec(ids, (1, encoding.len()), &Device::Cpu)?;
 
-    println!("\nParity test completed up to Phase 4.");
+        let py_toks = text_tokens_py.to_vec2::<i64>()?[0].clone();
+        let rust_toks = text_tokens_rust.to_vec2::<u32>()?[0].clone();
+        let match_count = py_toks
+            .iter()
+            .zip(rust_toks.iter())
+            .filter(|(&p, &r)| p as u32 == r)
+            .count();
+        println!("Text Tokens: {}/{} match", match_count, py_toks.len());
+    } else {
+        println!("Skipping text tokenization (tokenizer.json not found)");
+    }
+
+    println!("\nParity test completed.");
     Ok(())
 }

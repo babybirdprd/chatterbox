@@ -111,7 +111,9 @@ impl ChatterboxTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5, 0.8)?;
+        let spk_emb_256 = self
+            .voice_encoder
+            .inference(&mel_ve_t, 0.5, Some(1.3), 0.8)?;
 
         // 2. S3Tokenizer: 16k, 128 mels, Power, Log10 + Norm
         let cfg_s3tok = MelConfig::for_s3tokenizer();
@@ -321,7 +323,9 @@ impl ChatterboxTurboTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5, 0.8)?;
+        let spk_emb_256 = self
+            .voice_encoder
+            .inference(&mel_ve_t, 0.5, Some(1.3), 0.8)?;
 
         // 2. S3Tokenizer
         let cfg_s3tok = MelConfig::for_s3tokenizer();

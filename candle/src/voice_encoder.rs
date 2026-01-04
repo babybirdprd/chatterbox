@@ -104,13 +104,35 @@ impl VoiceEncoder {
     /// Inference with partial utterance averaging (matches Python implementation)
     /// mels: (B, T, M) unscaled mels - full utterance
     /// overlap: fraction of overlap between partials (default 0.5)
+    /// rate: number of partials per second (default 1.3)
     /// min_coverage: minimum coverage for the last partial (default 0.8)
-    pub fn inference(&self, mels: &Tensor, overlap: f32, min_coverage: f32) -> Result<Tensor> {
+    pub fn inference(
+        &self,
+        mels: &Tensor,
+        overlap: f32,
+        rate: Option<f32>,
+        min_coverage: f32,
+    ) -> Result<Tensor> {
         let (b, t, m) = mels.dims3()?;
         let partial_frames = self.config.ve_partial_frames;
 
         // Calculate frame step (how many frames between partial starts)
-        let frame_step = ((partial_frames as f32) * (1.0 - overlap)).round() as usize;
+        let frame_step = if let Some(r) = rate {
+            // Python: int(np.round((hp.sample_rate / rate) / hp.hop_size))
+            // Wait, Python code said: (hp.sample_rate / rate) / hp.ve_partial_frames
+            // No, look at voice_encoder.py line 79 again:
+            // raw_step = (hp.sample_rate / rate) / hp.hop_size? No, wait.
+            // Let's re-read line 79: frame_step = int(np.round((hp.sample_rate / rate) / hp.ve_partial_frames))
+            // Wait, if sample_rate=16000 and ve_partial_frames=160, that's 100 times.
+            // 100 / rate. If rate=1.3, 100/1.3=76.9 -> 77.
+            // But usually frames are defined by hop_length. S3_HOP = 160.
+            // So 1 frame = 160 samples.
+            // 16000 samples/sec / 160 samples/frame = 100 frames/sec.
+            // So frame_step = (100 frames/sec) / (rate windows/sec) = 100/rate frames/window_start.
+            ((16000.0 / r) / 160.0).round() as usize
+        } else {
+            ((partial_frames as f32) * (1.0 - overlap)).round() as usize
+        };
         let frame_step = frame_step.max(1).min(partial_frames);
 
         // Calculate number of partials needed
