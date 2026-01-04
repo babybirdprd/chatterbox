@@ -107,7 +107,7 @@ fn main() -> anyhow::Result<()> {
         candle::voice_encoder::VoiceEncoderConfig::default(),
         vb_ve,
     )?;
-    let spk_emb_ve = ve.forward(&mel_ve_t)?;
+    let spk_emb_ve = ve.inference(&mel_ve_t, 0.5, Some(1.3), 0.8)?;
 
     // S3Tokenizer
     println!("Running S3Tokenizer...");
@@ -160,9 +160,11 @@ fn main() -> anyhow::Result<()> {
     println!("Running S3Gen...");
     let s3gen = candle::s3gen::S3Gen::new(vb_s3, true)?;
 
-    // Filter tokens
+    // Filter tokens and append silence
     let gen_vec = generated_tokens.to_vec2::<u32>()?[0].clone();
-    let valid_gen: Vec<u32> = gen_vec.into_iter().filter(|&t| t < 6561).collect();
+    let mut valid_gen: Vec<u32> = gen_vec.into_iter().filter(|&t| t < 6561).collect();
+    // Append silence tokens (S3GEN_SIL = 4299)
+    valid_gen.extend_from_slice(&[4299, 4299, 4299]);
     let valid_gen_tensor = Tensor::from_vec(valid_gen.clone(), (1, valid_gen.len()), &device)?;
 
     let input_tokens = Tensor::cat(&[&prompt_tokens, &valid_gen_tensor], 1)?;

@@ -153,6 +153,12 @@ def main():
     
     save_tensor(ref_dict["embedding"], output_dir, "spk_emb_camp_full")
     save_tensor(ref_dict["embedding"][:, :80], output_dir, "spk_emb_camp")
+
+    # Also dump CAMPPlus Mel input for parity debugging
+    from src.chatterbox.models.s3gen.xvector import extract_feature
+    mel_camp, _, _ = extract_feature(ref_wav_16)
+    # mel_camp shape is [1, T, 80]
+    save_tensor(mel_camp.transpose(1, 2), output_dir, "mel_camp")
     save_tensor(ref_dict["prompt_token"], output_dir, "prompt_tokens")
     save_tensor(ref_dict["prompt_feat"], output_dir, "prompt_feat")
 

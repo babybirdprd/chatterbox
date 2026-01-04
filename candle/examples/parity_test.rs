@@ -206,7 +206,7 @@ fn main() -> Result<()> {
     let prompt_tokens_rust = s3tok.encode(&mel_s3tok_input)?;
 
     let py_toks = prompt_tokens_py.to_vec2::<i64>()?[0].clone();
-    let rust_toks: Vec<u32> = prompt_tokens_rust.to_vec1()?;
+    let rust_toks: Vec<u32> = prompt_tokens_rust.flatten_all()?.to_vec1()?;
     let match_count = py_toks
         .iter()
         .zip(rust_toks.iter())
