@@ -911,10 +911,22 @@ impl CausalConditionalCFM {
         // randn only supports F32, cast to match mu's dtype (for F16 support)
         let mut x =
             Tensor::randn(0f32, 1f32, (b, self.mel_dim, t), mu.device())?.to_dtype(mu.dtype())?;
-        let dt = 1.0 / n_timesteps as f64;
+
+        // --- FIX: Use Cosine Scheduler instead of Linear ---
+        // The Chatterbox-Turbo model was trained with a cosine scheduler.
+        // Cosine schedule: t = 1 - cos(t_linear * pi / 2)
+        // For n_timesteps=2, this gives t values ≈ [0.0, 0.29, 1.0] instead of [0.0, 0.5, 1.0]
+        use std::f64::consts::PI;
+
         for i in 0..n_timesteps {
-            let t_val = i as f64 * dt;
-            let r_val = t_val + dt;
+            // Linear progress (0.0 to 1.0)
+            let t_linear = i as f64 / n_timesteps as f64;
+            let r_linear = (i + 1) as f64 / n_timesteps as f64;
+
+            // Apply Cosine Schedule: t = 1 - cos(t * pi / 2)
+            let t_val = 1.0 - (t_linear * 0.5 * PI).cos();
+            let r_val = 1.0 - (r_linear * 0.5 * PI).cos();
+
             let t_tensor = Tensor::new(&[t_val as f32], mu.device())?
                 .to_dtype(mu.dtype())?
                 .repeat(b)?;
@@ -924,12 +936,46 @@ impl CausalConditionalCFM {
             let dxdt =
                 self.estimator
                     .forward(&x, mask, mu, &t_tensor, spks, cond, Some(&r_tensor))?;
-            // Create dt tensor with matching dtype for F16 compatibility
+
+            // Euler step: x = x + (r - t) * dxdt
+            let dt = r_val - t_val;
             let dt_tensor = Tensor::new(&[dt as f32], mu.device())?.to_dtype(mu.dtype())?;
             x = (x + dxdt.broadcast_mul(&dt_tensor)?)?;
         }
         Ok(x)
     }
+}
+
+/// Apply a 20ms fade-in to prevent audio pops from prompt/generation concatenation.
+/// Matches Python's implementation: 0.5 * (cos(linspace(pi, 0, n_trim)) + 1)
+fn apply_trim_fade(audio: &Tensor, sr: u32) -> Result<Tensor> {
+    let n_trim = (sr / 50) as usize; // 20ms at sample_rate (sr/50 = sr * 0.02)
+    let audio_len = audio.dim(2)?;
+
+    if audio_len <= n_trim {
+        return Ok(audio.clone());
+    }
+
+    let device = audio.device();
+    let dtype = audio.dtype();
+
+    // Create fade curve: 0.5 * (cos(linspace(pi, 0)) + 1)
+    // This goes from 0 to 1 over n_trim samples
+    let steps: Vec<f32> = (0..n_trim)
+        .map(|i| {
+            let t = std::f32::consts::PI * (1.0 - (i as f32 / (n_trim - 1) as f32));
+            0.5 * (t.cos() + 1.0)
+        })
+        .collect();
+
+    let fade = Tensor::from_vec(steps, (1, 1, n_trim), device)?.to_dtype(dtype)?;
+
+    // Apply fade to the first n_trim samples
+    let start = audio.narrow(2, 0, n_trim)?;
+    let faded_start = start.broadcast_mul(&fade)?;
+    let rest = audio.narrow(2, n_trim, audio_len - n_trim)?;
+
+    Tensor::cat(&[&faded_start, &rest], 2)
 }
 
 pub struct S3Gen {
@@ -1054,6 +1100,8 @@ impl S3Gen {
         // Convert mel to audio using HiFiGAN vocoder if available
         if let Some(ref hifigan) = self.hifigan {
             let audio = hifigan.inference(&mel_f32)?;
+            // Apply fade-in to prevent pops at the prompt/generation boundary
+            let audio = apply_trim_fade(&audio, 24000)?;
             Ok(audio)
         } else {
             Ok(mel)
