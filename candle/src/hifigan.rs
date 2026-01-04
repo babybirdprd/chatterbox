@@ -613,8 +613,12 @@ impl HiFTGenerator {
         x = self.conv_post.forward(&x)?;
 
         let chunks = x.chunk(2, 1)?;
-        let real = chunks[0].clone();
-        let imag = chunks[1].clone();
+        let log_mag = chunks[0].clone();
+        let phase = chunks[1].clone();
+
+        let mag = log_mag.exp()?;
+        let real = (mag.clone() * phase.cos()?)?;
+        let imag = (mag * phase.sin()?)?;
 
         let audio = simple_istft(&real, &imag, self.config.n_fft, self.config.hop_len)?;
         audio.clamp(-0.99f32, 0.99f32)

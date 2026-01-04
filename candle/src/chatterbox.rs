@@ -10,6 +10,9 @@ use crate::t3_model::{T3Config, T3};
 use crate::voice_encoder::{VoiceEncoder, VoiceEncoderConfig};
 use crate::GenerateConfig;
 
+// S3GEN_SIL from const.py
+const S3GEN_SIL: u32 = 4299;
+
 pub struct ChatterboxTTS {
     t3: T3,
     s3gen: S3Gen,
@@ -111,7 +114,8 @@ impl ChatterboxTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
+        // Use inference with averaging
+        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5)?;
 
         // 2. S3Tokenizer: 16k, 128 mels, Power, Log10 + Norm
         let cfg_s3tok = MelConfig::for_s3tokenizer();
@@ -158,11 +162,23 @@ impl ChatterboxTTS {
             config.top_k,
             config.repetition_penalty,
             config.seed,
+            config.cfg_weight,
         )?;
+
+        // Filter tokens (remove >= 6561) and Pad Silence
+        let speech_tokens_filtered = {
+            let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+            let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            // Pad silence
+            filtered.push(S3GEN_SIL);
+            filtered.push(S3GEN_SIL);
+            filtered.push(S3GEN_SIL);
+            Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
+        };
 
         // S3Gen Forward
         // Prepare S3Gen Conditioning (Prompt Mel + Zero Pad)
-        let token_len = speech_tokens.dim(1)?;
+        let token_len = speech_tokens_filtered.dim(1)?;
         let target_len = token_len * 2;
         let (b, c, prompt_len) = mel_s3gen_log.dims3()?;
         let cond = if prompt_len < target_len {
@@ -174,9 +190,13 @@ impl ChatterboxTTS {
 
         let audio_tensor = self
             .s3gen
-            .forward(&speech_tokens, Some(&spk_emb_80), Some(&cond))?;
+            .forward(&speech_tokens_filtered, Some(&spk_emb_80), Some(&cond))?;
 
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
+
+        // Apply fade-in to remove artifacts
+        apply_fade(&mut samples, S3GEN_SR);
+
         if config.normalize_loudness {
             audio::normalize_loudness(&mut samples, -27.0);
         }
@@ -314,7 +334,8 @@ impl ChatterboxTurboTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
+        // Use inference with averaging
+        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5)?;
 
         // 2. S3Tokenizer
         let cfg_s3tok = MelConfig::for_s3tokenizer();
@@ -351,6 +372,8 @@ impl ChatterboxTurboTTS {
         // Generate
         eprintln!("[generate_speech] Running T3.generate...");
         let text_tokens = self.tokenize_text(&text)?;
+
+        // Enforce cfg_weight = 0.0 for Turbo as per Python impl
         let speech_tokens = self.t3.generate(
             &text_tokens,
             &spk_emb_256,
@@ -362,12 +385,17 @@ impl ChatterboxTurboTTS {
             config.top_k,
             config.repetition_penalty,
             config.seed,
+            0.0, // cfg_weight forced to 0
         )?;
 
         // Filter tokens
         let speech_tokens_filtered = {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-            let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            // Pad silence
+            filtered.push(S3GEN_SIL);
+            filtered.push(S3GEN_SIL);
+            filtered.push(S3GEN_SIL);
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
 
@@ -390,6 +418,10 @@ impl ChatterboxTurboTTS {
                 .forward(&speech_tokens_filtered, Some(&spk_emb_80), Some(&cond))?;
 
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
+
+        // Apply fade-in
+        apply_fade(&mut samples, S3GEN_SR);
+
         if config.normalize_loudness {
             audio::normalize_loudness(&mut samples, -27.0);
         }
@@ -438,4 +470,25 @@ fn normalize_text(text: &str) -> String {
         text.push('.');
     }
     text
+}
+
+fn apply_fade(samples: &mut [f32], sr: u32) {
+    let n_trim = (sr as usize) / 50; // 20ms
+    // First n_trim is silence
+    for i in 0..n_trim {
+        if i < samples.len() {
+            samples[i] = 0.0;
+        }
+    }
+
+    // Next n_trim is fade in (cos)
+    for i in 0..n_trim {
+        let idx = n_trim + i;
+        if idx < samples.len() {
+             // linspace(pi, 0, n_trim)
+             let t = std::f32::consts::PI * (1.0 - i as f32 / (n_trim - 1) as f32);
+             let gain = (t.cos() + 1.0) / 2.0;
+             samples[idx] *= gain;
+        }
+    }
 }
