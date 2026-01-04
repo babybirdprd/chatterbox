@@ -81,33 +81,12 @@ impl T3CondEnc {
         let cond_spkr = cond_spkr.unsqueeze(1)?; // (B, 1, H)
 
         // Empty tensor for cat if needed (B, 0, H)
-        // Note: Candle doesn't easily support 0-dim concats in all backends, but let's try standard Vec logic
         let mut embeds = vec![cond_spkr];
 
         // CLAP embed (placeholder)
 
         // Cond prompt speech emb
         if let Some(prompt_emb) = cond_prompt_speech_emb {
-            // Assuming prompt_emb is already projected or compatible (B, L, H)
-            // If using Perceiver, we would process it here.
-            // Current T3 Turbo uses `speech_cond_prompt_len` but `use_perceiver_resampler = False`.
-            // In `cond_enc.py`:
-            // if cond_prompt_speech_emb is None: empty
-            // elif hp.use_perceiver_resampler: perceiver(cond_prompt_speech_emb)
-            // It seems if not using perceiver, it just passes it through?
-            // Wait, `cond_enc.py` code:
-            // "if cond_prompt_speech_emb is None ... elif hp.use_perceiver_resampler ... "
-            // It doesn't explicitly say what happens if `!use_perceiver_resampler` and `cond_prompt_speech_emb` is present.
-            // But looking at `ChatterboxTTS.prepare_conditionals`, `cond_prompt_speech_tokens` are created.
-            // In T3 `inference` (Python), it creates `T3Cond`.
-            // The `T3CondEnc` in Python seems to use `cond_prompt_speech_emb` from `T3Cond`.
-            // But `prepare_conditionals` sets `cond_prompt_speech_tokens`, not `emb`.
-            // Ah, `T3.forward` calls `prepare_input_embeds`.
-            // In Python `T3`:
-            // `cond_prompt_speech_emb` is derived from `cond.cond_prompt_speech_tokens` via `speech_emb` embedding layer?
-            // No, `T3CondEnc` takes `T3Cond` which has `cond_prompt_speech_emb`.
-            // Let's check where `cond_prompt_speech_emb` comes from in `T3.forward`.
-
             embeds.push(prompt_emb.clone());
         }
 
@@ -233,27 +212,22 @@ impl T3 {
         let cond_emb =
             self.cond_enc
                 .forward(spk_emb, cond_prompt_speech_emb.as_ref(), emotion_adv)?; // (B, Lc, H)
-        let (_b, lc, _h) = cond_emb.dims3()?;
-        let cond_pos_ids = Tensor::arange(0u32, lc as u32, spk_emb.device())?.unsqueeze(0)?;
-        let cond_pos = self.pos_emb.forward(&cond_pos_ids)?;
-        let cond_emb = (cond_emb + cond_pos)?;
 
-        let (_b, lt) = text_tokens.dims2()?;
-        let text_pos_ids = Tensor::arange(0u32, lt as u32, text_tokens.device())?.unsqueeze(0)?;
         let text_emb = self.text_emb.forward(text_tokens)?; // (B, Lt, H)
-        let text_pos = self.pos_emb.forward(&text_pos_ids)?;
-        let text_emb = (text_emb + text_pos)?;
 
-        let (_b, ls) = speech_tokens.dims2()?;
-        let speech_pos_ids =
-            Tensor::arange(0u32, ls as u32, speech_tokens.device())?.unsqueeze(0)?;
         let speech_emb = self.speech_emb.forward(speech_tokens)?; // (B, Ls, H)
-        let speech_pos = self.pos_emb.forward(&speech_pos_ids)?;
-        let speech_emb = (speech_emb + speech_pos)?;
 
-        // Concatenate along time dimension (dim 1)
-        // cond, text, speech
-        Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)
+        // Concatenate all embeddings first: [Cond, Text, Speech]
+        let embeds = Tensor::cat(&[&cond_emb, &text_emb, &speech_emb], 1)?; // (B, TotalLen, H)
+
+        // Create absolute positional embeddings for the entire sequence
+        let (_b, total_len, _h) = embeds.dims3()?;
+        let pos_ids = Tensor::arange(0u32, total_len as u32, embeds.device())?.unsqueeze(0)?;
+        let pos_emb = self.pos_emb.forward(&pos_ids)?;
+
+        // Add position embeddings
+        // Note: GPT2 adds WPE (position embeddings) to inputs_embeds
+        (embeds + pos_emb)
     }
 
     pub fn generate(
@@ -297,6 +271,8 @@ impl T3 {
             )?;
 
             // Forward pass
+            // IMPORTANT: We use forward_embeds_no_pos because we manually added position embeddings above
+            // to ensure they are continuous across cond+text+speech
             let hidden_states = self.gpt2.forward_embeds_no_pos(&embeds)?; // (B, L, H)
 
             // Get last token logits
