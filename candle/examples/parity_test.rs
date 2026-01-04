@@ -20,6 +20,9 @@ struct Args {
     #[arg(long)]
     model_dir: PathBuf,
 
+    #[arg(long)]
+    s3tok_dir: Option<PathBuf>,
+
     #[arg(long, default_value = "cpu")]
     device: String,
 
@@ -182,14 +185,25 @@ fn main() -> Result<()> {
 
     // S3Tokenizer
     let prompt_tokens_py = load_npy_i64(args.ref_dir.join("prompt_tokens.npy"), &Device::Cpu)?;
-    let mut s3tok_path = args.model_dir.join("s3tokenizer.safetensors");
-    if !s3tok_path.exists() {
-        // Try model.safetensors in the model_dir
-        let gen_path = args.model_dir.join("model.safetensors");
-        if gen_path.exists() {
-            s3tok_path = gen_path;
+    let s3tok_path = if let Some(ref dir) = args.s3tok_dir {
+        dir.join("model.safetensors")
+    } else {
+        // Try various locations
+        let p1 = args.model_dir.join("s3tokenizer.safetensors");
+        let p2 = args
+            .ref_dir
+            .join("../s3tokenizer-v2-model/model.safetensors");
+        let p3 = PathBuf::from("../s3tokenizer-v2-model/model.safetensors");
+        if p1.exists() {
+            p1
+        } else if p2.exists() {
+            p2
+        } else if p3.exists() {
+            p3
+        } else {
+            p1 // Will error with helpful message
         }
-    }
+    };
     let s3tok_vb = unsafe { VarBuilder::from_mmaped_safetensors(&[s3tok_path], dtype, &device)? };
     let s3tok = S3TokenizerV2::new(&S3TokenizerConfig::default(), s3tok_vb)?;
     let mel_s3tok_input = mel_s3tok_rust.to_device(&device)?.to_dtype(dtype)?;

@@ -391,11 +391,13 @@ impl AudioProcessor {
             return mel.clamp(1e-5, f32::MAX)?.log();
         }
         if config.n_mels == 128 {
+            // S3Tokenizer normalization: log10, max-norm to max-8, then (x+4)/4
             let log10_val = 10.0f32.ln();
             let log_spec = (mel.clamp(1e-10, f32::MAX)?.log()? / (log10_val as f64))?;
             let max_val = log_spec.max_all()?.to_scalar::<f32>()?;
-            let norm =
-                log_spec.maximum(&(Tensor::new(max_val - 8.0, device)?.to_dtype(DType::F32)?))?;
+            // Clamp to max - 8.0 (equivalent to maximum)
+            let threshold = max_val - 8.0;
+            let norm = log_spec.clamp(threshold, f32::MAX)?;
             return (norm + 4.0)? / 4.0;
         }
         if config.n_mels == 40 {
