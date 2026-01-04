@@ -29,12 +29,15 @@ struct BasicResBlock2D {
     conv2: Conv2d,
     bn2: BatchNorm,
     shortcut: Option<(Conv2d, BatchNorm)>,
+    stride_h: usize, // Stride only in height (frequency) dimension
 }
 
 impl BasicResBlock2D {
     fn new(in_c: usize, out_c: usize, stride: usize, vb: VarBuilder) -> Result<Self> {
+        // Python uses stride=(stride, 1) - asymmetric stride (freq only)
+        // We use stride=1 in conv and manually subsample height afterward
         let conv_cfg = candle_nn::Conv2dConfig {
-            stride,
+            stride: 1, // Always 1, we subsample manually
             padding: 1,
             ..Default::default()
         };
@@ -54,14 +57,12 @@ impl BasicResBlock2D {
         let bn2 = candle_nn::batch_norm(out_c, 1e-5, vb.pp("bn2"))?;
 
         let shortcut = if stride != 1 || in_c != out_c {
+            // Shortcut also uses stride=(stride, 1) in Python
             let s_conv = conv2d_no_bias(
                 in_c,
                 out_c,
                 1,
-                candle_nn::Conv2dConfig {
-                    stride,
-                    ..Default::default()
-                },
+                candle_nn::Conv2dConfig::default(), // stride=1, subsample manually
                 vb.pp("shortcut.0"),
             )?;
             let s_bn = candle_nn::batch_norm(out_c, 1e-5, vb.pp("shortcut.1"))?;
@@ -76,20 +77,45 @@ impl BasicResBlock2D {
             conv2,
             bn2,
             shortcut,
+            stride_h: stride,
         })
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
+        // Apply convolution with stride=1, then subsample height (frequency) dimension
         let residual = if let Some((s_conv, s_bn)) = &self.shortcut {
-            s_bn.forward_t(&s_conv.forward(x)?, false)?
+            let r = s_bn.forward_t(&s_conv.forward(x)?, false)?;
+            // Subsample height dimension: x[:, :, ::stride_h, :]
+            if self.stride_h > 1 {
+                subsample_height(&r, self.stride_h)?
+            } else {
+                r
+            }
         } else {
             x.clone()
         };
 
-        let x = self.bn1.forward_t(&self.conv1.forward(x)?, false)?.relu()?;
-        let x = self.bn2.forward_t(&self.conv2.forward(&x)?, false)?;
-        (x + residual)?.relu()
+        // conv1 output needs height subsampling (Python: stride=(stride, 1))
+        let out = self.conv1.forward(x)?;
+        let out = if self.stride_h > 1 {
+            subsample_height(&out, self.stride_h)?
+        } else {
+            out
+        };
+        let out = self.bn1.forward_t(&out, false)?.relu()?;
+
+        // conv2 has stride=1 in both Python and here
+        let out = self.bn2.forward_t(&self.conv2.forward(&out)?, false)?;
+        (out + residual)?.relu()
     }
+}
+
+/// Subsample tensor along height dimension: x[:, :, ::stride, :]
+fn subsample_height(x: &Tensor, stride: usize) -> Result<Tensor> {
+    let (_b, _c, h, _w) = x.dims4()?;
+    let indices: Vec<u32> = (0..h).step_by(stride).map(|i| i as u32).collect();
+    let indices_tensor = Tensor::from_vec(indices.clone(), indices.len(), x.device())?;
+    x.index_select(&indices_tensor, 2)
 }
 
 struct FCM {
@@ -144,12 +170,13 @@ impl FCM {
             vb.pp("layer2.1"),
         )?);
 
+        // Python uses stride=(2, 1) - asymmetric, we use stride=1 and subsample
         let conv2 = conv2d_no_bias(
             m_channels,
             m_channels,
             3,
             candle_nn::Conv2dConfig {
-                stride: 2,
+                stride: 1, // Changed: use stride=1, subsample in forward
                 padding: 1,
                 ..Default::default()
             },
@@ -178,10 +205,10 @@ impl FCM {
         for block in &self.layer2 {
             x = block.forward(&x)?;
         }
-        x = self
-            .bn2
-            .forward_t(&self.conv2.forward(&x)?, false)?
-            .relu()?;
+        // conv2 with asymmetric stride=(2, 1): apply conv then subsample height
+        let x = self.conv2.forward(&x)?;
+        let x = subsample_height(&x, 2)?; // Subsample frequency dimension by 2
+        let x = self.bn2.forward_t(&x, false)?.relu()?;
         let (b, c, f, t) = x.dims4()?;
         x.reshape((b, c * f, t))
     }
@@ -398,12 +425,24 @@ impl TransitLayer {
 
 struct DenseLayer {
     linear: Conv1d,
+    // Python uses batchnorm_ which is BatchNorm1d(out_c, affine=False)
+    // This means only running_mean and running_var are stored, no learnable weight/bias
+    running_mean: Tensor,
+    running_var: Tensor,
 }
 
 impl DenseLayer {
     fn new(in_c: usize, out_c: usize, vb: VarBuilder) -> Result<Self> {
         let linear = conv1d_no_bias(in_c, out_c, 1, Default::default(), vb.pp("linear"))?;
-        Ok(Self { linear })
+        // Load only running_mean and running_var (affine=False means no weight/bias)
+        let bn_vb = vb.pp("nonlinear.batchnorm");
+        let running_mean = bn_vb.get(out_c, "running_mean")?;
+        let running_var = bn_vb.get(out_c, "running_var")?;
+        Ok(Self {
+            linear,
+            running_mean,
+            running_var,
+        })
     }
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
@@ -412,13 +451,16 @@ impl DenseLayer {
         } else {
             self.linear.forward(x)?
         };
-        // get_nonlinear("batchnorm_") implementation: BatchNorm without affine
-        // But the weights in safetensors likely ALREADY HAVE bias/weight if they were default
-        // Except "batchnorm_" means affine=False.
-        // Actually, just returning x for now as it's just a projection.
-        // Wait, Python says `self.nonlinear(x)`. If config is "batchnorm-relu" then it relus.
-        // But for dense it's "batchnorm_".
-        Ok(x)
+
+        // Apply batch normalization manually (affine=False, inference mode)
+        // y = (x - mean) / sqrt(var + eps)
+        // Cast to match input dtype for FP16 compatibility
+        let eps = 1e-5f32;
+        let mean = self.running_mean.to_dtype(x.dtype())?.unsqueeze(0)?; // (1, C)
+        let var = self.running_var.to_dtype(x.dtype())?.unsqueeze(0)?; // (1, C)
+        let std = (var + eps as f64)?.sqrt()?;
+
+        (x.broadcast_sub(&mean))?.broadcast_div(&std)
     }
 }
 

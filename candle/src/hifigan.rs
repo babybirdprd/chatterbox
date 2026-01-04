@@ -612,11 +612,13 @@ impl HiFTGenerator {
         x = candle_nn::ops::leaky_relu(&x, 0.01)?;
         x = self.conv_post.forward(&x)?;
 
-        let chunks = x.chunk(2, 1)?;
-        let real = chunks[0].clone();
-        let imag = chunks[1].clone();
+        // Python: magnitude = torch.exp(x[:, :n_fft // 2 + 1, :])
+        //         phase = torch.sin(x[:, n_fft // 2 + 1:, :])
+        let n_bins = self.config.n_fft / 2 + 1;
+        let magnitude = x.narrow(1, 0, n_bins)?.exp()?;
+        let phase = x.narrow(1, n_bins, n_bins)?.sin()?;
 
-        let audio = simple_istft(&real, &imag, self.config.n_fft, self.config.hop_len)?;
+        let audio = simple_istft(&magnitude, &phase, self.config.n_fft, self.config.hop_len)?;
         audio.clamp(-0.99f32, 0.99f32)
     }
 }

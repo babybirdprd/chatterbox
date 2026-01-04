@@ -111,7 +111,7 @@ impl ChatterboxTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
+        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5, 0.8)?;
 
         // 2. S3Tokenizer: 16k, 128 mels, Power, Log10 + Norm
         let cfg_s3tok = MelConfig::for_s3tokenizer();
@@ -159,10 +159,17 @@ impl ChatterboxTTS {
             config.repetition_penalty,
             config.seed,
         )?;
+        // Filter tokens and append silence tokens (S3GEN_SIL = 6560)
+        let speech_tokens_filtered = {
+            let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+            let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            filtered.extend_from_slice(&[6560, 6560, 6560]);
+            Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
+        };
 
         // S3Gen Forward
         // Prepare S3Gen Conditioning (Prompt Mel + Zero Pad)
-        let token_len = speech_tokens.dim(1)?;
+        let token_len = speech_tokens_filtered.dim(1)?;
         let target_len = token_len * 2;
         let (b, c, prompt_len) = mel_s3gen_log.dims3()?;
         let cond = if prompt_len < target_len {
@@ -172,9 +179,9 @@ impl ChatterboxTTS {
             mel_s3gen_log.narrow(2, 0, target_len)?
         };
 
-        let audio_tensor = self
-            .s3gen
-            .forward(&speech_tokens, Some(&spk_emb_80), Some(&cond))?;
+        let audio_tensor =
+            self.s3gen
+                .forward(&speech_tokens_filtered, Some(&spk_emb_80), Some(&cond))?;
 
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
         if config.normalize_loudness {
@@ -314,7 +321,7 @@ impl ChatterboxTurboTTS {
         let mel_ve =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
         let mel_ve_t = mel_ve.transpose(1, 2)?;
-        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
+        let spk_emb_256 = self.voice_encoder.inference(&mel_ve_t, 0.5, 0.8)?;
 
         // 2. S3Tokenizer
         let cfg_s3tok = MelConfig::for_s3tokenizer();
@@ -364,10 +371,15 @@ impl ChatterboxTurboTTS {
             config.seed,
         )?;
 
-        // Filter tokens
+        // Filter tokens and append silence tokens (S3GEN_SIL = 6560)
+        // Python: speech_tokens = speech_tokens[speech_tokens < 6561]
+        //         silence = torch.tensor([S3GEN_SIL, S3GEN_SIL, S3GEN_SIL])
+        //         speech_tokens = torch.cat([speech_tokens, silence])
         let speech_tokens_filtered = {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-            let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            // Append silence tokens to prevent audio cutoff
+            filtered.extend_from_slice(&[6560, 6560, 6560]);
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
 

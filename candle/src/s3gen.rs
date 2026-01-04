@@ -49,7 +49,10 @@ impl DecoderAttention {
             .contiguous()?;
 
         let k_t = k.transpose(2, 3)?.contiguous()?;
-        let att = (q.contiguous()?.matmul(&k_t)? / (self.head_dim as f64).sqrt())?;
+        // Use tensor division for FP16 compatibility
+        let scale =
+            Tensor::new(&[(self.head_dim as f32).sqrt()], x.device())?.to_dtype(x.dtype())?;
+        let att = q.contiguous()?.matmul(&k_t)?.broadcast_div(&scale)?;
 
         let att = candle_nn::ops::softmax(&att, 3)?;
         let out = att.matmul(&v)?;
@@ -159,12 +162,16 @@ impl EspnetRelPositionalEncoding {
 
         for i in 0..(c / 2) {
             let div_term = (-((i * 2) as f64 * log_10000 / c as f64)).exp();
-            let pos_dt = (&position * div_term)?;
+            // Create div_term as tensor with matching dtype for FP16 compatibility
+            let div_term_tensor = Tensor::new(&[div_term as f32], device)?.to_dtype(dtype)?;
+            let pos_dt = position.broadcast_mul(&div_term_tensor)?;
             pe = pe.slice_assign(&[0..t, (i * 2)..(i * 2 + 1)], &pos_dt.sin()?)?;
             pe = pe.slice_assign(&[0..t, (i * 2 + 1)..(i * 2 + 2)], &pos_dt.cos()?)?;
         }
 
-        let x_scaled = (x * self.xscale)?;
+        // Scale x using tensor multiplication to preserve dtype
+        let xscale_tensor = Tensor::new(&[self.xscale as f32], device)?.to_dtype(dtype)?;
+        let x_scaled = x.broadcast_mul(&xscale_tensor)?;
         Ok((x_scaled, pe.unsqueeze(0)?))
     }
 }
@@ -180,11 +187,20 @@ impl SinusoidalPosEmb {
 
     fn forward(&self, x: &Tensor) -> Result<Tensor> {
         let half_dim = self.dim / 2;
-        let emb = (10000f64.ln() / (half_dim as f64 - 1.0)) as f32;
-        let freqs = (Tensor::arange(0u32, half_dim as u32, x.device())?.to_dtype(DType::F32)?
-            * (-emb as f64))?
-            .exp()?;
-        let x_scaled = (x * 1000.0)?;
+        let dtype = x.dtype();
+        let device = x.device();
+
+        // Compute in F32 then cast to input dtype for FP16 compatibility
+        let emb_scale = (10000f64.ln() / (half_dim as f64 - 1.0)) as f32;
+        let freqs = (Tensor::arange(0u32, half_dim as u32, device)?.to_dtype(DType::F32)?
+            * (-emb_scale as f64))?
+            .exp()?
+            .to_dtype(dtype)?;
+
+        // Scale x by 1000 using tensor multiplication to preserve dtype
+        let scale = Tensor::new(&[1000.0f32], device)?.to_dtype(dtype)?;
+        let x_scaled = x.broadcast_mul(&scale)?;
+
         let emb = x_scaled.unsqueeze(1)?.broadcast_mul(&freqs.unsqueeze(0)?)?;
         let emb = Tensor::cat(&[&emb.sin()?, &emb.cos()?], 1)?;
         Ok(emb)
@@ -410,7 +426,10 @@ impl RelPositionMultiHeadedAttention {
             .contiguous()?;
         let matrix_ac = q_u.matmul(&k.transpose(2, 3)?.contiguous()?)?;
         let matrix_bd = q_v.matmul(&p.transpose(2, 3)?.contiguous()?)?;
-        let scores = (matrix_ac.broadcast_add(&matrix_bd)? / (self.head_dim as f64).sqrt())?;
+        // Use tensor division for FP16 compatibility
+        let scale =
+            Tensor::new(&[(self.head_dim as f32).sqrt()], x.device())?.to_dtype(x.dtype())?;
+        let scores = matrix_ac.broadcast_add(&matrix_bd)?.broadcast_div(&scale)?;
         let attn = candle_nn::ops::softmax(&scores, 3)?;
         let x = attn.matmul(&v)?;
         let x = x.transpose(1, 2)?.contiguous()?.reshape((b, t, c))?;
@@ -889,17 +908,25 @@ impl CausalConditionalCFM {
         n_timesteps: usize,
     ) -> Result<Tensor> {
         let (b, _c, t) = mu.dims3()?;
-        let mut x = Tensor::randn(0f32, 1f32, (b, self.mel_dim, t), mu.device())?;
+        // randn only supports F32, cast to match mu's dtype (for F16 support)
+        let mut x =
+            Tensor::randn(0f32, 1f32, (b, self.mel_dim, t), mu.device())?.to_dtype(mu.dtype())?;
         let dt = 1.0 / n_timesteps as f64;
         for i in 0..n_timesteps {
             let t_val = i as f64 * dt;
             let r_val = t_val + dt;
-            let t_tensor = Tensor::new(&[t_val as f32], mu.device())?.repeat(b)?;
-            let r_tensor = Tensor::new(&[r_val as f32], mu.device())?.repeat(b)?;
+            let t_tensor = Tensor::new(&[t_val as f32], mu.device())?
+                .to_dtype(mu.dtype())?
+                .repeat(b)?;
+            let r_tensor = Tensor::new(&[r_val as f32], mu.device())?
+                .to_dtype(mu.dtype())?
+                .repeat(b)?;
             let dxdt =
                 self.estimator
                     .forward(&x, mask, mu, &t_tensor, spks, cond, Some(&r_tensor))?;
-            x = (x + dxdt * dt)?;
+            // Create dt tensor with matching dtype for F16 compatibility
+            let dt_tensor = Tensor::new(&[dt as f32], mu.device())?.to_dtype(mu.dtype())?;
+            x = (x + dxdt.broadcast_mul(&dt_tensor)?)?;
         }
         Ok(x)
     }
