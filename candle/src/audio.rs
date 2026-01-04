@@ -135,6 +135,8 @@ pub struct MelConfig {
     pub fmax: f32,
     pub stft_mode: STFTMode,
     pub center: bool, // Whether to use center padding (like torch.stft center=True)
+    pub manual_pad: usize, // Manual reflect padding for S3Gen
+    pub drop_last_bin: bool, // Drop last FFT bin (for S3Tokenizer)
 }
 
 impl MelConfig {
@@ -150,7 +152,9 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Magnitude,
-            center: false, // S3Gen/Matcha uses center=False
+            center: false,   // S3Gen/Matcha uses center=False
+            manual_pad: 720, // (1920 - 480) / 2
+            drop_last_bin: false,
         }
     }
 
@@ -166,7 +170,9 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Power,
-            center: false, // S3Tokenizer uses center=False
+            center: true, // S3Tokenizer uses center=True
+            manual_pad: 0,
+            drop_last_bin: true,
         }
     }
 
@@ -181,8 +187,10 @@ impl MelConfig {
             n_mels: 40,
             fmin: 0.0,
             fmax: 8000.0,
-            stft_mode: STFTMode::Power,
-            center: false, // VoiceEncoder uses center=False
+            stft_mode: STFTMode::Power, // VoiceEncoder uses Power (mel_power=2.0)
+            center: true,               // VoiceEncoder uses center=True
+            manual_pad: 0,
+            drop_last_bin: false,
         }
     }
 
@@ -202,6 +210,8 @@ impl MelConfig {
             fmax: 7600.0, // Standard Kaldi default (Nyquist - epsilon)
             stft_mode: STFTMode::Power,
             center: false, // Kaldi compliance typically uses no centering
+            manual_pad: 0,
+            drop_last_bin: false,
         }
     }
 }
@@ -245,6 +255,25 @@ impl AudioProcessor {
                 );
             }
             buf
+        } else if config.manual_pad > 0 {
+            let pad = config.manual_pad;
+            let mut buf = Vec::with_capacity(samples.len() + 2 * pad);
+            // Reflect Left
+            for i in (1..=pad).rev() {
+                buf.push(samples.get(i).copied().unwrap_or(0.0));
+            }
+            buf.extend_from_slice(samples);
+            // Reflect Right
+            let n = samples.len();
+            for i in 1..=pad {
+                buf.push(
+                    samples
+                        .get(n.saturating_sub(1).saturating_sub(i))
+                        .copied()
+                        .unwrap_or(0.0),
+                );
+            }
+            buf
         } else {
             // No centering - matches torch.stft(center=False)
             samples.to_vec()
@@ -255,8 +284,12 @@ impl AudioProcessor {
         let mut planner = RealFftPlanner::<f32>::new();
         let fft = planner.plan_fft_forward(n_fft);
 
-        // We only need n_fft/2 + 1 bins
-        let n_bins = n_fft / 2 + 1;
+        // We only need n_fft/2 + 1 bins (unless we drop the last one)
+        let n_bins = if config.drop_last_bin {
+            n_fft / 2
+        } else {
+            n_fft / 2 + 1
+        };
         let mut spectrogram = vec![vec![0.0f32; n_bins]; n_frames];
 
         for (frame_idx, frame_start) in (0..padded.len().saturating_sub(n_fft) + 1)
@@ -276,11 +309,11 @@ impl AudioProcessor {
             fft.process(&mut frame_data, &mut spectrum)
                 .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
 
-            for (i, c) in spectrum.iter().enumerate() {
-                let mag_sq = c.norm_sqr(); // |X|^2
+            for (i, bin) in spectrogram[frame_idx].iter_mut().enumerate() {
+                let mag_sq = spectrum[i].norm_sqr(); // |X|^2
                 match config.stft_mode {
-                    STFTMode::Magnitude => spectrogram[frame_idx][i] = mag_sq.sqrt(),
-                    STFTMode::Power => spectrogram[frame_idx][i] = mag_sq,
+                    STFTMode::Magnitude => *bin = mag_sq.sqrt(),
+                    STFTMode::Power => *bin = mag_sq,
                 }
             }
         }
@@ -292,6 +325,7 @@ impl AudioProcessor {
             config.n_mels,
             config.fmin,
             config.fmax,
+            config.drop_last_bin,
         );
 
         let mut mel_spec = vec![vec![0.0f32; config.n_mels]; n_frames];
@@ -338,7 +372,11 @@ impl AudioProcessor {
             return mel.clamp(1e-10, f32::MAX)?.log()? / (log10_val as f64);
         }
 
-        // VoiceEncoder (40 mels) - Linear
+        // VoiceEncoder (40 mels) - Linear (No log)
+        if config.n_mels == 40 {
+            return Ok(mel.clone());
+        }
+
         Ok(mel.clone())
     }
 }
@@ -350,6 +388,7 @@ fn create_slaney_mel_filterbank(
     n_mels: usize,
     fmin: f32,
     fmax: f32,
+    drop_last_bin: bool,
 ) -> Vec<Vec<f32>> {
     let f_min = fmin;
     let f_max = fmax;
@@ -387,7 +426,11 @@ fn create_slaney_mel_filterbank(
         ));
     }
 
-    let n_bins = n_fft / 2 + 1;
+    let n_bins = if drop_last_bin {
+        n_fft / 2
+    } else {
+        n_fft / 2 + 1
+    };
     let mut filters = vec![vec![0.0f32; n_bins]; n_mels];
     let fft_freqs: Vec<f32> = (0..n_bins)
         .map(|i| i as f32 * sample_rate as f32 / n_fft as f32)

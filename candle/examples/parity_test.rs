@@ -140,7 +140,7 @@ fn main() -> Result<()> {
     let mel_s3tok_raw =
         AudioProcessor::compute_mel_spectrogram(&samples_16k, &Device::Cpu, &cfg_s3tok)?;
     let mel_s3tok_log = AudioProcessor::log_process(&mel_s3tok_raw, &cfg_s3tok)?;
-    // Max normalization from split_generate.rs
+    // S3Tokenizer uses max normalization: log_spec = max(log_spec, log_spec.max() - 8.0)
     let max_val = mel_s3tok_log.max_all()?.to_scalar::<f32>()?;
     let mel_s3tok_norm = mel_s3tok_log.maximum(max_val - 8.0)?;
     let mel_s3tok_rust = ((mel_s3tok_norm + 4.0)? / 4.0)?;
