@@ -1032,7 +1032,10 @@ impl S3Gen {
             .decoder
             .forward(&mu, &mask, spks, Some(cond_tensor), n_steps)?;
         eprintln!("[S3Gen::forward] mel after decoder: {:?}", mel.dims());
-        let mel_v = mel.to_vec3::<f32>()?;
+
+        // Cast to F32 for debug stats and vocoder (HiFiGAN uses CPU FFT which requires F32)
+        let mel_f32 = mel.to_dtype(DType::F32)?;
+        let mel_v = mel_f32.to_vec3::<f32>()?;
         let mut sum = 0.0;
         let mut count = 0;
         for b_idx in 0..mel_v.len() {
@@ -1047,7 +1050,7 @@ impl S3Gen {
 
         // Convert mel to audio using HiFiGAN vocoder if available
         if let Some(ref hifigan) = self.hifigan {
-            let audio = hifigan.inference(&mel)?;
+            let audio = hifigan.inference(&mel_f32)?;
             Ok(audio)
         } else {
             Ok(mel)
