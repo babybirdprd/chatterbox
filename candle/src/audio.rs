@@ -312,7 +312,7 @@ impl AudioProcessor {
             for (i, bin) in spectrogram[frame_idx].iter_mut().enumerate() {
                 let mag_sq = spectrum[i].norm_sqr(); // |X|^2
                 match config.stft_mode {
-                    STFTMode::Magnitude => *bin = mag_sq.sqrt(),
+                    STFTMode::Magnitude => *bin = (mag_sq + 1e-9).sqrt(),
                     STFTMode::Power => *bin = mag_sq,
                 }
             }
