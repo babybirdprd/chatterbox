@@ -10,7 +10,7 @@ pub mod sampling;
 pub mod t3_model;
 pub mod voice_encoder;
 
-pub use audio::{load_wav, resample, save_wav, S3GEN_SR, S3_SR};
+pub use audio::{load_wav, resample, save_wav, AudioProcessor, MelConfig, S3GEN_SR, S3_SR};
 pub use campplus::CAMPPlus;
 pub use chatterbox::{ChatterboxTTS, ChatterboxTurboTTS};
 pub use s3tokenizer::{ModelConfig as S3TokenizerConfig, S3TokenizerV2};

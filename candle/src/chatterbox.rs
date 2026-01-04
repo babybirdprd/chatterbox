@@ -4,7 +4,7 @@ use hf_hub::api::sync::Api;
 use std::path::{Path, PathBuf};
 use tokenizers::Tokenizer;
 
-use crate::audio::{self, S3GEN_SR, S3_SR};
+use crate::audio::{self, AudioProcessor, MelConfig, S3GEN_SR, S3_SR};
 use crate::s3gen::S3Gen;
 use crate::t3_model::{T3Config, T3};
 use crate::voice_encoder::{VoiceEncoder, VoiceEncoderConfig};
@@ -93,6 +93,7 @@ impl ChatterboxTTS {
     ) -> Result<(Vec<f32>, u32)> {
         let (ref_samples, ref_sr) =
             audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
+
         let ref_samples_16k = if ref_sr != S3_SR {
             audio::resample(&ref_samples, ref_sr, S3_SR).map_err(|e| candle_core::Error::Msg(e))?
         } else {
@@ -105,55 +106,47 @@ impl ChatterboxTTS {
             ref_samples
         };
 
-        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
-        let config_ve = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 40,
-            fmax: 8000.0,
-        };
-        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
-        let config_s3tok = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 128,
-            fmax: 8000.0,
-        };
+        // 1. Voice Encoder: 16k, 40 mels, Power, Linear
+        let cfg_ve = MelConfig::for_voice_encoder();
+        let mel_ve =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
+        let mel_ve_t = mel_ve.transpose(1, 2)?;
+        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
 
-        let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
+        // 2. S3Tokenizer: 16k, 128 mels, Power, Log10 + Norm
+        let cfg_s3tok = MelConfig::for_s3tokenizer();
+        let mel_s3tok =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_s3tok)?;
+        let mel_s3tok_log = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
 
-        let mel_128 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+        let max_val = mel_s3tok_log.max_all()?.to_scalar::<f32>()?;
+        let mel_s3tok_norm = mel_s3tok_log.maximum(max_val - 8.0)?;
+        let mel_s3tok_final = ((mel_s3tok_norm + 4.0)? / 4.0)?;
 
-        let mel_80_24k = audio::compute_mel_spectrogram(
-            &ref_samples_24k,
-            S3GEN_SR,
-            &self.device,
-            &audio::MelConfig::for_24k(80),
-        )?;
+        let prompt_tokens = self.s3tokenizer.encode(&mel_s3tok_final)?;
 
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
-        let mel_40_power = mel_40.sqr()?;
-        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
+        // 3. CAMPPlus: 16k, 80 mels, Power, Ln + Mean Norm
+        let cfg_camp = MelConfig::for_campplus();
+        let mel_camp =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_camp)?;
+        let mel_camp_log = mel_camp.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_camp_log.mean_keepdim(2)?;
+        let mel_camp_norm = mel_camp_log.broadcast_sub(&mean)?;
 
-        // CAMPPlus expects Mean-Normalized Log-Mel
-        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
-        let mean = mel_80_log.mean_keepdim(2)?;
-        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
         let spk_emb_80 = self
             .s3gen
             .campplus
-            .forward(&mel_80_norm)?
+            .forward(&mel_camp_norm)?
             .narrow(1, 0, 80)?;
 
-        // S3Tokenizer expects (B, 128, T) mel - now computed directly
-        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
-        let text_tokens = self.tokenize_text(text)?;
+        // 4. S3Gen Conditioning: 24k, 80 mels, Magnitude, Ln
+        let cfg_s3gen = MelConfig::for_s3gen();
+        let mel_s3gen =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_24k, &self.device, &cfg_s3gen)?;
+        let mel_s3gen_log = AudioProcessor::log_process(&mel_s3gen, &cfg_s3gen)?;
 
+        // Generate
+        let text_tokens = self.tokenize_text(text)?;
         let speech_tokens = self.t3.generate(
             &text_tokens,
             &spk_emb_256,
@@ -166,9 +159,22 @@ impl ChatterboxTTS {
             config.repetition_penalty,
             config.seed,
         )?;
+
+        // S3Gen Forward
+        // Prepare S3Gen Conditioning (Prompt Mel + Zero Pad)
+        let token_len = speech_tokens.dim(1)?;
+        let target_len = token_len * 2;
+        let (b, c, prompt_len) = mel_s3gen_log.dims3()?;
+        let cond = if prompt_len < target_len {
+            let pad = Tensor::zeros((b, c, target_len - prompt_len), DType::F32, &self.device)?;
+            Tensor::cat(&[&mel_s3gen_log, &pad], 2)?
+        } else {
+            mel_s3gen_log.narrow(2, 0, target_len)?
+        };
+
         let audio_tensor = self
             .s3gen
-            .forward(&speech_tokens, Some(&spk_emb_80), None)?;
+            .forward(&speech_tokens, Some(&spk_emb_80), Some(&cond))?;
 
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
         if config.normalize_loudness {
@@ -286,99 +292,65 @@ impl ChatterboxTurboTTS {
     ) -> Result<(Vec<f32>, u32)> {
         let text = normalize_text(text);
         eprintln!("[generate_speech] Loading reference audio...");
-        let (ref_samples_orig, ref_sr) =
+        let (ref_samples, ref_sr) =
             audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
-        eprintln!(
-            "[generate_speech] ref_samples_orig len: {}, sr: {}",
-            ref_samples_orig.len(),
-            ref_sr
-        );
-
-        let ref_samples_24k = if ref_sr != S3GEN_SR {
-            audio::resample(&ref_samples_orig, ref_sr, S3GEN_SR)
-                .map_err(|e| candle_core::Error::Msg(e))?
-        } else {
-            ref_samples_orig.clone()
-        };
 
         let ref_samples_16k = if ref_sr != S3_SR {
-            audio::resample(&ref_samples_orig, ref_sr, S3_SR)
+            audio::resample(&ref_samples, ref_sr, S3_SR).map_err(|e| candle_core::Error::Msg(e))?
+        } else {
+            ref_samples.clone()
+        };
+        let ref_samples_24k = if ref_sr != S3GEN_SR {
+            audio::resample(&ref_samples, ref_sr, S3GEN_SR)
                 .map_err(|e| candle_core::Error::Msg(e))?
         } else {
-            ref_samples_orig
+            ref_samples
         };
 
         eprintln!("[generate_speech] Computing mel spectrograms...");
-        use std::io::Write;
-        std::io::stderr().flush().unwrap();
 
-        // VoiceEncoder expects 16kHz mel (40 channels)
-        // VoiceEncoder expects 16kHz mel (40 channels)
-        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
-        let config_ve = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 40,
-            fmax: 8000.0,
-        };
-        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
-        let config_s3tok = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 128,
-            fmax: 8000.0,
-        };
+        // 1. Voice Encoder
+        let cfg_ve = MelConfig::for_voice_encoder();
+        let mel_ve =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_ve)?;
+        let mel_ve_t = mel_ve.transpose(1, 2)?;
+        let spk_emb_256 = self.voice_encoder.forward(&mel_ve_t)?;
 
-        let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
-        eprintln!("[generate_speech] mel_40 (16k): {:?}", mel_40.dims());
+        // 2. S3Tokenizer
+        let cfg_s3tok = MelConfig::for_s3tokenizer();
+        let mel_s3tok =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_s3tok)?;
+        let mel_s3tok_log = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
 
-        // Tokenizer expects 16kHz mel (128 channels)
-        let mel_128 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
-        eprintln!("[generate_speech] mel_128 (16k): {:?}", mel_128.dims());
+        let max_val = mel_s3tok_log.max_all()?.to_scalar::<f32>()?;
+        let mel_s3tok_norm = mel_s3tok_log.maximum(max_val - 8.0)?;
+        let mel_s3tok_final = ((mel_s3tok_norm + 4.0)? / 4.0)?;
 
-        // S3Gen expects 24kHz mel (80 channels)
-        let mel_80_24k = audio::compute_mel_spectrogram(
-            &ref_samples_24k,
-            S3GEN_SR,
-            &self.device,
-            &audio::MelConfig::for_24k(80),
-        )?;
-        eprintln!("[generate_speech] mel_80 (24k): {:?}", mel_80_24k.dims());
+        let prompt_tokens = self.s3tokenizer.encode(&mel_s3tok_final)?;
 
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
-        let mel_40_power = mel_40.sqr()?;
-        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
+        // 3. CAMPPlus
+        let cfg_camp = MelConfig::for_campplus();
+        let mel_camp =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_camp)?;
+        let mel_camp_log = mel_camp.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_camp_log.mean_keepdim(2)?;
+        let mel_camp_norm = mel_camp_log.broadcast_sub(&mean)?;
 
-        eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
-        eprintln!("[generate_speech] Running CAMPPlus...");
-        // CAMPPlus expects Mean-Normalized Log-Mel
-        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
-        let mean = mel_80_log.mean_keepdim(2)?;
-        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
         let spk_emb_80 = self
             .s3gen
             .campplus
-            .forward(&mel_80_norm)?
+            .forward(&mel_camp_norm)?
             .narrow(1, 0, 80)?;
-        eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
-        // S3Tokenizer expects (B, 128, T) mel - now computed directly
-        eprintln!("[generate_speech] Running S3Tokenizer...");
-        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
+        // 4. S3Gen Conditioning
+        let cfg_s3gen = MelConfig::for_s3gen();
+        let mel_s3gen =
+            AudioProcessor::compute_mel_spectrogram(&ref_samples_24k, &self.device, &cfg_s3gen)?;
+        let mel_s3gen_log = AudioProcessor::log_process(&mel_s3gen, &cfg_s3gen)?;
 
-        eprintln!(
-            "[generate_speech] prompt_tokens: {:?}",
-            prompt_tokens.dims()
-        );
-        let text_tokens = self.tokenize_text(&text)?;
-        eprintln!("[generate_speech] text_tokens: {:?}", text_tokens.dims());
-
+        // Generate
         eprintln!("[generate_speech] Running T3.generate...");
+        let text_tokens = self.tokenize_text(&text)?;
         let speech_tokens = self.t3.generate(
             &text_tokens,
             &spk_emb_256,
@@ -391,27 +363,32 @@ impl ChatterboxTurboTTS {
             config.repetition_penalty,
             config.seed,
         )?;
-        eprintln!(
-            "[generate_speech] speech_tokens: {:?}",
-            speech_tokens.dims()
-        );
+
+        // Filter tokens
         let speech_tokens_filtered = {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-            let original_len = tokens.len();
             let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
-            eprintln!(
-                "[generate_speech] filtered tokens: {} (from {})",
-                filtered.len(),
-                original_len
-            );
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
 
+        // S3Gen Forward with Conditioning
         eprintln!("[generate_speech] Running S3Gen.forward...");
-        let audio_tensor = self
-            .s3gen
-            .forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?;
-        eprintln!("[generate_speech] audio_tensor: {:?}", audio_tensor.dims());
+
+        // Target length is 2x tokens (upsampling)
+        let token_len = speech_tokens_filtered.dim(1)?;
+        let target_len = token_len * 2;
+        let (b, c, prompt_len) = mel_s3gen_log.dims3()?;
+        let cond = if prompt_len < target_len {
+            let pad = Tensor::zeros((b, c, target_len - prompt_len), DType::F32, &self.device)?;
+            Tensor::cat(&[&mel_s3gen_log, &pad], 2)?
+        } else {
+            mel_s3gen_log.narrow(2, 0, target_len)?
+        };
+
+        let audio_tensor =
+            self.s3gen
+                .forward(&speech_tokens_filtered, Some(&spk_emb_80), Some(&cond))?;
+
         let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
         if config.normalize_loudness {
             audio::normalize_loudness(&mut samples, -27.0);

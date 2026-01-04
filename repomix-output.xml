@@ -476,321 +476,6 @@ fn main() -> anyhow::Result<()> {
 }
 </file>
 
-<file path="candle/output.txt">
-Downloading model files...
-[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
-[DEBUG] Keys in t3_turbo_v1.safetensors:
-  cond_enc.spkr_enc.bias
-  cond_enc.spkr_enc.weight
-  speech_emb.weight
-  speech_head.bias
-  speech_head.weight
-  text_emb.weight
-  text_head.weight
-  tfmr.h.0.attn.c_attn.bias
-  tfmr.h.0.attn.c_attn.weight
-  tfmr.h.0.attn.c_proj.bias
-  tfmr.h.0.attn.c_proj.weight
-  tfmr.h.0.ln_1.bias
-  tfmr.h.0.ln_1.weight
-  tfmr.h.0.ln_2.bias
-  tfmr.h.0.ln_2.weight
-  tfmr.h.0.mlp.c_fc.bias
-  tfmr.h.0.mlp.c_fc.weight
-  tfmr.h.0.mlp.c_proj.bias
-  tfmr.h.0.mlp.c_proj.weight
-  tfmr.h.1.attn.c_attn.bias
-  tfmr.h.1.attn.c_attn.weight
-  tfmr.h.1.attn.c_proj.bias
-  tfmr.h.1.attn.c_proj.weight
-  tfmr.h.1.ln_1.bias
-  tfmr.h.1.ln_1.weight
-  tfmr.h.1.ln_2.bias
-  tfmr.h.1.ln_2.weight
-  tfmr.h.1.mlp.c_fc.bias
-  tfmr.h.1.mlp.c_fc.weight
-  tfmr.h.1.mlp.c_proj.bias
-  tfmr.h.1.mlp.c_proj.weight
-  tfmr.h.10.attn.c_attn.bias
-  tfmr.h.10.attn.c_attn.weight
-  tfmr.h.10.attn.c_proj.bias
-  tfmr.h.10.attn.c_proj.weight
-  tfmr.h.10.ln_1.bias
-  tfmr.h.10.ln_1.weight
-  tfmr.h.10.ln_2.bias
-  tfmr.h.10.ln_2.weight
-  tfmr.h.10.mlp.c_fc.bias
-  tfmr.h.10.mlp.c_fc.weight
-  tfmr.h.10.mlp.c_proj.bias
-  tfmr.h.10.mlp.c_proj.weight
-  tfmr.h.11.attn.c_attn.bias
-  tfmr.h.11.attn.c_attn.weight
-  tfmr.h.11.attn.c_proj.bias
-  tfmr.h.11.attn.c_proj.weight
-  tfmr.h.11.ln_1.bias
-  tfmr.h.11.ln_1.weight
-  tfmr.h.11.ln_2.bias
-  tfmr.h.11.ln_2.weight
-  tfmr.h.11.mlp.c_fc.bias
-  tfmr.h.11.mlp.c_fc.weight
-  tfmr.h.11.mlp.c_proj.bias
-  tfmr.h.11.mlp.c_proj.weight
-  tfmr.h.12.attn.c_attn.bias
-  tfmr.h.12.attn.c_attn.weight
-  tfmr.h.12.attn.c_proj.bias
-  tfmr.h.12.attn.c_proj.weight
-  tfmr.h.12.ln_1.bias
-  tfmr.h.12.ln_1.weight
-  tfmr.h.12.ln_2.bias
-  tfmr.h.12.ln_2.weight
-  tfmr.h.12.mlp.c_fc.bias
-  tfmr.h.12.mlp.c_fc.weight
-  tfmr.h.12.mlp.c_proj.bias
-  tfmr.h.12.mlp.c_proj.weight
-  tfmr.h.13.attn.c_attn.bias
-  tfmr.h.13.attn.c_attn.weight
-  tfmr.h.13.attn.c_proj.bias
-  tfmr.h.13.attn.c_proj.weight
-  tfmr.h.13.ln_1.bias
-  tfmr.h.13.ln_1.weight
-  tfmr.h.13.ln_2.bias
-  tfmr.h.13.ln_2.weight
-  tfmr.h.13.mlp.c_fc.bias
-  tfmr.h.13.mlp.c_fc.weight
-  tfmr.h.13.mlp.c_proj.bias
-  tfmr.h.13.mlp.c_proj.weight
-  tfmr.h.14.attn.c_attn.bias
-  tfmr.h.14.attn.c_attn.weight
-  tfmr.h.14.attn.c_proj.bias
-  tfmr.h.14.attn.c_proj.weight
-  tfmr.h.14.ln_1.bias
-  tfmr.h.14.ln_1.weight
-  tfmr.h.14.ln_2.bias
-  tfmr.h.14.ln_2.weight
-  tfmr.h.14.mlp.c_fc.bias
-  tfmr.h.14.mlp.c_fc.weight
-  tfmr.h.14.mlp.c_proj.bias
-  tfmr.h.14.mlp.c_proj.weight
-  tfmr.h.15.attn.c_attn.bias
-  tfmr.h.15.attn.c_attn.weight
-  tfmr.h.15.attn.c_proj.bias
-  tfmr.h.15.attn.c_proj.weight
-  tfmr.h.15.ln_1.bias
-  tfmr.h.15.ln_1.weight
-  tfmr.h.15.ln_2.bias
-  tfmr.h.15.ln_2.weight
-  tfmr.h.15.mlp.c_fc.bias
-  tfmr.h.15.mlp.c_fc.weight
-  tfmr.h.15.mlp.c_proj.bias
-  tfmr.h.15.mlp.c_proj.weight
-  tfmr.h.16.attn.c_attn.bias
-  tfmr.h.16.attn.c_attn.weight
-  tfmr.h.16.attn.c_proj.bias
-  tfmr.h.16.attn.c_proj.weight
-  tfmr.h.16.ln_1.bias
-  tfmr.h.16.ln_1.weight
-  tfmr.h.16.ln_2.bias
-  tfmr.h.16.ln_2.weight
-  tfmr.h.16.mlp.c_fc.bias
-  tfmr.h.16.mlp.c_fc.weight
-  tfmr.h.16.mlp.c_proj.bias
-  tfmr.h.16.mlp.c_proj.weight
-  tfmr.h.17.attn.c_attn.bias
-  tfmr.h.17.attn.c_attn.weight
-  tfmr.h.17.attn.c_proj.bias
-  tfmr.h.17.attn.c_proj.weight
-  tfmr.h.17.ln_1.bias
-  tfmr.h.17.ln_1.weight
-  tfmr.h.17.ln_2.bias
-  tfmr.h.17.ln_2.weight
-  tfmr.h.17.mlp.c_fc.bias
-  tfmr.h.17.mlp.c_fc.weight
-  tfmr.h.17.mlp.c_proj.bias
-  tfmr.h.17.mlp.c_proj.weight
-  tfmr.h.18.attn.c_attn.bias
-  tfmr.h.18.attn.c_attn.weight
-  tfmr.h.18.attn.c_proj.bias
-  tfmr.h.18.attn.c_proj.weight
-  tfmr.h.18.ln_1.bias
-  tfmr.h.18.ln_1.weight
-  tfmr.h.18.ln_2.bias
-  tfmr.h.18.ln_2.weight
-  tfmr.h.18.mlp.c_fc.bias
-  tfmr.h.18.mlp.c_fc.weight
-  tfmr.h.18.mlp.c_proj.bias
-  tfmr.h.18.mlp.c_proj.weight
-  tfmr.h.19.attn.c_attn.bias
-  tfmr.h.19.attn.c_attn.weight
-  tfmr.h.19.attn.c_proj.bias
-  tfmr.h.19.attn.c_proj.weight
-  tfmr.h.19.ln_1.bias
-  tfmr.h.19.ln_1.weight
-  tfmr.h.19.ln_2.bias
-  tfmr.h.19.ln_2.weight
-  tfmr.h.19.mlp.c_fc.bias
-  tfmr.h.19.mlp.c_fc.weight
-  tfmr.h.19.mlp.c_proj.bias
-  tfmr.h.19.mlp.c_proj.weight
-  tfmr.h.2.attn.c_attn.bias
-  tfmr.h.2.attn.c_attn.weight
-  tfmr.h.2.attn.c_proj.bias
-  tfmr.h.2.attn.c_proj.weight
-  tfmr.h.2.ln_1.bias
-  tfmr.h.2.ln_1.weight
-  tfmr.h.2.ln_2.bias
-  tfmr.h.2.ln_2.weight
-  tfmr.h.2.mlp.c_fc.bias
-  tfmr.h.2.mlp.c_fc.weight
-  tfmr.h.2.mlp.c_proj.bias
-  tfmr.h.2.mlp.c_proj.weight
-  tfmr.h.20.attn.c_attn.bias
-  tfmr.h.20.attn.c_attn.weight
-  tfmr.h.20.attn.c_proj.bias
-  tfmr.h.20.attn.c_proj.weight
-  tfmr.h.20.ln_1.bias
-  tfmr.h.20.ln_1.weight
-  tfmr.h.20.ln_2.bias
-  tfmr.h.20.ln_2.weight
-  tfmr.h.20.mlp.c_fc.bias
-  tfmr.h.20.mlp.c_fc.weight
-  tfmr.h.20.mlp.c_proj.bias
-  tfmr.h.20.mlp.c_proj.weight
-  tfmr.h.21.attn.c_attn.bias
-  tfmr.h.21.attn.c_attn.weight
-  tfmr.h.21.attn.c_proj.bias
-  tfmr.h.21.attn.c_proj.weight
-  tfmr.h.21.ln_1.bias
-  tfmr.h.21.ln_1.weight
-  tfmr.h.21.ln_2.bias
-  tfmr.h.21.ln_2.weight
-  tfmr.h.21.mlp.c_fc.bias
-  tfmr.h.21.mlp.c_fc.weight
-  tfmr.h.21.mlp.c_proj.bias
-  tfmr.h.21.mlp.c_proj.weight
-  tfmr.h.22.attn.c_attn.bias
-  tfmr.h.22.attn.c_attn.weight
-  tfmr.h.22.attn.c_proj.bias
-  tfmr.h.22.attn.c_proj.weight
-  tfmr.h.22.ln_1.bias
-  tfmr.h.22.ln_1.weight
-  tfmr.h.22.ln_2.bias
-  tfmr.h.22.ln_2.weight
-  tfmr.h.22.mlp.c_fc.bias
-  tfmr.h.22.mlp.c_fc.weight
-  tfmr.h.22.mlp.c_proj.bias
-  tfmr.h.22.mlp.c_proj.weight
-  tfmr.h.23.attn.c_attn.bias
-  tfmr.h.23.attn.c_attn.weight
-  tfmr.h.23.attn.c_proj.bias
-  tfmr.h.23.attn.c_proj.weight
-  tfmr.h.23.ln_1.bias
-  tfmr.h.23.ln_1.weight
-  tfmr.h.23.ln_2.bias
-  tfmr.h.23.ln_2.weight
-  tfmr.h.23.mlp.c_fc.bias
-  tfmr.h.23.mlp.c_fc.weight
-  tfmr.h.23.mlp.c_proj.bias
-  tfmr.h.23.mlp.c_proj.weight
-  tfmr.h.3.attn.c_attn.bias
-  tfmr.h.3.attn.c_attn.weight
-  tfmr.h.3.attn.c_proj.bias
-  tfmr.h.3.attn.c_proj.weight
-  tfmr.h.3.ln_1.bias
-  tfmr.h.3.ln_1.weight
-  tfmr.h.3.ln_2.bias
-  tfmr.h.3.ln_2.weight
-  tfmr.h.3.mlp.c_fc.bias
-  tfmr.h.3.mlp.c_fc.weight
-  tfmr.h.3.mlp.c_proj.bias
-  tfmr.h.3.mlp.c_proj.weight
-  tfmr.h.4.attn.c_attn.bias
-  tfmr.h.4.attn.c_attn.weight
-  tfmr.h.4.attn.c_proj.bias
-  tfmr.h.4.attn.c_proj.weight
-  tfmr.h.4.ln_1.bias
-  tfmr.h.4.ln_1.weight
-  tfmr.h.4.ln_2.bias
-  tfmr.h.4.ln_2.weight
-  tfmr.h.4.mlp.c_fc.bias
-  tfmr.h.4.mlp.c_fc.weight
-  tfmr.h.4.mlp.c_proj.bias
-  tfmr.h.4.mlp.c_proj.weight
-  tfmr.h.5.attn.c_attn.bias
-  tfmr.h.5.attn.c_attn.weight
-  tfmr.h.5.attn.c_proj.bias
-  tfmr.h.5.attn.c_proj.weight
-  tfmr.h.5.ln_1.bias
-  tfmr.h.5.ln_1.weight
-  tfmr.h.5.ln_2.bias
-  tfmr.h.5.ln_2.weight
-  tfmr.h.5.mlp.c_fc.bias
-  tfmr.h.5.mlp.c_fc.weight
-  tfmr.h.5.mlp.c_proj.bias
-  tfmr.h.5.mlp.c_proj.weight
-  tfmr.h.6.attn.c_attn.bias
-  tfmr.h.6.attn.c_attn.weight
-  tfmr.h.6.attn.c_proj.bias
-  tfmr.h.6.attn.c_proj.weight
-  tfmr.h.6.ln_1.bias
-  tfmr.h.6.ln_1.weight
-  tfmr.h.6.ln_2.bias
-  tfmr.h.6.ln_2.weight
-  tfmr.h.6.mlp.c_fc.bias
-  tfmr.h.6.mlp.c_fc.weight
-  tfmr.h.6.mlp.c_proj.bias
-  tfmr.h.6.mlp.c_proj.weight
-  tfmr.h.7.attn.c_attn.bias
-  tfmr.h.7.attn.c_attn.weight
-  tfmr.h.7.attn.c_proj.bias
-  tfmr.h.7.attn.c_proj.weight
-  tfmr.h.7.ln_1.bias
-  tfmr.h.7.ln_1.weight
-  tfmr.h.7.ln_2.bias
-  tfmr.h.7.ln_2.weight
-  tfmr.h.7.mlp.c_fc.bias
-  tfmr.h.7.mlp.c_fc.weight
-  tfmr.h.7.mlp.c_proj.bias
-  tfmr.h.7.mlp.c_proj.weight
-  tfmr.h.8.attn.c_attn.bias
-  tfmr.h.8.attn.c_attn.weight
-  tfmr.h.8.attn.c_proj.bias
-  tfmr.h.8.attn.c_proj.weight
-  tfmr.h.8.ln_1.bias
-  tfmr.h.8.ln_1.weight
-  tfmr.h.8.ln_2.bias
-  tfmr.h.8.ln_2.weight
-  tfmr.h.8.mlp.c_fc.bias
-  tfmr.h.8.mlp.c_fc.weight
-  tfmr.h.8.mlp.c_proj.bias
-  tfmr.h.8.mlp.c_proj.weight
-  tfmr.h.9.attn.c_attn.bias
-  tfmr.h.9.attn.c_attn.weight
-  tfmr.h.9.attn.c_proj.bias
-  tfmr.h.9.attn.c_proj.weight
-  tfmr.h.9.ln_1.bias
-  tfmr.h.9.ln_1.weight
-  tfmr.h.9.ln_2.bias
-  tfmr.h.9.ln_2.weight
-  tfmr.h.9.mlp.c_fc.bias
-  tfmr.h.9.mlp.c_fc.weight
-  tfmr.h.9.mlp.c_proj.bias
-  tfmr.h.9.mlp.c_proj.weight
-  tfmr.ln_f.bias
-  tfmr.ln_f.weight
-  tfmr.wpe.weight
-  tfmr.wte.weight
-
-[Step 4/6] Extracting speaker embedding with VoiceEncoder...
-[Step 5/6] Extracting synthesis embedding with CAMPPlus...
-
-[Step 6/6] Generating tokens with T3...
-
-[Step 7/6] Synthesizing audio...
-  S3Gen Input Tokens Shape: [1, 327]
-  Conditioning Tensor Shape: [1, 80, 654]
-SUCCESS! Audio saved to: output.wav
-</file>
-
 <file path="demo.rs">
 use anyhow::Result;
 use half::f16;
@@ -7519,6 +7204,321 @@ fn main() -> anyhow::Result<()> {
 }
 </file>
 
+<file path="candle/output.txt">
+Downloading model files...
+[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
+[DEBUG] Keys in t3_turbo_v1.safetensors:
+  cond_enc.spkr_enc.bias
+  cond_enc.spkr_enc.weight
+  speech_emb.weight
+  speech_head.bias
+  speech_head.weight
+  text_emb.weight
+  text_head.weight
+  tfmr.h.0.attn.c_attn.bias
+  tfmr.h.0.attn.c_attn.weight
+  tfmr.h.0.attn.c_proj.bias
+  tfmr.h.0.attn.c_proj.weight
+  tfmr.h.0.ln_1.bias
+  tfmr.h.0.ln_1.weight
+  tfmr.h.0.ln_2.bias
+  tfmr.h.0.ln_2.weight
+  tfmr.h.0.mlp.c_fc.bias
+  tfmr.h.0.mlp.c_fc.weight
+  tfmr.h.0.mlp.c_proj.bias
+  tfmr.h.0.mlp.c_proj.weight
+  tfmr.h.1.attn.c_attn.bias
+  tfmr.h.1.attn.c_attn.weight
+  tfmr.h.1.attn.c_proj.bias
+  tfmr.h.1.attn.c_proj.weight
+  tfmr.h.1.ln_1.bias
+  tfmr.h.1.ln_1.weight
+  tfmr.h.1.ln_2.bias
+  tfmr.h.1.ln_2.weight
+  tfmr.h.1.mlp.c_fc.bias
+  tfmr.h.1.mlp.c_fc.weight
+  tfmr.h.1.mlp.c_proj.bias
+  tfmr.h.1.mlp.c_proj.weight
+  tfmr.h.10.attn.c_attn.bias
+  tfmr.h.10.attn.c_attn.weight
+  tfmr.h.10.attn.c_proj.bias
+  tfmr.h.10.attn.c_proj.weight
+  tfmr.h.10.ln_1.bias
+  tfmr.h.10.ln_1.weight
+  tfmr.h.10.ln_2.bias
+  tfmr.h.10.ln_2.weight
+  tfmr.h.10.mlp.c_fc.bias
+  tfmr.h.10.mlp.c_fc.weight
+  tfmr.h.10.mlp.c_proj.bias
+  tfmr.h.10.mlp.c_proj.weight
+  tfmr.h.11.attn.c_attn.bias
+  tfmr.h.11.attn.c_attn.weight
+  tfmr.h.11.attn.c_proj.bias
+  tfmr.h.11.attn.c_proj.weight
+  tfmr.h.11.ln_1.bias
+  tfmr.h.11.ln_1.weight
+  tfmr.h.11.ln_2.bias
+  tfmr.h.11.ln_2.weight
+  tfmr.h.11.mlp.c_fc.bias
+  tfmr.h.11.mlp.c_fc.weight
+  tfmr.h.11.mlp.c_proj.bias
+  tfmr.h.11.mlp.c_proj.weight
+  tfmr.h.12.attn.c_attn.bias
+  tfmr.h.12.attn.c_attn.weight
+  tfmr.h.12.attn.c_proj.bias
+  tfmr.h.12.attn.c_proj.weight
+  tfmr.h.12.ln_1.bias
+  tfmr.h.12.ln_1.weight
+  tfmr.h.12.ln_2.bias
+  tfmr.h.12.ln_2.weight
+  tfmr.h.12.mlp.c_fc.bias
+  tfmr.h.12.mlp.c_fc.weight
+  tfmr.h.12.mlp.c_proj.bias
+  tfmr.h.12.mlp.c_proj.weight
+  tfmr.h.13.attn.c_attn.bias
+  tfmr.h.13.attn.c_attn.weight
+  tfmr.h.13.attn.c_proj.bias
+  tfmr.h.13.attn.c_proj.weight
+  tfmr.h.13.ln_1.bias
+  tfmr.h.13.ln_1.weight
+  tfmr.h.13.ln_2.bias
+  tfmr.h.13.ln_2.weight
+  tfmr.h.13.mlp.c_fc.bias
+  tfmr.h.13.mlp.c_fc.weight
+  tfmr.h.13.mlp.c_proj.bias
+  tfmr.h.13.mlp.c_proj.weight
+  tfmr.h.14.attn.c_attn.bias
+  tfmr.h.14.attn.c_attn.weight
+  tfmr.h.14.attn.c_proj.bias
+  tfmr.h.14.attn.c_proj.weight
+  tfmr.h.14.ln_1.bias
+  tfmr.h.14.ln_1.weight
+  tfmr.h.14.ln_2.bias
+  tfmr.h.14.ln_2.weight
+  tfmr.h.14.mlp.c_fc.bias
+  tfmr.h.14.mlp.c_fc.weight
+  tfmr.h.14.mlp.c_proj.bias
+  tfmr.h.14.mlp.c_proj.weight
+  tfmr.h.15.attn.c_attn.bias
+  tfmr.h.15.attn.c_attn.weight
+  tfmr.h.15.attn.c_proj.bias
+  tfmr.h.15.attn.c_proj.weight
+  tfmr.h.15.ln_1.bias
+  tfmr.h.15.ln_1.weight
+  tfmr.h.15.ln_2.bias
+  tfmr.h.15.ln_2.weight
+  tfmr.h.15.mlp.c_fc.bias
+  tfmr.h.15.mlp.c_fc.weight
+  tfmr.h.15.mlp.c_proj.bias
+  tfmr.h.15.mlp.c_proj.weight
+  tfmr.h.16.attn.c_attn.bias
+  tfmr.h.16.attn.c_attn.weight
+  tfmr.h.16.attn.c_proj.bias
+  tfmr.h.16.attn.c_proj.weight
+  tfmr.h.16.ln_1.bias
+  tfmr.h.16.ln_1.weight
+  tfmr.h.16.ln_2.bias
+  tfmr.h.16.ln_2.weight
+  tfmr.h.16.mlp.c_fc.bias
+  tfmr.h.16.mlp.c_fc.weight
+  tfmr.h.16.mlp.c_proj.bias
+  tfmr.h.16.mlp.c_proj.weight
+  tfmr.h.17.attn.c_attn.bias
+  tfmr.h.17.attn.c_attn.weight
+  tfmr.h.17.attn.c_proj.bias
+  tfmr.h.17.attn.c_proj.weight
+  tfmr.h.17.ln_1.bias
+  tfmr.h.17.ln_1.weight
+  tfmr.h.17.ln_2.bias
+  tfmr.h.17.ln_2.weight
+  tfmr.h.17.mlp.c_fc.bias
+  tfmr.h.17.mlp.c_fc.weight
+  tfmr.h.17.mlp.c_proj.bias
+  tfmr.h.17.mlp.c_proj.weight
+  tfmr.h.18.attn.c_attn.bias
+  tfmr.h.18.attn.c_attn.weight
+  tfmr.h.18.attn.c_proj.bias
+  tfmr.h.18.attn.c_proj.weight
+  tfmr.h.18.ln_1.bias
+  tfmr.h.18.ln_1.weight
+  tfmr.h.18.ln_2.bias
+  tfmr.h.18.ln_2.weight
+  tfmr.h.18.mlp.c_fc.bias
+  tfmr.h.18.mlp.c_fc.weight
+  tfmr.h.18.mlp.c_proj.bias
+  tfmr.h.18.mlp.c_proj.weight
+  tfmr.h.19.attn.c_attn.bias
+  tfmr.h.19.attn.c_attn.weight
+  tfmr.h.19.attn.c_proj.bias
+  tfmr.h.19.attn.c_proj.weight
+  tfmr.h.19.ln_1.bias
+  tfmr.h.19.ln_1.weight
+  tfmr.h.19.ln_2.bias
+  tfmr.h.19.ln_2.weight
+  tfmr.h.19.mlp.c_fc.bias
+  tfmr.h.19.mlp.c_fc.weight
+  tfmr.h.19.mlp.c_proj.bias
+  tfmr.h.19.mlp.c_proj.weight
+  tfmr.h.2.attn.c_attn.bias
+  tfmr.h.2.attn.c_attn.weight
+  tfmr.h.2.attn.c_proj.bias
+  tfmr.h.2.attn.c_proj.weight
+  tfmr.h.2.ln_1.bias
+  tfmr.h.2.ln_1.weight
+  tfmr.h.2.ln_2.bias
+  tfmr.h.2.ln_2.weight
+  tfmr.h.2.mlp.c_fc.bias
+  tfmr.h.2.mlp.c_fc.weight
+  tfmr.h.2.mlp.c_proj.bias
+  tfmr.h.2.mlp.c_proj.weight
+  tfmr.h.20.attn.c_attn.bias
+  tfmr.h.20.attn.c_attn.weight
+  tfmr.h.20.attn.c_proj.bias
+  tfmr.h.20.attn.c_proj.weight
+  tfmr.h.20.ln_1.bias
+  tfmr.h.20.ln_1.weight
+  tfmr.h.20.ln_2.bias
+  tfmr.h.20.ln_2.weight
+  tfmr.h.20.mlp.c_fc.bias
+  tfmr.h.20.mlp.c_fc.weight
+  tfmr.h.20.mlp.c_proj.bias
+  tfmr.h.20.mlp.c_proj.weight
+  tfmr.h.21.attn.c_attn.bias
+  tfmr.h.21.attn.c_attn.weight
+  tfmr.h.21.attn.c_proj.bias
+  tfmr.h.21.attn.c_proj.weight
+  tfmr.h.21.ln_1.bias
+  tfmr.h.21.ln_1.weight
+  tfmr.h.21.ln_2.bias
+  tfmr.h.21.ln_2.weight
+  tfmr.h.21.mlp.c_fc.bias
+  tfmr.h.21.mlp.c_fc.weight
+  tfmr.h.21.mlp.c_proj.bias
+  tfmr.h.21.mlp.c_proj.weight
+  tfmr.h.22.attn.c_attn.bias
+  tfmr.h.22.attn.c_attn.weight
+  tfmr.h.22.attn.c_proj.bias
+  tfmr.h.22.attn.c_proj.weight
+  tfmr.h.22.ln_1.bias
+  tfmr.h.22.ln_1.weight
+  tfmr.h.22.ln_2.bias
+  tfmr.h.22.ln_2.weight
+  tfmr.h.22.mlp.c_fc.bias
+  tfmr.h.22.mlp.c_fc.weight
+  tfmr.h.22.mlp.c_proj.bias
+  tfmr.h.22.mlp.c_proj.weight
+  tfmr.h.23.attn.c_attn.bias
+  tfmr.h.23.attn.c_attn.weight
+  tfmr.h.23.attn.c_proj.bias
+  tfmr.h.23.attn.c_proj.weight
+  tfmr.h.23.ln_1.bias
+  tfmr.h.23.ln_1.weight
+  tfmr.h.23.ln_2.bias
+  tfmr.h.23.ln_2.weight
+  tfmr.h.23.mlp.c_fc.bias
+  tfmr.h.23.mlp.c_fc.weight
+  tfmr.h.23.mlp.c_proj.bias
+  tfmr.h.23.mlp.c_proj.weight
+  tfmr.h.3.attn.c_attn.bias
+  tfmr.h.3.attn.c_attn.weight
+  tfmr.h.3.attn.c_proj.bias
+  tfmr.h.3.attn.c_proj.weight
+  tfmr.h.3.ln_1.bias
+  tfmr.h.3.ln_1.weight
+  tfmr.h.3.ln_2.bias
+  tfmr.h.3.ln_2.weight
+  tfmr.h.3.mlp.c_fc.bias
+  tfmr.h.3.mlp.c_fc.weight
+  tfmr.h.3.mlp.c_proj.bias
+  tfmr.h.3.mlp.c_proj.weight
+  tfmr.h.4.attn.c_attn.bias
+  tfmr.h.4.attn.c_attn.weight
+  tfmr.h.4.attn.c_proj.bias
+  tfmr.h.4.attn.c_proj.weight
+  tfmr.h.4.ln_1.bias
+  tfmr.h.4.ln_1.weight
+  tfmr.h.4.ln_2.bias
+  tfmr.h.4.ln_2.weight
+  tfmr.h.4.mlp.c_fc.bias
+  tfmr.h.4.mlp.c_fc.weight
+  tfmr.h.4.mlp.c_proj.bias
+  tfmr.h.4.mlp.c_proj.weight
+  tfmr.h.5.attn.c_attn.bias
+  tfmr.h.5.attn.c_attn.weight
+  tfmr.h.5.attn.c_proj.bias
+  tfmr.h.5.attn.c_proj.weight
+  tfmr.h.5.ln_1.bias
+  tfmr.h.5.ln_1.weight
+  tfmr.h.5.ln_2.bias
+  tfmr.h.5.ln_2.weight
+  tfmr.h.5.mlp.c_fc.bias
+  tfmr.h.5.mlp.c_fc.weight
+  tfmr.h.5.mlp.c_proj.bias
+  tfmr.h.5.mlp.c_proj.weight
+  tfmr.h.6.attn.c_attn.bias
+  tfmr.h.6.attn.c_attn.weight
+  tfmr.h.6.attn.c_proj.bias
+  tfmr.h.6.attn.c_proj.weight
+  tfmr.h.6.ln_1.bias
+  tfmr.h.6.ln_1.weight
+  tfmr.h.6.ln_2.bias
+  tfmr.h.6.ln_2.weight
+  tfmr.h.6.mlp.c_fc.bias
+  tfmr.h.6.mlp.c_fc.weight
+  tfmr.h.6.mlp.c_proj.bias
+  tfmr.h.6.mlp.c_proj.weight
+  tfmr.h.7.attn.c_attn.bias
+  tfmr.h.7.attn.c_attn.weight
+  tfmr.h.7.attn.c_proj.bias
+  tfmr.h.7.attn.c_proj.weight
+  tfmr.h.7.ln_1.bias
+  tfmr.h.7.ln_1.weight
+  tfmr.h.7.ln_2.bias
+  tfmr.h.7.ln_2.weight
+  tfmr.h.7.mlp.c_fc.bias
+  tfmr.h.7.mlp.c_fc.weight
+  tfmr.h.7.mlp.c_proj.bias
+  tfmr.h.7.mlp.c_proj.weight
+  tfmr.h.8.attn.c_attn.bias
+  tfmr.h.8.attn.c_attn.weight
+  tfmr.h.8.attn.c_proj.bias
+  tfmr.h.8.attn.c_proj.weight
+  tfmr.h.8.ln_1.bias
+  tfmr.h.8.ln_1.weight
+  tfmr.h.8.ln_2.bias
+  tfmr.h.8.ln_2.weight
+  tfmr.h.8.mlp.c_fc.bias
+  tfmr.h.8.mlp.c_fc.weight
+  tfmr.h.8.mlp.c_proj.bias
+  tfmr.h.8.mlp.c_proj.weight
+  tfmr.h.9.attn.c_attn.bias
+  tfmr.h.9.attn.c_attn.weight
+  tfmr.h.9.attn.c_proj.bias
+  tfmr.h.9.attn.c_proj.weight
+  tfmr.h.9.ln_1.bias
+  tfmr.h.9.ln_1.weight
+  tfmr.h.9.ln_2.bias
+  tfmr.h.9.ln_2.weight
+  tfmr.h.9.mlp.c_fc.bias
+  tfmr.h.9.mlp.c_fc.weight
+  tfmr.h.9.mlp.c_proj.bias
+  tfmr.h.9.mlp.c_proj.weight
+  tfmr.ln_f.bias
+  tfmr.ln_f.weight
+  tfmr.wpe.weight
+  tfmr.wte.weight
+
+[Step 4/6] Extracting speaker embedding with VoiceEncoder...
+[Step 5/6] Extracting synthesis embedding with CAMPPlus...
+
+[Step 6/6] Generating tokens with T3...
+
+[Step 7/6] Synthesizing audio...
+  S3Gen Input Tokens Shape: [1, 313]
+  Conditioning Tensor Shape: [1, 80, 626]
+SUCCESS! Audio saved to: output.wav
+</file>
+
 <file path="candle/src/sampling.rs">
 use candle_core::{DType, Result, Tensor};
 use rand::{distributions::Distribution, thread_rng};
@@ -11522,300 +11522,6 @@ name = "chatterbox"
 path = "src/main.rs"
 </file>
 
-<file path="candle/examples/split_generate.rs">
-use candle_core::{DType, Device, Tensor};
-use candle_nn::VarBuilder;
-use hf_hub::api::sync::Api;
-use tokenizers::Tokenizer;
-
-fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
-    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
-    let mel = mel.clamp(1e-10, f32::MAX)?;
-    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
-
-    // Dynamic range compression
-    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
-    let log_mel = log_mel.maximum(max_val - 8.0)?;
-
-    let result = ((log_mel + 4.0)? / 4.0)?;
-    Ok(result)
-}
-
-fn main() -> anyhow::Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-    let text = args
-        .iter()
-        .position(|a| a == "--text")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("Hello, world.");
-    let ref_audio = args
-        .iter()
-        .position(|a| a == "--ref-audio")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("reference.wav");
-    let output = args
-        .iter()
-        .position(|a| a == "--output")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("output.wav");
-    let use_cuda = args.iter().any(|a| a == "--cuda");
-    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
-    let use_fp16 = args.iter().any(|a| a == "--fp16");
-    let device = if use_cuda {
-        Device::new_cuda(0)?
-    } else {
-        Device::Cpu
-    };
-    let t3_device = if use_t3_cuda {
-        Device::new_cuda(0)?
-    } else {
-        device.clone()
-    };
-    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
-
-    println!("Downloading model files...");
-    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
-    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
-    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
-    println!("[DEBUG] T3 Path: {:?}", t3_path);
-    {
-        let file = std::fs::File::open(&t3_path).unwrap();
-        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
-        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
-        let mut names: Vec<_> = safetensors.names().into_iter().collect();
-        names.sort();
-        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
-        for name in names {
-            println!("  {}", name);
-        }
-    }
-    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
-    let ve_path = turbo_repo.get("ve.safetensors")?;
-    let s3tokenizer_path = api
-        .model("ResembleAI/s3tokenizer-v2".to_string())
-        .get("model.safetensors")?;
-    let tokenizer_path = api
-        .model("ResembleAI/chatterbox".to_string())
-        .get("tokenizer.json")?;
-
-    // STEP 1: Text
-    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let encoding = tokenizer
-        .encode(text, true)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
-    let text_tokens_tensor =
-        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
-
-    // STEP 2: Reference Audio Processing
-    let (ref_samples, ref_sr) =
-        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
-
-    // 1. Config for VoiceEncoder (16kHz, 40 mels, n_fft=400)
-    let config_ve = candle::audio::MelConfig {
-        n_fft: 400,
-        hop_length: 160,
-        win_length: 400,
-        n_mels: 40,
-        fmax: 8000.0,
-    };
-
-    // 2. Config for S3Tokenizer (16kHz, 128 mels, n_fft=400)
-    let config_s3tok = candle::audio::MelConfig {
-        n_fft: 400,
-        hop_length: 160,
-        win_length: 400,
-        n_mels: 128,
-        fmax: 8000.0,
-    };
-
-    let mel_40_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &config_ve,
-    )?;
-
-    // Used for S3Tokenizer (no longer using the default 16k config which was 80 mels)
-    let mel_128_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &config_s3tok,
-    )?;
-
-    // S3Gen/CAMPPlus (24kHz, 80 mels, n_fft=1920) - This was already correct
-    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_24k,
-        candle::audio::S3GEN_SR,
-        &device,
-        &candle::audio::MelConfig::for_24k(80),
-    )?;
-
-    // --- STEP 3: S3 Prompt Tokens ---
-    // Use mel_128_linear directly (no padding needed anymore)
-    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_128_linear)?;
-    let speech_prompt_tokens = {
-        let vb = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
-        };
-        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
-            &candle::s3tokenizer::ModelConfig::default(),
-            vb,
-        )?;
-
-        // Input is already (B, 128, T), so just encode directly
-        s3tok.encode(&mel_for_tokenizer)?
-    };
-
-    // --- STEP 4: T3 Embedding (Voice Encoder) ---
-    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
-    let spk_emb_256 = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
-        let ve = candle::voice_encoder::VoiceEncoder::new(
-            candle::voice_encoder::VoiceEncoderConfig::default(),
-            vb,
-        )?;
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
-        let mel_40_power = mel_40_linear.sqr()?;
-        // VoiceEncoder expects (B, T, 40)
-        ve.forward(&mel_40_power.transpose(1, 2)?)?
-    };
-
-    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
-    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
-    // CAMPPlus expects Mean-Normalized Log-Mel
-    let mel_80_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
-    let mean = mel_80_log.mean_keepdim(2)?;
-    let mel_for_campplus = mel_80_log.broadcast_sub(&mean)?;
-
-    let spk_emb_80 = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
-        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
-    };
-
-    // STEP 6: T3 Generation
-    println!("\n[Step 6/6] Generating tokens with T3...");
-    let speech_tokens = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
-        let t3_config = candle::t3_model::T3Config {
-            text_tokens_dict_size: 50276,
-            speech_tokens_dict_size: 6563,
-            hidden_size: 1024,
-            num_layers: 24,
-            num_heads: 16,
-            vocab_size: 50276,
-            speaker_embed_size: 256,
-            start_speech_token: 6561,
-            stop_speech_token: 6562,
-            speech_cond_prompt_len: Some(375),
-            use_perceiver_resampler: false,
-            emotion_adv: false,
-            n_positions: 8196,
-        };
-        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
-        t3.generate(
-            &text_tokens_tensor.to_device(&t3_device)?,
-            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
-            Some(&speech_prompt_tokens.to_device(&t3_device)?),
-            None,
-            500,
-            0.8,
-            0.95,
-            50,
-            1.2,
-            42,
-        )?
-    };
-
-    // STEP 7: Synthesis
-    println!("\n[Step 7/6] Synthesizing audio...");
-
-    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
-    let speech_tokens_filtered = {
-        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-        let filtered: Vec<u32> = tokens
-            .into_iter()
-            .filter(|&t| t != 6561 && t != 6562)
-            .collect();
-        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
-    };
-
-    // Concatenate prompt tokens + generated tokens
-    // Note: speech_prompt_tokens was calculated in Step 3.
-    // We assume speech_prompt_tokens is (1, N_PROMPT).
-    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
-    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
-
-    let audio_tensor = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
-
-        // 2. Prepare Reference Mel for Conditioning
-        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
-        // mel_80_24k_linear is (1, 80, T_ref)
-        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
-
-        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
-        // The S3Gen Encoder upsamples tokens by 2x.
-        // So output length = input_tokens_len * 2.
-        let (_, n_toks) = s3_input_tokens.dims2()?;
-        let target_len = n_toks * 2;
-        let (b, c, ref_len) = ref_mel_log.dims3()?;
-
-        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
-        let safe_ref_len = ref_len.min(target_len);
-        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
-
-        // Create padding
-        let padding_len = target_len - safe_ref_len;
-        let cond = if padding_len > 0 {
-            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
-            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
-        } else {
-            ref_mel_log_trimmed
-        };
-
-        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
-
-        // 4. Forward with corrected inputs
-        s3gen.forward(
-            &s3_input_tokens,
-            Some(&spk_emb_80),
-            Some(&cond), // Pass the time-aligned conditioning, not the mean!
-        )?
-    };
-
-    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
-    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    println!("SUCCESS! Audio saved to: {}", output);
-
-    Ok(())
-}
-</file>
-
 <file path="candle/src/campplus.rs">
 use candle_core::{Module, Result, Tensor};
 use candle_nn::{Activation, BatchNorm, Conv1d, Conv2d, ModuleT, VarBuilder};
@@ -12693,6 +12399,320 @@ impl VoiceEncoder {
 }
 </file>
 
+<file path="candle/examples/split_generate.rs">
+use candle_core::{DType, Device, Tensor};
+use candle_nn::VarBuilder;
+use hf_hub::api::sync::Api;
+use tokenizers::Tokenizer;
+
+fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
+    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
+    let mel = mel.clamp(1e-10, f32::MAX)?;
+    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
+
+    // Dynamic range compression
+    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
+    let log_mel = log_mel.maximum(max_val - 8.0)?;
+
+    let result = ((log_mel + 4.0)? / 4.0)?;
+    Ok(result)
+}
+
+fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    let text = args
+        .iter()
+        .position(|a| a == "--text")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("Hello, world.");
+    let ref_audio = args
+        .iter()
+        .position(|a| a == "--ref-audio")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("reference.wav");
+    let output = args
+        .iter()
+        .position(|a| a == "--output")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("output.wav");
+    let use_cuda = args.iter().any(|a| a == "--cuda");
+    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
+    let use_fp16 = args.iter().any(|a| a == "--fp16");
+    let device = if use_cuda {
+        Device::new_cuda(0)?
+    } else {
+        Device::Cpu
+    };
+    let t3_device = if use_t3_cuda {
+        Device::new_cuda(0)?
+    } else {
+        device.clone()
+    };
+    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
+
+    println!("Downloading model files...");
+    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
+    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
+    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
+    println!("[DEBUG] T3 Path: {:?}", t3_path);
+    {
+        let file = std::fs::File::open(&t3_path).unwrap();
+        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
+        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
+        let mut names: Vec<_> = safetensors.names().into_iter().collect();
+        names.sort();
+        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
+        for name in names {
+            println!("  {}", name);
+        }
+    }
+    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
+    let ve_path = turbo_repo.get("ve.safetensors")?;
+    let s3tokenizer_path = api
+        .model("ResembleAI/s3tokenizer-v2".to_string())
+        .get("model.safetensors")?;
+    let tokenizer_path = api
+        .model("ResembleAI/chatterbox".to_string())
+        .get("tokenizer.json")?;
+
+    // STEP 1: Text
+    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let encoding = tokenizer
+        .encode(text, true)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
+    let text_tokens_tensor =
+        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
+
+    // STEP 2: Reference Audio Processing
+    let (ref_samples, ref_sr) =
+        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
+
+    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
+
+    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
+
+    // 1. Config for VoiceEncoder (16kHz, 40 mels, n_fft=400)
+    let config_ve = candle::audio::MelConfig {
+        n_fft: 400,
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 40,
+        fmax: 8000.0,
+    };
+
+    // 2. Config for S3Tokenizer (16kHz, 128 mels, n_fft=400)
+    let config_s3tok = candle::audio::MelConfig {
+        n_fft: 400,
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 128,
+        fmax: 8000.0,
+    };
+
+    let mel_40_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_ve,
+    )?;
+
+    // Used for S3Tokenizer (no longer using the default 16k config which was 80 mels)
+    let mel_128_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_s3tok,
+    )?;
+
+    // S3Gen/CAMPPlus (24kHz, 80 mels, n_fft=1920) - This was already correct
+    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_24k,
+        candle::audio::S3GEN_SR,
+        &device,
+        &candle::audio::MelConfig::for_24k(80),
+    )?;
+
+    // [NEW] Config for CAMPPlus (16kHz, 80 mels, win=25ms, hop=10ms)
+    // Kaldi default: 25ms window = 400 samples @ 16k, 10ms hop = 160 samples
+    let config_campplus = candle::audio::MelConfig {
+        n_fft: 512, // Closest power of 2 for 400, or use 400 if FFT supports it
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 80,
+        fmax: 8000.0,
+    };
+
+    let mel_campplus_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_campplus,
+    )?;
+
+    // --- STEP 3: S3 Prompt Tokens ---
+    // Use mel_128_linear directly (no padding needed anymore)
+    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_128_linear)?;
+    let speech_prompt_tokens = {
+        let vb = unsafe {
+            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
+        };
+        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
+            &candle::s3tokenizer::ModelConfig::default(),
+            vb,
+        )?;
+
+        // Input is already (B, 128, T), so just encode directly
+        s3tok.encode(&mel_for_tokenizer)?
+    };
+
+    // --- STEP 4: T3 Embedding (Voice Encoder) ---
+    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
+    let spk_emb_256 = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
+        let ve = candle::voice_encoder::VoiceEncoder::new(
+            candle::voice_encoder::VoiceEncoderConfig::default(),
+            vb,
+        )?;
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
+        let mel_40_power = mel_40_linear.sqr()?;
+        // VoiceEncoder expects (B, T, 40)
+        ve.forward(&mel_40_power.transpose(1, 2)?)?
+    };
+
+    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
+    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
+
+    // CAMPPlus expects Mean-Normalized Log-Mel derived from 16kHz audio
+    let mel_campplus_log = mel_campplus_linear.clamp(1e-5, f32::MAX)?.log()?;
+    let mean = mel_campplus_log.mean_keepdim(2)?;
+    let mel_for_campplus = mel_campplus_log.broadcast_sub(&mean)?;
+
+    let spk_emb_80 = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
+
+        // Use the 16k features here, NOT the 24k ones
+        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
+    };
+
+    // STEP 6: T3 Generation
+    println!("\n[Step 6/6] Generating tokens with T3...");
+    let speech_tokens = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
+        let t3_config = candle::t3_model::T3Config {
+            text_tokens_dict_size: 50276,
+            speech_tokens_dict_size: 6563,
+            hidden_size: 1024,
+            num_layers: 24,
+            num_heads: 16,
+            vocab_size: 50276,
+            speaker_embed_size: 256,
+            start_speech_token: 6561,
+            stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
+            n_positions: 8196,
+        };
+        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
+        t3.generate(
+            &text_tokens_tensor.to_device(&t3_device)?,
+            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
+            Some(&speech_prompt_tokens.to_device(&t3_device)?),
+            None,
+            500,
+            0.8,
+            0.95,
+            50,
+            1.2,
+            42,
+        )?
+    };
+
+    // STEP 7: Synthesis
+    println!("\n[Step 7/6] Synthesizing audio...");
+
+    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
+    let speech_tokens_filtered = {
+        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+        let filtered: Vec<u32> = tokens
+            .into_iter()
+            .filter(|&t| t != 6561 && t != 6562)
+            .collect();
+        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
+    };
+
+    // Concatenate prompt tokens + generated tokens
+    // Note: speech_prompt_tokens was calculated in Step 3.
+    // We assume speech_prompt_tokens is (1, N_PROMPT).
+    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
+    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
+
+    let audio_tensor = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
+
+        // 2. Prepare Reference Mel for Conditioning
+        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
+        // mel_80_24k_linear is (1, 80, T_ref)
+        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+
+        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
+        // The S3Gen Encoder upsamples tokens by 2x.
+        // So output length = input_tokens_len * 2.
+        let (_, n_toks) = s3_input_tokens.dims2()?;
+        let target_len = n_toks * 2;
+        let (b, c, ref_len) = ref_mel_log.dims3()?;
+
+        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
+        let safe_ref_len = ref_len.min(target_len);
+        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
+
+        // Create padding
+        let padding_len = target_len - safe_ref_len;
+        let cond = if padding_len > 0 {
+            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
+            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
+        } else {
+            ref_mel_log_trimmed
+        };
+
+        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
+
+        // 4. Forward with corrected inputs
+        s3gen.forward(
+            &s3_input_tokens,
+            Some(&spk_emb_80),
+            Some(&cond), // Pass the time-aligned conditioning, not the mean!
+        )?
+    };
+
+    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
+    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    println!("SUCCESS! Audio saved to: {}", output);
+
+    Ok(())
+}
+</file>
+
 <file path="candle/src/audio.rs">
 use candle_core::{DType, Device, Result, Tensor};
 use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
@@ -12861,11 +12881,14 @@ pub fn compute_mel_spectrogram(
         if frame_idx >= n_frames {
             break;
         }
-        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
+        let mut windowed: Vec<f32> = padded[frame_start..frame_start + win_length]
             .iter()
             .zip(window.iter())
             .map(|(s, w)| s * w)
             .collect();
+        if windowed.len() < n_fft {
+            windowed.resize(n_fft, 0.0);
+        }
         let mut spectrum = fft.make_output_vec();
         fft.process(&mut windowed, &mut spectrum)
             .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
@@ -14839,473 +14862,6 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 </file>
 
-<file path="candle/src/chatterbox.rs">
-use candle_core::{DType, Device, Result, Tensor};
-use candle_nn::VarBuilder;
-use hf_hub::api::sync::Api;
-use std::path::{Path, PathBuf};
-use tokenizers::Tokenizer;
-
-use crate::audio::{self, S3GEN_SR, S3_SR};
-use crate::s3gen::S3Gen;
-use crate::t3_model::{T3Config, T3};
-use crate::voice_encoder::{VoiceEncoder, VoiceEncoderConfig};
-use crate::GenerateConfig;
-
-pub struct ChatterboxTTS {
-    t3: T3,
-    s3gen: S3Gen,
-    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
-    voice_encoder: VoiceEncoder,
-    tokenizer: Tokenizer,
-    device: Device,
-}
-
-impl ChatterboxTTS {
-    pub fn from_pretrained(device: Device) -> Result<Self> {
-        let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let repo = api.model("ResembleAI/chatterbox".to_string());
-        let t3_path = repo
-            .get("t3_cfg.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3gen_path = repo
-            .get("s3gen.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let ve_path = repo
-            .get("ve.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3tokenizer_path = api
-            .model("ResembleAI/s3tokenizer-v2".to_string())
-            .get("model.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let tokenizer_path = repo
-            .get("tokenizer.json")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        Self::from_local(
-            t3_path,
-            s3gen_path,
-            ve_path,
-            s3tokenizer_path,
-            tokenizer_path,
-            device,
-        )
-    }
-
-    pub fn from_local(
-        t3_path: PathBuf,
-        s3gen_path: PathBuf,
-        ve_path: PathBuf,
-        s3tokenizer_path: PathBuf,
-        tokenizer_path: PathBuf,
-        device: Device,
-    ) -> Result<Self> {
-        let vb_t3 =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[t3_path], DType::F32, &device)? };
-        let t3 = T3::new(T3Config::default(), vb_t3)?;
-        let vb_s3 =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[s3gen_path], DType::F32, &device)? };
-        let s3gen = S3Gen::new(vb_s3, false)?;
-        let vb_ve =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[ve_path], DType::F32, &device)? };
-        let voice_encoder = VoiceEncoder::new(VoiceEncoderConfig::default(), vb_ve)?;
-        let vb_s3tok = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[s3tokenizer_path], DType::F32, &device)?
-        };
-        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(
-            &crate::s3tokenizer::ModelConfig::default(),
-            vb_s3tok,
-        )?;
-        let tokenizer = Tokenizer::from_file(&tokenizer_path)
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        Ok(Self {
-            t3,
-            s3gen,
-            s3tokenizer,
-            voice_encoder,
-            tokenizer,
-            device,
-        })
-    }
-
-    pub fn generate_speech(
-        &self,
-        text: &str,
-        ref_audio_path: &Path,
-        config: GenerateConfig,
-    ) -> Result<(Vec<f32>, u32)> {
-        let (ref_samples, ref_sr) =
-            audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
-        let ref_samples_16k = if ref_sr != S3_SR {
-            audio::resample(&ref_samples, ref_sr, S3_SR).map_err(|e| candle_core::Error::Msg(e))?
-        } else {
-            ref_samples.clone()
-        };
-        let ref_samples_24k = if ref_sr != S3GEN_SR {
-            audio::resample(&ref_samples, ref_sr, S3GEN_SR)
-                .map_err(|e| candle_core::Error::Msg(e))?
-        } else {
-            ref_samples
-        };
-
-        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
-        let config_ve = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 40,
-            fmax: 8000.0,
-        };
-        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
-        let config_s3tok = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 128,
-            fmax: 8000.0,
-        };
-
-        let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
-
-        let mel_128 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
-
-        let mel_80_24k = audio::compute_mel_spectrogram(
-            &ref_samples_24k,
-            S3GEN_SR,
-            &self.device,
-            &audio::MelConfig::for_24k(80),
-        )?;
-
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
-        let mel_40_power = mel_40.sqr()?;
-        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
-
-        // CAMPPlus expects Mean-Normalized Log-Mel
-        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
-        let mean = mel_80_log.mean_keepdim(2)?;
-        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
-        let spk_emb_80 = self
-            .s3gen
-            .campplus
-            .forward(&mel_80_norm)?
-            .narrow(1, 0, 80)?;
-
-        // S3Tokenizer expects (B, 128, T) mel - now computed directly
-        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
-        let text_tokens = self.tokenize_text(text)?;
-
-        let speech_tokens = self.t3.generate(
-            &text_tokens,
-            &spk_emb_256,
-            Some(&prompt_tokens),
-            None,
-            500,
-            config.temperature,
-            config.top_p,
-            config.top_k,
-            config.repetition_penalty,
-            config.seed,
-        )?;
-        let audio_tensor = self
-            .s3gen
-            .forward(&speech_tokens, Some(&spk_emb_80), None)?;
-
-        let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
-        if config.normalize_loudness {
-            audio::normalize_loudness(&mut samples, -27.0);
-        }
-        Ok((samples, S3GEN_SR))
-    }
-
-    fn tokenize_text(&self, text: &str) -> Result<Tensor> {
-        let encoding = self
-            .tokenizer
-            .encode(text, false)
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let ids: Vec<u32> = encoding.get_ids().iter().map(|&id| id as u32).collect();
-        Tensor::from_vec(ids.clone(), (1, ids.len()), &self.device)
-    }
-}
-
-pub struct ChatterboxTurboTTS {
-    t3: T3,
-    s3gen: S3Gen,
-    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
-    voice_encoder: VoiceEncoder,
-    tokenizer: Tokenizer,
-    device: Device,
-}
-
-impl ChatterboxTurboTTS {
-    pub fn from_pretrained(device: Device) -> Result<Self> {
-        let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
-        let t3_path = turbo_repo
-            .get("t3_turbo_v1.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3gen_path = turbo_repo
-            .get("s3gen_meanflow.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let ve_path = turbo_repo
-            .get("ve.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let s3tokenizer_path = api
-            .model("ResembleAI/s3tokenizer-v2".to_string())
-            .get("model.safetensors")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let base_repo = api.model("ResembleAI/chatterbox".to_string());
-        let tokenizer_path = base_repo
-            .get("tokenizer.json")
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        Self::from_local(
-            t3_path,
-            s3gen_path,
-            ve_path,
-            s3tokenizer_path,
-            tokenizer_path,
-            device,
-        )
-    }
-
-    pub fn from_local(
-        t3_path: PathBuf,
-        s3gen_path: PathBuf,
-        ve_path: PathBuf,
-        s3tokenizer_path: PathBuf,
-        tokenizer_path: PathBuf,
-        device: Device,
-    ) -> Result<Self> {
-        let t3_config = T3Config {
-            text_tokens_dict_size: 50276,
-            speech_tokens_dict_size: 6563,
-            hidden_size: 1024,
-            num_layers: 24,
-            num_heads: 16,
-            vocab_size: 50276,
-            speaker_embed_size: 256,
-            start_speech_token: 6561,
-            stop_speech_token: 6562,
-            speech_cond_prompt_len: Some(375),
-            use_perceiver_resampler: false,
-            emotion_adv: false,
-            n_positions: 8196,
-        };
-        let vb_t3 =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[t3_path], DType::F32, &device)? };
-        let t3 = T3::new(t3_config, vb_t3)?;
-        let vb_s3 =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[s3gen_path], DType::F32, &device)? };
-        let s3gen = S3Gen::new(vb_s3, true)?;
-        let vb_ve =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[ve_path], DType::F32, &device)? };
-        let voice_encoder = VoiceEncoder::new(VoiceEncoderConfig::default(), vb_ve)?;
-        let vb_s3tok = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[s3tokenizer_path], DType::F32, &device)?
-        };
-        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(
-            &crate::s3tokenizer::ModelConfig::default(),
-            vb_s3tok,
-        )?;
-        let tokenizer = Tokenizer::from_file(&tokenizer_path)
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        Ok(Self {
-            t3,
-            s3gen,
-            s3tokenizer,
-            voice_encoder,
-            tokenizer,
-            device,
-        })
-    }
-
-    pub fn generate_speech(
-        &self,
-        text: &str,
-        ref_audio_path: &Path,
-        config: GenerateConfig,
-    ) -> Result<(Vec<f32>, u32)> {
-        let text = normalize_text(text);
-        eprintln!("[generate_speech] Loading reference audio...");
-        let (ref_samples_orig, ref_sr) =
-            audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
-        eprintln!(
-            "[generate_speech] ref_samples_orig len: {}, sr: {}",
-            ref_samples_orig.len(),
-            ref_sr
-        );
-
-        let ref_samples_24k = if ref_sr != S3GEN_SR {
-            audio::resample(&ref_samples_orig, ref_sr, S3GEN_SR)
-                .map_err(|e| candle_core::Error::Msg(e))?
-        } else {
-            ref_samples_orig.clone()
-        };
-
-        let ref_samples_16k = if ref_sr != S3_SR {
-            audio::resample(&ref_samples_orig, ref_sr, S3_SR)
-                .map_err(|e| candle_core::Error::Msg(e))?
-        } else {
-            ref_samples_orig
-        };
-
-        eprintln!("[generate_speech] Computing mel spectrograms...");
-        use std::io::Write;
-        std::io::stderr().flush().unwrap();
-
-        // VoiceEncoder expects 16kHz mel (40 channels)
-        // VoiceEncoder expects 16kHz mel (40 channels)
-        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
-        let config_ve = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 40,
-            fmax: 8000.0,
-        };
-        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
-        let config_s3tok = audio::MelConfig {
-            n_fft: 400,
-            hop_length: 160,
-            win_length: 400,
-            n_mels: 128,
-            fmax: 8000.0,
-        };
-
-        let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
-        eprintln!("[generate_speech] mel_40 (16k): {:?}", mel_40.dims());
-
-        // Tokenizer expects 16kHz mel (128 channels)
-        let mel_128 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
-        eprintln!("[generate_speech] mel_128 (16k): {:?}", mel_128.dims());
-
-        // S3Gen expects 24kHz mel (80 channels)
-        let mel_80_24k = audio::compute_mel_spectrogram(
-            &ref_samples_24k,
-            S3GEN_SR,
-            &self.device,
-            &audio::MelConfig::for_24k(80),
-        )?;
-        eprintln!("[generate_speech] mel_80 (24k): {:?}", mel_80_24k.dims());
-
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
-        let mel_40_power = mel_40.sqr()?;
-        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
-        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
-
-        eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
-        eprintln!("[generate_speech] Running CAMPPlus...");
-        // CAMPPlus expects Mean-Normalized Log-Mel
-        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
-        let mean = mel_80_log.mean_keepdim(2)?;
-        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
-        let spk_emb_80 = self
-            .s3gen
-            .campplus
-            .forward(&mel_80_norm)?
-            .narrow(1, 0, 80)?;
-        eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
-
-        // S3Tokenizer expects (B, 128, T) mel - now computed directly
-        eprintln!("[generate_speech] Running S3Tokenizer...");
-        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
-
-        eprintln!(
-            "[generate_speech] prompt_tokens: {:?}",
-            prompt_tokens.dims()
-        );
-        let text_tokens = self.tokenize_text(&text)?;
-        eprintln!("[generate_speech] text_tokens: {:?}", text_tokens.dims());
-
-        eprintln!("[generate_speech] Running T3.generate...");
-        let speech_tokens = self.t3.generate(
-            &text_tokens,
-            &spk_emb_256,
-            Some(&prompt_tokens),
-            None,
-            500,
-            config.temperature,
-            config.top_p,
-            config.top_k,
-            config.repetition_penalty,
-            config.seed,
-        )?;
-        eprintln!(
-            "[generate_speech] speech_tokens: {:?}",
-            speech_tokens.dims()
-        );
-        let speech_tokens_filtered = {
-            let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-            let original_len = tokens.len();
-            let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
-            eprintln!(
-                "[generate_speech] filtered tokens: {} (from {})",
-                filtered.len(),
-                original_len
-            );
-            Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
-        };
-
-        eprintln!("[generate_speech] Running S3Gen.forward...");
-        let audio_tensor = self
-            .s3gen
-            .forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?;
-        eprintln!("[generate_speech] audio_tensor: {:?}", audio_tensor.dims());
-        let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
-        if config.normalize_loudness {
-            audio::normalize_loudness(&mut samples, -27.0);
-        }
-        Ok((samples, S3GEN_SR))
-    }
-
-    fn tokenize_text(&self, text: &str) -> Result<Tensor> {
-        let encoding = self
-            .tokenizer
-            .encode(text, false)
-            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
-        let ids: Vec<u32> = encoding.get_ids().iter().map(|&id| id as u32).collect();
-        Tensor::from_vec(ids.clone(), (1, ids.len()), &self.device)
-    }
-}
-
-fn normalize_text(text: &str) -> String {
-    let mut text = text.to_string();
-    if let Some(first) = text.chars().next() {
-        if first.is_lowercase() {
-            text = first.to_uppercase().to_string() + &text[first.len_utf8()..];
-        }
-    }
-    text = text.split_whitespace().collect::<Vec<_>>().join(" ");
-    let replacements = [
-        ("\u{2026}", ", "),
-        (":", ","),
-        ("\u{2014}", "-"),
-        ("\u{2013}", "-"),
-        (" ,", ","),
-        ("\u{201C}", "\""),
-        ("\u{201D}", "\""),
-        ("\u{2018}", "'"),
-        ("\u{2019}", "'"),
-    ];
-    for (from, to) in replacements {
-        text = text.replace(from, to);
-    }
-    text = text.trim_end().to_string();
-    if !text.ends_with('.')
-        && !text.ends_with('!')
-        && !text.ends_with('?')
-        && !text.ends_with('-')
-        && !text.ends_with(',')
-    {
-        text.push('.');
-    }
-    text
-}
-</file>
-
 <file path="candle/src/s3gen.rs">
 use candle_core::{DType, Module, Result, Tensor};
 use candle_nn::{Activation, Conv1d, Embedding, LayerNorm, Linear, VarBuilder};
@@ -16350,6 +15906,473 @@ impl S3Gen {
         let mask = Tensor::ones((b, 1, t), mu.dtype(), mu.device())?;
         self.decoder.forward(&mu, &mask, spks, Some(&mu), n_steps)
     }
+}
+</file>
+
+<file path="candle/src/chatterbox.rs">
+use candle_core::{DType, Device, Result, Tensor};
+use candle_nn::VarBuilder;
+use hf_hub::api::sync::Api;
+use std::path::{Path, PathBuf};
+use tokenizers::Tokenizer;
+
+use crate::audio::{self, S3GEN_SR, S3_SR};
+use crate::s3gen::S3Gen;
+use crate::t3_model::{T3Config, T3};
+use crate::voice_encoder::{VoiceEncoder, VoiceEncoderConfig};
+use crate::GenerateConfig;
+
+pub struct ChatterboxTTS {
+    t3: T3,
+    s3gen: S3Gen,
+    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
+    voice_encoder: VoiceEncoder,
+    tokenizer: Tokenizer,
+    device: Device,
+}
+
+impl ChatterboxTTS {
+    pub fn from_pretrained(device: Device) -> Result<Self> {
+        let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let repo = api.model("ResembleAI/chatterbox".to_string());
+        let t3_path = repo
+            .get("t3_cfg.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3gen_path = repo
+            .get("s3gen.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let ve_path = repo
+            .get("ve.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3tokenizer_path = api
+            .model("ResembleAI/s3tokenizer-v2".to_string())
+            .get("model.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let tokenizer_path = repo
+            .get("tokenizer.json")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        Self::from_local(
+            t3_path,
+            s3gen_path,
+            ve_path,
+            s3tokenizer_path,
+            tokenizer_path,
+            device,
+        )
+    }
+
+    pub fn from_local(
+        t3_path: PathBuf,
+        s3gen_path: PathBuf,
+        ve_path: PathBuf,
+        s3tokenizer_path: PathBuf,
+        tokenizer_path: PathBuf,
+        device: Device,
+    ) -> Result<Self> {
+        let vb_t3 =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[t3_path], DType::F32, &device)? };
+        let t3 = T3::new(T3Config::default(), vb_t3)?;
+        let vb_s3 =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[s3gen_path], DType::F32, &device)? };
+        let s3gen = S3Gen::new(vb_s3, false)?;
+        let vb_ve =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[ve_path], DType::F32, &device)? };
+        let voice_encoder = VoiceEncoder::new(VoiceEncoderConfig::default(), vb_ve)?;
+        let vb_s3tok = unsafe {
+            VarBuilder::from_mmaped_safetensors(&[s3tokenizer_path], DType::F32, &device)?
+        };
+        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(
+            &crate::s3tokenizer::ModelConfig::default(),
+            vb_s3tok,
+        )?;
+        let tokenizer = Tokenizer::from_file(&tokenizer_path)
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        Ok(Self {
+            t3,
+            s3gen,
+            s3tokenizer,
+            voice_encoder,
+            tokenizer,
+            device,
+        })
+    }
+
+    pub fn generate_speech(
+        &self,
+        text: &str,
+        ref_audio_path: &Path,
+        config: GenerateConfig,
+    ) -> Result<(Vec<f32>, u32)> {
+        let (ref_samples, ref_sr) =
+            audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
+        let ref_samples_16k = if ref_sr != S3_SR {
+            audio::resample(&ref_samples, ref_sr, S3_SR).map_err(|e| candle_core::Error::Msg(e))?
+        } else {
+            ref_samples.clone()
+        };
+        let ref_samples_24k = if ref_sr != S3GEN_SR {
+            audio::resample(&ref_samples, ref_sr, S3GEN_SR)
+                .map_err(|e| candle_core::Error::Msg(e))?
+        } else {
+            ref_samples
+        };
+
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 40,
+            fmax: 8000.0,
+        };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
+        let mel_40 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
+
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+
+        let mel_80_24k = audio::compute_mel_spectrogram(
+            &ref_samples_24k,
+            S3GEN_SR,
+            &self.device,
+            &audio::MelConfig::for_24k(80),
+        )?;
+
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
+        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
+
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
+
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
+        let text_tokens = self.tokenize_text(text)?;
+
+        let speech_tokens = self.t3.generate(
+            &text_tokens,
+            &spk_emb_256,
+            Some(&prompt_tokens),
+            None,
+            500,
+            config.temperature,
+            config.top_p,
+            config.top_k,
+            config.repetition_penalty,
+            config.seed,
+        )?;
+        let audio_tensor = self
+            .s3gen
+            .forward(&speech_tokens, Some(&spk_emb_80), None)?;
+
+        let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
+        if config.normalize_loudness {
+            audio::normalize_loudness(&mut samples, -27.0);
+        }
+        Ok((samples, S3GEN_SR))
+    }
+
+    fn tokenize_text(&self, text: &str) -> Result<Tensor> {
+        let encoding = self
+            .tokenizer
+            .encode(text, false)
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let ids: Vec<u32> = encoding.get_ids().iter().map(|&id| id as u32).collect();
+        Tensor::from_vec(ids.clone(), (1, ids.len()), &self.device)
+    }
+}
+
+pub struct ChatterboxTurboTTS {
+    t3: T3,
+    s3gen: S3Gen,
+    s3tokenizer: crate::s3tokenizer::S3TokenizerV2,
+    voice_encoder: VoiceEncoder,
+    tokenizer: Tokenizer,
+    device: Device,
+}
+
+impl ChatterboxTurboTTS {
+    pub fn from_pretrained(device: Device) -> Result<Self> {
+        let api = Api::new().map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
+        let t3_path = turbo_repo
+            .get("t3_turbo_v1.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3gen_path = turbo_repo
+            .get("s3gen_meanflow.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let ve_path = turbo_repo
+            .get("ve.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let s3tokenizer_path = api
+            .model("ResembleAI/s3tokenizer-v2".to_string())
+            .get("model.safetensors")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let base_repo = api.model("ResembleAI/chatterbox".to_string());
+        let tokenizer_path = base_repo
+            .get("tokenizer.json")
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        Self::from_local(
+            t3_path,
+            s3gen_path,
+            ve_path,
+            s3tokenizer_path,
+            tokenizer_path,
+            device,
+        )
+    }
+
+    pub fn from_local(
+        t3_path: PathBuf,
+        s3gen_path: PathBuf,
+        ve_path: PathBuf,
+        s3tokenizer_path: PathBuf,
+        tokenizer_path: PathBuf,
+        device: Device,
+    ) -> Result<Self> {
+        let t3_config = T3Config {
+            text_tokens_dict_size: 50276,
+            speech_tokens_dict_size: 6563,
+            hidden_size: 1024,
+            num_layers: 24,
+            num_heads: 16,
+            vocab_size: 50276,
+            speaker_embed_size: 256,
+            start_speech_token: 6561,
+            stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
+            n_positions: 8196,
+        };
+        let vb_t3 =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[t3_path], DType::F32, &device)? };
+        let t3 = T3::new(t3_config, vb_t3)?;
+        let vb_s3 =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[s3gen_path], DType::F32, &device)? };
+        let s3gen = S3Gen::new(vb_s3, true)?;
+        let vb_ve =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[ve_path], DType::F32, &device)? };
+        let voice_encoder = VoiceEncoder::new(VoiceEncoderConfig::default(), vb_ve)?;
+        let vb_s3tok = unsafe {
+            VarBuilder::from_mmaped_safetensors(&[s3tokenizer_path], DType::F32, &device)?
+        };
+        let s3tokenizer = crate::s3tokenizer::S3TokenizerV2::new(
+            &crate::s3tokenizer::ModelConfig::default(),
+            vb_s3tok,
+        )?;
+        let tokenizer = Tokenizer::from_file(&tokenizer_path)
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        Ok(Self {
+            t3,
+            s3gen,
+            s3tokenizer,
+            voice_encoder,
+            tokenizer,
+            device,
+        })
+    }
+
+    pub fn generate_speech(
+        &self,
+        text: &str,
+        ref_audio_path: &Path,
+        config: GenerateConfig,
+    ) -> Result<(Vec<f32>, u32)> {
+        let text = normalize_text(text);
+        eprintln!("[generate_speech] Loading reference audio...");
+        let (ref_samples_orig, ref_sr) =
+            audio::load_wav(ref_audio_path).map_err(|e| candle_core::Error::Msg(e))?;
+        eprintln!(
+            "[generate_speech] ref_samples_orig len: {}, sr: {}",
+            ref_samples_orig.len(),
+            ref_sr
+        );
+
+        let ref_samples_24k = if ref_sr != S3GEN_SR {
+            audio::resample(&ref_samples_orig, ref_sr, S3GEN_SR)
+                .map_err(|e| candle_core::Error::Msg(e))?
+        } else {
+            ref_samples_orig.clone()
+        };
+
+        let ref_samples_16k = if ref_sr != S3_SR {
+            audio::resample(&ref_samples_orig, ref_sr, S3_SR)
+                .map_err(|e| candle_core::Error::Msg(e))?
+        } else {
+            ref_samples_orig
+        };
+
+        eprintln!("[generate_speech] Computing mel spectrograms...");
+        use std::io::Write;
+        std::io::stderr().flush().unwrap();
+
+        // VoiceEncoder expects 16kHz mel (40 channels)
+        // VoiceEncoder expects 16kHz mel (40 channels)
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 40,
+            fmax: 8000.0,
+        };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
+        let mel_40 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
+        eprintln!("[generate_speech] mel_40 (16k): {:?}", mel_40.dims());
+
+        // Tokenizer expects 16kHz mel (128 channels)
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+        eprintln!("[generate_speech] mel_128 (16k): {:?}", mel_128.dims());
+
+        // S3Gen expects 24kHz mel (80 channels)
+        let mel_80_24k = audio::compute_mel_spectrogram(
+            &ref_samples_24k,
+            S3GEN_SR,
+            &self.device,
+            &audio::MelConfig::for_24k(80),
+        )?;
+        eprintln!("[generate_speech] mel_80 (24k): {:?}", mel_80_24k.dims());
+
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2), not dB, not Magnitude
+        let mel_40_power = mel_40.sqr()?;
+        let mel_40_t = mel_40_power.transpose(1, 2)?; // (B, T, 40)
+        let spk_emb_256 = self.voice_encoder.forward(&mel_40_t)?;
+
+        eprintln!("[generate_speech] spk_emb_256: {:?}", spk_emb_256.dims());
+        eprintln!("[generate_speech] Running CAMPPlus...");
+        // CAMPPlus expects Mean-Normalized Log-Mel
+        let mel_80_log = mel_80_24k.clamp(1e-5, f32::MAX)?.log()?;
+        let mean = mel_80_log.mean_keepdim(2)?;
+        let mel_80_norm = mel_80_log.broadcast_sub(&mean)?;
+        let spk_emb_80 = self
+            .s3gen
+            .campplus
+            .forward(&mel_80_norm)?
+            .narrow(1, 0, 80)?;
+        eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
+
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
+        eprintln!("[generate_speech] Running S3Tokenizer...");
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
+
+        eprintln!(
+            "[generate_speech] prompt_tokens: {:?}",
+            prompt_tokens.dims()
+        );
+        let text_tokens = self.tokenize_text(&text)?;
+        eprintln!("[generate_speech] text_tokens: {:?}", text_tokens.dims());
+
+        eprintln!("[generate_speech] Running T3.generate...");
+        let speech_tokens = self.t3.generate(
+            &text_tokens,
+            &spk_emb_256,
+            Some(&prompt_tokens),
+            None,
+            500,
+            config.temperature,
+            config.top_p,
+            config.top_k,
+            config.repetition_penalty,
+            config.seed,
+        )?;
+        eprintln!(
+            "[generate_speech] speech_tokens: {:?}",
+            speech_tokens.dims()
+        );
+        let speech_tokens_filtered = {
+            let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+            let original_len = tokens.len();
+            let filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
+            eprintln!(
+                "[generate_speech] filtered tokens: {} (from {})",
+                filtered.len(),
+                original_len
+            );
+            Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
+        };
+
+        eprintln!("[generate_speech] Running S3Gen.forward...");
+        let audio_tensor = self
+            .s3gen
+            .forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?;
+        eprintln!("[generate_speech] audio_tensor: {:?}", audio_tensor.dims());
+        let mut samples = audio_tensor.flatten_all()?.to_vec1::<f32>()?;
+        if config.normalize_loudness {
+            audio::normalize_loudness(&mut samples, -27.0);
+        }
+        Ok((samples, S3GEN_SR))
+    }
+
+    fn tokenize_text(&self, text: &str) -> Result<Tensor> {
+        let encoding = self
+            .tokenizer
+            .encode(text, false)
+            .map_err(|e| candle_core::Error::Msg(e.to_string()))?;
+        let ids: Vec<u32> = encoding.get_ids().iter().map(|&id| id as u32).collect();
+        Tensor::from_vec(ids.clone(), (1, ids.len()), &self.device)
+    }
+}
+
+fn normalize_text(text: &str) -> String {
+    let mut text = text.to_string();
+    if let Some(first) = text.chars().next() {
+        if first.is_lowercase() {
+            text = first.to_uppercase().to_string() + &text[first.len_utf8()..];
+        }
+    }
+    text = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    let replacements = [
+        ("\u{2026}", ", "),
+        (":", ","),
+        ("\u{2014}", "-"),
+        ("\u{2013}", "-"),
+        (" ,", ","),
+        ("\u{201C}", "\""),
+        ("\u{201D}", "\""),
+        ("\u{2018}", "'"),
+        ("\u{2019}", "'"),
+    ];
+    for (from, to) in replacements {
+        text = text.replace(from, to);
+    }
+    text = text.trim_end().to_string();
+    if !text.ends_with('.')
+        && !text.ends_with('!')
+        && !text.ends_with('?')
+        && !text.ends_with('-')
+        && !text.ends_with(',')
+    {
+        text.push('.');
+    }
+    text
 }
 </file>
 

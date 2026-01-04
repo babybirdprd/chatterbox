@@ -330,6 +330,8 @@ impl AudioEncoderV2 {
 
         // Precompute RoPE: 64 is head_dim, 2048 matches Python's 1024*2
         let (cos, sin) = precompute_freqs_cis(n_state / config.n_audio_head, 2048, vb.device())?;
+        let cos = cos.to_dtype(vb.dtype())?;
+        let sin = sin.to_dtype(vb.dtype())?;
 
         Ok(Self {
             conv1,

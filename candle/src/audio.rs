@@ -1,10 +1,16 @@
+// candle/src/audio.rs
 use candle_core::{DType, Device, Result, Tensor};
 use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
+use realfft::RealFftPlanner;
 use rubato::{FftFixedIn, Resampler};
+
+use std::f32::consts::PI;
 use std::path::Path;
 
 pub const S3GEN_SR: u32 = 24000;
 pub const S3_SR: u32 = 16000;
+
+// --- IO & Resampling ---
 
 pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
     let reader = WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
@@ -28,6 +34,7 @@ pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32),
             .collect(),
     };
 
+    // Convert to mono by averaging
     let mono = if channels > 1 {
         samples
             .chunks(channels)
@@ -73,15 +80,20 @@ pub fn resample(
     if from_sr == to_sr {
         return Ok(samples.to_vec());
     }
+    // Fixed chunk size for rubato
     let chunk_size = 1024;
     let mut resampler = FftFixedIn::<f32>::new(from_sr as usize, to_sr as usize, chunk_size, 2, 1)
         .map_err(|e| format!("Failed to create resampler: {}", e))?;
+
     let mut output = Vec::new();
     let mut input_frames = samples.to_vec();
+
+    // Pad to chunk size
     let remainder = input_frames.len() % chunk_size;
     if remainder != 0 {
         input_frames.extend(std::iter::repeat(0.0).take(chunk_size - remainder));
     }
+
     for chunk in input_frames.chunks(chunk_size) {
         let input = vec![chunk.to_vec()];
         let mut resampled = resampler
@@ -92,171 +104,305 @@ pub fn resample(
     Ok(output)
 }
 
-pub struct MelConfig {
-    pub n_fft: usize,
-    pub hop_length: usize,
-    pub win_length: usize,
-    pub n_mels: usize,
-    pub fmax: f32,
-}
-
-impl MelConfig {
-    pub fn for_16k() -> Self {
-        Self {
-            n_fft: 1024,
-            hop_length: 160,
-            win_length: 1024,
-            n_mels: 80,
-            fmax: 8000.0,
-        }
-    }
-
-    pub fn for_24k(n_mels: usize) -> Self {
-        Self {
-            n_fft: 1920,
-            hop_length: 480,
-            win_length: 1920,
-            n_mels,
-            fmax: 8000.0,
-        }
-    }
-}
-
-pub fn compute_mel_spectrogram(
-    samples: &[f32],
-    sample_rate: u32,
-    device: &Device,
-    config: &MelConfig,
-) -> Result<Tensor> {
-    use realfft::RealFftPlanner;
-    let n_fft = config.n_fft;
-    let hop_length = config.hop_length;
-    let win_length = config.win_length;
-    let n_mels = config.n_mels;
-    let fmax = config.fmax;
-
-    let window: Vec<f32> = (0..win_length)
-        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
-        .collect();
-
-    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
-    let pad = (n_fft - hop_length) / 2;
-    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
-    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
-    for i in (1..=pad).rev() {
-        padded.push(samples[i]);
-    }
-    padded.extend_from_slice(samples);
-    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
-    let n = samples.len();
-    for i in 1..=pad {
-        padded.push(samples[n - 1 - i]);
-    }
-
-    let n_frames = (padded.len() - n_fft) / hop_length + 1;
-    let mut planner = RealFftPlanner::<f32>::new();
-    let fft = planner.plan_fft_forward(n_fft);
-    let mut power_spectrogram = vec![vec![0.0f32; n_fft / 2 + 1]; n_frames];
-
-    for (frame_idx, frame_start) in (0..padded.len() - n_fft + 1)
-        .step_by(hop_length)
-        .enumerate()
-    {
-        if frame_idx >= n_frames {
-            break;
-        }
-        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
-            .iter()
-            .zip(window.iter())
-            .map(|(s, w)| s * w)
-            .collect();
-        let mut spectrum = fft.make_output_vec();
-        fft.process(&mut windowed, &mut spectrum)
-            .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
-        for (i, c) in spectrum.iter().enumerate() {
-            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
-            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
-            // Then it applies mel and spectral_normalize (log)
-            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
-        }
-    }
-
-    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
-    let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
-    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
-        for (m, filter) in mel_filters.iter().enumerate() {
-            let mut sum = 0.0f32;
-            for (i, &weight) in filter.iter().enumerate() {
-                sum += weight * mag_frame[i];
-            }
-            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
-            mel_spec[t][m] = sum.max(1e-5);
-        }
-    }
-
-    let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
-    // Return (B, C, T) where C=80
-    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
-        .permute((0, 2, 1))?
-        .contiguous()?
-        .to_dtype(DType::F32)
-}
-
-fn create_mel_filterbank(
-    sample_rate: u32,
-    n_fft: usize,
-    n_mels: usize,
-    fmax: f32,
-) -> Vec<Vec<f32>> {
-    let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
-    let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
-    let mel_min = hz_to_mel(0.0);
-    let mel_max = hz_to_mel(fmax);
-    let mel_points: Vec<f32> = (0..=n_mels + 1)
-        .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
-        .collect();
-    let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
-    let n_bins = n_fft / 2 + 1;
-    let bin_points: Vec<usize> = hz_points
-        .iter()
-        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
-        .collect();
-    let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
-
-    for m in 0..n_mels {
-        let left_hz = hz_points[m];
-        let _center_hz = hz_points[m + 1];
-        let right_hz = hz_points[m + 2];
-
-        let left = bin_points[m];
-        let center = bin_points[m + 1];
-        let right = bin_points[m + 2];
-
-        // Slaney normalization factor
-        let enorm = 2.0 / (right_hz - left_hz);
-
-        for k in left..center {
-            if center > left {
-                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
-            }
-        }
-        for k in center..right {
-            if right > center {
-                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
-            }
-        }
-    }
-    filterbank
-}
-
 pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
     let rms: f32 = (samples.iter().map(|s| s * s).sum::<f32>() / samples.len() as f32).sqrt();
-    if rms > 1e-10 {
+    if rms > 1e-9 {
         let gain = 10.0f32
             .powf((target_db - 20.0 * rms.log10()) / 20.0)
-            .min(10.0);
+            .min(10.0); // Cap gain to avoid exploding noise
         for sample in samples.iter_mut() {
             *sample *= gain;
         }
     }
+}
+
+// --- Mel Spectrogram Logic ---
+
+#[derive(Debug, Clone, Copy)]
+pub enum STFTMode {
+    Magnitude, // |STFT|
+    Power,     // |STFT|^2
+}
+
+#[derive(Debug, Clone)]
+pub struct MelConfig {
+    pub sample_rate: u32,
+    pub n_fft: usize,
+    pub hop_length: usize,
+    pub win_length: usize,
+    pub n_mels: usize,
+    pub fmin: f32,
+    pub fmax: f32,
+    pub stft_mode: STFTMode,
+}
+
+impl MelConfig {
+    /// Configuration for S3Gen / HiFiGAN / Matcha (24kHz)
+    /// Expects Magnitude STFT + Natural Log
+    pub fn for_s3gen() -> Self {
+        Self {
+            sample_rate: 24000,
+            n_fft: 1920, // Explicit from matcha config
+            hop_length: 480,
+            win_length: 1920,
+            n_mels: 80,
+            fmin: 0.0,
+            fmax: 8000.0,
+            stft_mode: STFTMode::Magnitude,
+        }
+    }
+
+    /// Configuration for S3Tokenizer (16kHz)
+    /// Expects Power STFT + Log10
+    pub fn for_s3tokenizer() -> Self {
+        Self {
+            sample_rate: 16000,
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmin: 0.0,
+            fmax: 8000.0,
+            stft_mode: STFTMode::Power,
+        }
+    }
+
+    /// Configuration for VoiceEncoder (16kHz)
+    /// Expects Power STFT + Linear (No Log)
+    pub fn for_voice_encoder() -> Self {
+        Self {
+            sample_rate: 16000,
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 40,
+            fmin: 0.0,
+            fmax: 8000.0,
+            stft_mode: STFTMode::Power,
+        }
+    }
+
+    /// Configuration for CAMPPlus (16kHz)
+    /// Expects Power or Mag? Python xvector uses Kaldi.fbank.
+    /// Kaldi fbank usually uses Power.
+    /// However, the Python code uses `torchaudio.compliance.kaldi.fbank`.
+    /// Default `use_power=True`.
+    pub fn for_campplus() -> Self {
+        Self {
+            sample_rate: 16000,
+            n_fft: 512, // Closest ^2 for 25ms window (400 samples)
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 80,
+            fmin: 20.0,   // Standard Kaldi default
+            fmax: 7600.0, // Standard Kaldi default (Nyquist - epsilon)
+            stft_mode: STFTMode::Power,
+        }
+    }
+}
+
+pub struct AudioProcessor;
+
+impl AudioProcessor {
+    pub fn compute_mel_spectrogram(
+        samples: &[f32],
+        device: &Device,
+        config: &MelConfig,
+    ) -> Result<Tensor> {
+        let n_fft = config.n_fft;
+        let hop_length = config.hop_length;
+        let win_length = config.win_length;
+
+        // 1. Windowing
+        let window: Vec<f32> = (0..win_length)
+            .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / win_length as f32).cos()))
+            .collect();
+
+        // 2. Padding (Reflect)
+        // Matches librosa/torch.stft(center=True)
+        let pad = n_fft / 2;
+        let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
+
+        // Reflect Left
+        for i in (1..=pad).rev() {
+            padded.push(samples.get(i).copied().unwrap_or(0.0));
+        }
+        padded.extend_from_slice(samples);
+        // Reflect Right
+        let n = samples.len();
+        for i in 1..=pad {
+            padded.push(
+                samples
+                    .get(n.saturating_sub(1).saturating_sub(i))
+                    .copied()
+                    .unwrap_or(0.0),
+            );
+        }
+
+        // 3. FFT
+        let n_frames = (padded.len() - n_fft) / hop_length + 1;
+        let mut planner = RealFftPlanner::<f32>::new();
+        let fft = planner.plan_fft_forward(n_fft);
+
+        // We only need n_fft/2 + 1 bins
+        let n_bins = n_fft / 2 + 1;
+        let mut spectrogram = vec![vec![0.0f32; n_bins]; n_frames];
+
+        for (frame_idx, frame_start) in (0..padded.len().saturating_sub(n_fft) + 1)
+            .step_by(hop_length)
+            .enumerate()
+        {
+            if frame_idx >= n_frames {
+                break;
+            }
+
+            let mut frame_data = vec![0.0f32; n_fft];
+            for i in 0..win_length {
+                frame_data[i] = padded[frame_start + i] * window[i];
+            }
+
+            let mut spectrum = fft.make_output_vec();
+            fft.process(&mut frame_data, &mut spectrum)
+                .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
+
+            for (i, c) in spectrum.iter().enumerate() {
+                let mag_sq = c.norm_sqr(); // |X|^2
+                match config.stft_mode {
+                    STFTMode::Magnitude => spectrogram[frame_idx][i] = mag_sq.sqrt(),
+                    STFTMode::Power => spectrogram[frame_idx][i] = mag_sq,
+                }
+            }
+        }
+
+        // 4. Mel Filterbank (Slaney)
+        let mel_filters = create_slaney_mel_filterbank(
+            config.sample_rate,
+            n_fft,
+            config.n_mels,
+            config.fmin,
+            config.fmax,
+        );
+
+        let mut mel_spec = vec![vec![0.0f32; config.n_mels]; n_frames];
+
+        for (t, frame) in spectrogram.iter().enumerate() {
+            for (m, filter) in mel_filters.iter().enumerate() {
+                let mut sum = 0.0f32;
+                for (bin_idx, &weight) in filter.iter().enumerate() {
+                    // Filter is sparse, but here represented densely or via indices.
+                    // This implementation assumes filter matches n_bins size or we handle indices.
+                    // For simplicity in this snippet, let's assume dense, but optimize in production loop.
+                    if weight > 0.0 {
+                        sum += weight * frame[bin_idx];
+                    }
+                }
+                mel_spec[t][m] = sum;
+            }
+        }
+
+        // Return (B=1, n_mels, n_frames) - Channel First
+        let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
+        Tensor::from_vec(flat, (1, n_frames, config.n_mels), device)?
+            .permute((0, 2, 1))?
+            .contiguous()?
+            .to_dtype(DType::F32)
+    }
+
+    // Helper to log-process based on model requirements
+    pub fn log_process(mel: &Tensor, config: &MelConfig) -> Result<Tensor> {
+        // S3Gen: Natural Log, clamp 1e-5
+        // S3Tokenizer: Log10, clamp 1e-10
+        // VoiceEncoder: No log
+
+        // Note: The input `mel` here is (B, C, T)
+
+        if config.n_mels == 80 && config.sample_rate == 24000 {
+            // S3Gen
+            return mel.clamp(1e-5, f32::MAX)?.log();
+        }
+
+        if config.n_mels == 128 {
+            // S3Tokenizer
+            let log10_val = (10.0f32).ln();
+            return mel.clamp(1e-10, f32::MAX)?.log()? / (log10_val as f64);
+        }
+
+        // VoiceEncoder (40 mels) - Linear
+        Ok(mel.clone())
+    }
+}
+
+/// Slaney Mel Scale Filterbank Implementation (Matches Librosa default)
+fn create_slaney_mel_filterbank(
+    sample_rate: u32,
+    n_fft: usize,
+    n_mels: usize,
+    fmin: f32,
+    fmax: f32,
+) -> Vec<Vec<f32>> {
+    let f_min = fmin;
+    let f_max = fmax;
+
+    // Slaney frequencies
+    let min_log_hz = 1000.0f32;
+    let min_log_mel = (min_log_hz - 0.0) / (200.0 / 3.0); // 15.0
+    let step = (6.4f32).ln() / 27.0; // logstep
+
+    // Hz to Mel
+    let hz_to_mel = |f: f32| -> f32 {
+        if f < min_log_hz {
+            (f - 0.0) / (200.0 / 3.0)
+        } else {
+            min_log_mel + (f / min_log_hz).ln() / step
+        }
+    };
+
+    // Mel to Hz
+    let mel_to_hz = |m: f32| -> f32 {
+        if m < min_log_mel {
+            0.0 + (200.0 / 3.0) * m
+        } else {
+            min_log_hz * (step * (m - min_log_mel)).exp()
+        }
+    };
+
+    let min_mel = hz_to_mel(f_min);
+    let max_mel = hz_to_mel(f_max);
+
+    let mut mel_points = Vec::with_capacity(n_mels + 2);
+    for i in 0..(n_mels + 2) {
+        mel_points.push(mel_to_hz(
+            min_mel + (i as f32 * (max_mel - min_mel) / (n_mels as f32 + 1.0)),
+        ));
+    }
+
+    let n_bins = n_fft / 2 + 1;
+    let mut filters = vec![vec![0.0f32; n_bins]; n_mels];
+    let fft_freqs: Vec<f32> = (0..n_bins)
+        .map(|i| i as f32 * sample_rate as f32 / n_fft as f32)
+        .collect();
+
+    for i in 0..n_mels {
+        let f_left = mel_points[i];
+        let f_center = mel_points[i + 1];
+        let f_right = mel_points[i + 2];
+
+        // Slaney Area Normalization
+        // 2.0 / (f_right - f_left)
+        let enorm = 2.0 / (f_right - f_left);
+
+        for j in 0..n_bins {
+            let f = fft_freqs[j];
+            let mut weight = 0.0f32;
+
+            if f >= f_left && f <= f_center {
+                weight = (f - f_left) / (f_center - f_left);
+            } else if f > f_center && f <= f_right {
+                weight = (f_right - f) / (f_right - f_center);
+            }
+
+            filters[i][j] = weight * enorm;
+        }
+    }
+    filters
 }
