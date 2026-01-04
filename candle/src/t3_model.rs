@@ -261,7 +261,10 @@ impl T3 {
         let mut speech_tokens_v = vec![self.config.start_speech_token];
         let mut speech_tokens_tensor = start_token.repeat((b, 1))?; // (B, 1)
 
-        for _ in 0..max_gen_len {
+        for i in 0..max_gen_len {
+            if i % 10 == 0 {
+                eprintln!("[T3] Generating token {}/{}...", i, max_gen_len);
+            }
             let embeds = self.prepare_input_embeds(
                 text_tokens,
                 &speech_tokens_tensor,

@@ -70,19 +70,42 @@ fn main() -> anyhow::Result<()> {
         ref_samples.clone()
     };
 
-    // VoiceEncoder (T3) needs 40 Mel bins
+    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
+
+    // VoiceEncoder (T3) needs 40 Mel bins at 16kHz
+    let config_16k_40 = candle::audio::MelConfig {
+        n_fft: 1024,
+        hop_length: 160,
+        win_length: 1024,
+        n_mels: 40,
+        fmax: 8000.0,
+    };
     let mel_40 = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
-        40,
+        &config_16k_40,
     )?;
-    // CAMPPlus & S3Tokenizer need 80 Mel bins
-    let mel_80 = candle::audio::compute_mel_spectrogram(
+
+    // S3Tokenizer needs 80 Mel bins at 16kHz
+    let mel_80_16k = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
-        80,
+        &candle::audio::MelConfig::for_16k(),
+    )?;
+
+    // CAMPPlus & S3Gen need 80 Mel bins at 24kHz
+    let mel_80_24k = candle::audio::compute_mel_spectrogram(
+        &ref_samples_24k,
+        candle::audio::S3GEN_SR,
+        &device,
+        &candle::audio::MelConfig::for_24k(80),
     )?;
 
     // STEP 3: S3 Prompt Tokens (Needs 80 mel padded to 128)
@@ -94,10 +117,11 @@ fn main() -> anyhow::Result<()> {
             &candle::s3tokenizer::ModelConfig::default(),
             vb,
         )?;
-        let mel_t = mel_80.transpose(1, 2)?;
+        let mel_t = mel_80_16k.transpose(1, 2)?; // Use 16k mel
         let (b, c, t) = mel_t.dims3()?;
         let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_t, &padding], 1)?)?
+        s3tok.encode(&Tensor::cat(&[&mel_80_16k, &padding], 1)?)? // NOTE: compute_mel returns [B, C, T] now, no transpose needed if it was already [B, C, T]?
+                                                                  // Wait, compute_mel returns [B, C, T] (permuted from B, T, C). Pad along C=1.
     };
 
     // STEP 4: T3 Embedding (Needs 40 mel)
@@ -108,7 +132,8 @@ fn main() -> anyhow::Result<()> {
             candle::voice_encoder::VoiceEncoderConfig::default(),
             vb,
         )?;
-        ve.forward(&mel_40)?
+        // VoiceEncoder expects (B, T, 40)
+        ve.forward(&mel_40.transpose(1, 2)?)?
     };
 
     // STEP 5: S3Gen Embedding (Needs 80 mel)
@@ -117,7 +142,7 @@ fn main() -> anyhow::Result<()> {
         let vb =
             unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
         let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
-        campplus.forward(&mel_80)?.narrow(1, 0, 80)?
+        campplus.forward(&mel_80_24k)?.narrow(1, 0, 80)? // Use 24k mel
     };
 
     // STEP 6: T3 Generation
@@ -166,7 +191,7 @@ fn main() -> anyhow::Result<()> {
         let vb =
             unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
         let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
-        s3gen.forward(&speech_tokens_filtered, Some(&spk_emb_80))?
+        s3gen.forward(&speech_tokens_filtered, Some(&spk_emb_80), None)?
     };
 
     let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;

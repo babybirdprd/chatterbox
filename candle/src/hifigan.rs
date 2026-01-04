@@ -525,7 +525,21 @@ impl HiFTGenerator {
     pub fn inference(&self, mel: &Tensor) -> Result<Tensor> {
         eprintln!("[HiFTGenerator::inference] mel input: {:?}", mel.dims());
         let f0 = self.f0_predictor.forward(mel)?; // (B, T_mel, 1)
-        eprintln!("[HiFTGenerator::inference] f0: {:?}", f0.dims());
+        let f0_v = f0.to_vec3::<f32>()?;
+        let mut f0_min = f32::MAX;
+        let mut f0_max = f32::MIN;
+        for b in &f0_v {
+            for t in b {
+                for val in t {
+                    f0_min = f0_min.min(*val);
+                    f0_max = f0_max.max(*val);
+                }
+            }
+        }
+        eprintln!(
+            "[HiFTGenerator::inference] f0 range: [{}, {}]",
+            f0_min, f0_max
+        );
 
         let upsample_factor =
             self.config.upsample_rates.iter().product::<usize>() * self.config.hop_len;

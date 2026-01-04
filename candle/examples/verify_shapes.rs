@@ -91,7 +91,8 @@ fn main() -> anyhow::Result<()> {
     println!("  Speech tokens: {:?}", speech_tokens.dims());
     println!("  Speaker embedding: {:?}", spk_emb.dims());
 
-    match s3gen.forward(&speech_tokens, Some(&spk_emb)) {
+    let dummy_mel_80 = Tensor::randn(0f32, 1f32, (batch, 80, 20), &device)?;
+    match s3gen.forward(&speech_tokens, Some(&spk_emb), Some(&dummy_mel_80)) {
         Ok(out) => println!("  ✓ Output: {:?}", out.dims()),
         Err(e) => println!("  ✗ Error: {}", e),
     }

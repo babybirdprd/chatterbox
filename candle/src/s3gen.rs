@@ -933,7 +933,7 @@ impl S3Gen {
                 resblock_kernel_sizes: vec![3, 7, 11],
                 resblock_dilation_sizes: vec![vec![1, 3, 5], vec![1, 3, 5], vec![1, 3, 5]],
                 n_fft: 16,
-                hop_len: 4,
+                hop_len: 2,
             };
             match crate::hifigan::HiFTGenerator::new(config, vb.pp("mel2wav")) {
                 Ok(h) => {
@@ -961,7 +961,12 @@ impl S3Gen {
 
     /// Forward pass: converts speech tokens to audio waveform
     /// Returns mel spectrogram if HiFiGAN not available, otherwise returns audio
-    pub fn forward(&self, speech_tokens: &Tensor, spks: Option<&Tensor>) -> Result<Tensor> {
+    pub fn forward(
+        &self,
+        speech_tokens: &Tensor,
+        spks: Option<&Tensor>,
+        cond: Option<&Tensor>,
+    ) -> Result<Tensor> {
         eprintln!("[S3Gen::forward] speech_tokens: {:?}", speech_tokens.dims());
         let embeds = self.embedding.forward(speech_tokens)?;
         eprintln!("[S3Gen::forward] embeds: {:?}", embeds.dims());
@@ -979,8 +984,26 @@ impl S3Gen {
         let (b, _, t) = mu.dims3()?;
         let mask = Tensor::ones((b, 1, t), mu.dtype(), mu.device())?;
 
-        let mel = self.decoder.forward(&mu, &mask, spks, Some(&mu), n_steps)?;
+        // Use provided cond or self mu
+        let cond_tensor = cond.unwrap_or(&mu);
+        eprintln!("[S3Gen::forward] cond tensor: {:?}", cond_tensor.dims());
+
+        let mel = self
+            .decoder
+            .forward(&mu, &mask, spks, Some(cond_tensor), n_steps)?;
         eprintln!("[S3Gen::forward] mel after decoder: {:?}", mel.dims());
+        let mel_v = mel.to_vec3::<f32>()?;
+        let mut sum = 0.0;
+        let mut count = 0;
+        for b_idx in 0..mel_v.len() {
+            for c_idx in 0..mel_v[b_idx].len() {
+                for t_idx in 0..mel_v[b_idx][c_idx].len() {
+                    sum += mel_v[b_idx][c_idx][t_idx].abs();
+                    count += 1;
+                }
+            }
+        }
+        eprintln!("[S3Gen::forward] mel mean abs: {}", sum / count as f32);
 
         // Convert mel to audio using HiFiGAN vocoder if available
         if let Some(ref hifigan) = self.hifigan {

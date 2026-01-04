@@ -92,18 +92,48 @@ pub fn resample(
     Ok(output)
 }
 
+pub struct MelConfig {
+    pub n_fft: usize,
+    pub hop_length: usize,
+    pub win_length: usize,
+    pub n_mels: usize,
+    pub fmax: f32,
+}
+
+impl MelConfig {
+    pub fn for_16k() -> Self {
+        Self {
+            n_fft: 1024,
+            hop_length: 160,
+            win_length: 1024,
+            n_mels: 80,
+            fmax: 8000.0,
+        }
+    }
+
+    pub fn for_24k(n_mels: usize) -> Self {
+        Self {
+            n_fft: 1024,
+            hop_length: 240,
+            win_length: 1024,
+            n_mels,
+            fmax: 12000.0,
+        }
+    }
+}
+
 pub fn compute_mel_spectrogram(
     samples: &[f32],
     sample_rate: u32,
     device: &Device,
-    n_mels: usize,
+    config: &MelConfig,
 ) -> Result<Tensor> {
     use realfft::RealFftPlanner;
-    // Parameters aligned with chatterbox/models/s3gen/utils/mel.py
-    let n_fft = 1920;
-    let hop_length = 480;
-    let win_length = 1920;
-    let fmax = 8000.0;
+    let n_fft = config.n_fft;
+    let hop_length = config.hop_length;
+    let win_length = config.win_length;
+    let n_mels = config.n_mels;
+    let fmax = config.fmax;
 
     let window: Vec<f32> = (0..win_length)
         .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
@@ -186,12 +216,13 @@ fn create_mel_filterbank(
         .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
         .collect();
     let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
+    let n_bins = n_fft / 2 + 1;
     let bin_points: Vec<usize> = hz_points
         .iter()
-        .map(|&hz| (hz * (n_fft as f32) / sample_rate as f32).round() as usize)
+        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
         .collect();
-    let n_bins = n_fft / 2 + 1;
     let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
+
     for m in 0..n_mels {
         let left_hz = hz_points[m];
         let _center_hz = hz_points[m + 1];

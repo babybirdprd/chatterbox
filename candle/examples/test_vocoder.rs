@@ -36,7 +36,7 @@ fn main() -> anyhow::Result<()> {
         resblock_kernel_sizes: vec![3, 7, 11],
         resblock_dilation_sizes: vec![vec![1, 3, 5], vec![1, 3, 5], vec![1, 3, 5]],
         n_fft: 16,
-        hop_len: 4,
+        hop_len: 2,
     };
 
     let vocoder = candle::hifigan::HiFTGenerator::new(config, vb.pp("mel2wav"))?;
@@ -56,7 +56,13 @@ fn main() -> anyhow::Result<()> {
 
     // 5. Verify Mel Extraction (Rust)
     let ref_audio_vec = ref_audio.flatten_all()?.to_vec1::<f32>()?;
-    let rust_mel = candle::audio::compute_mel_spectrogram(&ref_audio_vec, 24000, &device, 80)?;
+    let rust_mel = candle::audio::compute_mel_spectrogram(
+        &ref_audio_vec,
+        24000,
+        &device,
+        &candle::audio::MelConfig::for_24k(80),
+    )?;
+
     println!("Rust mel shape: {:?}", rust_mel.dims());
 
     // Compare first few values: ref_mel is [80, T], rust_mel is [1, 80, T]
