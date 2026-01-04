@@ -103,27 +103,41 @@ fn main() -> anyhow::Result<()> {
     };
 
     // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
-    let config_16k_40 = candle::audio::MelConfig {
-        n_fft: 1024,
+
+    // 1. Config for VoiceEncoder (16kHz, 40 mels, n_fft=400)
+    let config_ve = candle::audio::MelConfig {
+        n_fft: 400,
         hop_length: 160,
-        win_length: 1024,
+        win_length: 400,
         n_mels: 40,
         fmax: 8000.0,
     };
+
+    // 2. Config for S3Tokenizer (16kHz, 128 mels, n_fft=400)
+    let config_s3tok = candle::audio::MelConfig {
+        n_fft: 400,
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 128,
+        fmax: 8000.0,
+    };
+
     let mel_40_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
-        &config_16k_40,
+        &config_ve,
     )?;
 
-    let mel_80_16k_linear = candle::audio::compute_mel_spectrogram(
+    // Used for S3Tokenizer (no longer using the default 16k config which was 80 mels)
+    let mel_128_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_16k,
         candle::audio::S3_SR,
         &device,
-        &candle::audio::MelConfig::for_16k(),
+        &config_s3tok,
     )?;
 
+    // S3Gen/CAMPPlus (24kHz, 80 mels, n_fft=1920) - This was already correct
     let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
         &ref_samples_24k,
         candle::audio::S3GEN_SR,
@@ -132,7 +146,8 @@ fn main() -> anyhow::Result<()> {
     )?;
 
     // --- STEP 3: S3 Prompt Tokens ---
-    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_80_16k_linear)?;
+    // Use mel_128_linear directly (no padding needed anymore)
+    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_128_linear)?;
     let speech_prompt_tokens = {
         let vb = unsafe {
             VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
@@ -141,9 +156,9 @@ fn main() -> anyhow::Result<()> {
             &candle::s3tokenizer::ModelConfig::default(),
             vb,
         )?;
-        let (b, c, t) = mel_for_tokenizer.dims3()?;
-        let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_for_tokenizer, &padding], 1)?)?
+
+        // Input is already (B, 128, T), so just encode directly
+        s3tok.encode(&mel_for_tokenizer)?
     };
 
     // --- STEP 4: T3 Embedding (Voice Encoder) ---

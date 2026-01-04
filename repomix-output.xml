@@ -132,321 +132,6 @@ src/chatterbox/vc.py
 <files>
 This section contains the contents of the repository's files.
 
-<file path="candle/output.txt">
-Downloading model files...
-[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
-[DEBUG] Keys in t3_turbo_v1.safetensors:
-  cond_enc.spkr_enc.bias
-  cond_enc.spkr_enc.weight
-  speech_emb.weight
-  speech_head.bias
-  speech_head.weight
-  text_emb.weight
-  text_head.weight
-  tfmr.h.0.attn.c_attn.bias
-  tfmr.h.0.attn.c_attn.weight
-  tfmr.h.0.attn.c_proj.bias
-  tfmr.h.0.attn.c_proj.weight
-  tfmr.h.0.ln_1.bias
-  tfmr.h.0.ln_1.weight
-  tfmr.h.0.ln_2.bias
-  tfmr.h.0.ln_2.weight
-  tfmr.h.0.mlp.c_fc.bias
-  tfmr.h.0.mlp.c_fc.weight
-  tfmr.h.0.mlp.c_proj.bias
-  tfmr.h.0.mlp.c_proj.weight
-  tfmr.h.1.attn.c_attn.bias
-  tfmr.h.1.attn.c_attn.weight
-  tfmr.h.1.attn.c_proj.bias
-  tfmr.h.1.attn.c_proj.weight
-  tfmr.h.1.ln_1.bias
-  tfmr.h.1.ln_1.weight
-  tfmr.h.1.ln_2.bias
-  tfmr.h.1.ln_2.weight
-  tfmr.h.1.mlp.c_fc.bias
-  tfmr.h.1.mlp.c_fc.weight
-  tfmr.h.1.mlp.c_proj.bias
-  tfmr.h.1.mlp.c_proj.weight
-  tfmr.h.10.attn.c_attn.bias
-  tfmr.h.10.attn.c_attn.weight
-  tfmr.h.10.attn.c_proj.bias
-  tfmr.h.10.attn.c_proj.weight
-  tfmr.h.10.ln_1.bias
-  tfmr.h.10.ln_1.weight
-  tfmr.h.10.ln_2.bias
-  tfmr.h.10.ln_2.weight
-  tfmr.h.10.mlp.c_fc.bias
-  tfmr.h.10.mlp.c_fc.weight
-  tfmr.h.10.mlp.c_proj.bias
-  tfmr.h.10.mlp.c_proj.weight
-  tfmr.h.11.attn.c_attn.bias
-  tfmr.h.11.attn.c_attn.weight
-  tfmr.h.11.attn.c_proj.bias
-  tfmr.h.11.attn.c_proj.weight
-  tfmr.h.11.ln_1.bias
-  tfmr.h.11.ln_1.weight
-  tfmr.h.11.ln_2.bias
-  tfmr.h.11.ln_2.weight
-  tfmr.h.11.mlp.c_fc.bias
-  tfmr.h.11.mlp.c_fc.weight
-  tfmr.h.11.mlp.c_proj.bias
-  tfmr.h.11.mlp.c_proj.weight
-  tfmr.h.12.attn.c_attn.bias
-  tfmr.h.12.attn.c_attn.weight
-  tfmr.h.12.attn.c_proj.bias
-  tfmr.h.12.attn.c_proj.weight
-  tfmr.h.12.ln_1.bias
-  tfmr.h.12.ln_1.weight
-  tfmr.h.12.ln_2.bias
-  tfmr.h.12.ln_2.weight
-  tfmr.h.12.mlp.c_fc.bias
-  tfmr.h.12.mlp.c_fc.weight
-  tfmr.h.12.mlp.c_proj.bias
-  tfmr.h.12.mlp.c_proj.weight
-  tfmr.h.13.attn.c_attn.bias
-  tfmr.h.13.attn.c_attn.weight
-  tfmr.h.13.attn.c_proj.bias
-  tfmr.h.13.attn.c_proj.weight
-  tfmr.h.13.ln_1.bias
-  tfmr.h.13.ln_1.weight
-  tfmr.h.13.ln_2.bias
-  tfmr.h.13.ln_2.weight
-  tfmr.h.13.mlp.c_fc.bias
-  tfmr.h.13.mlp.c_fc.weight
-  tfmr.h.13.mlp.c_proj.bias
-  tfmr.h.13.mlp.c_proj.weight
-  tfmr.h.14.attn.c_attn.bias
-  tfmr.h.14.attn.c_attn.weight
-  tfmr.h.14.attn.c_proj.bias
-  tfmr.h.14.attn.c_proj.weight
-  tfmr.h.14.ln_1.bias
-  tfmr.h.14.ln_1.weight
-  tfmr.h.14.ln_2.bias
-  tfmr.h.14.ln_2.weight
-  tfmr.h.14.mlp.c_fc.bias
-  tfmr.h.14.mlp.c_fc.weight
-  tfmr.h.14.mlp.c_proj.bias
-  tfmr.h.14.mlp.c_proj.weight
-  tfmr.h.15.attn.c_attn.bias
-  tfmr.h.15.attn.c_attn.weight
-  tfmr.h.15.attn.c_proj.bias
-  tfmr.h.15.attn.c_proj.weight
-  tfmr.h.15.ln_1.bias
-  tfmr.h.15.ln_1.weight
-  tfmr.h.15.ln_2.bias
-  tfmr.h.15.ln_2.weight
-  tfmr.h.15.mlp.c_fc.bias
-  tfmr.h.15.mlp.c_fc.weight
-  tfmr.h.15.mlp.c_proj.bias
-  tfmr.h.15.mlp.c_proj.weight
-  tfmr.h.16.attn.c_attn.bias
-  tfmr.h.16.attn.c_attn.weight
-  tfmr.h.16.attn.c_proj.bias
-  tfmr.h.16.attn.c_proj.weight
-  tfmr.h.16.ln_1.bias
-  tfmr.h.16.ln_1.weight
-  tfmr.h.16.ln_2.bias
-  tfmr.h.16.ln_2.weight
-  tfmr.h.16.mlp.c_fc.bias
-  tfmr.h.16.mlp.c_fc.weight
-  tfmr.h.16.mlp.c_proj.bias
-  tfmr.h.16.mlp.c_proj.weight
-  tfmr.h.17.attn.c_attn.bias
-  tfmr.h.17.attn.c_attn.weight
-  tfmr.h.17.attn.c_proj.bias
-  tfmr.h.17.attn.c_proj.weight
-  tfmr.h.17.ln_1.bias
-  tfmr.h.17.ln_1.weight
-  tfmr.h.17.ln_2.bias
-  tfmr.h.17.ln_2.weight
-  tfmr.h.17.mlp.c_fc.bias
-  tfmr.h.17.mlp.c_fc.weight
-  tfmr.h.17.mlp.c_proj.bias
-  tfmr.h.17.mlp.c_proj.weight
-  tfmr.h.18.attn.c_attn.bias
-  tfmr.h.18.attn.c_attn.weight
-  tfmr.h.18.attn.c_proj.bias
-  tfmr.h.18.attn.c_proj.weight
-  tfmr.h.18.ln_1.bias
-  tfmr.h.18.ln_1.weight
-  tfmr.h.18.ln_2.bias
-  tfmr.h.18.ln_2.weight
-  tfmr.h.18.mlp.c_fc.bias
-  tfmr.h.18.mlp.c_fc.weight
-  tfmr.h.18.mlp.c_proj.bias
-  tfmr.h.18.mlp.c_proj.weight
-  tfmr.h.19.attn.c_attn.bias
-  tfmr.h.19.attn.c_attn.weight
-  tfmr.h.19.attn.c_proj.bias
-  tfmr.h.19.attn.c_proj.weight
-  tfmr.h.19.ln_1.bias
-  tfmr.h.19.ln_1.weight
-  tfmr.h.19.ln_2.bias
-  tfmr.h.19.ln_2.weight
-  tfmr.h.19.mlp.c_fc.bias
-  tfmr.h.19.mlp.c_fc.weight
-  tfmr.h.19.mlp.c_proj.bias
-  tfmr.h.19.mlp.c_proj.weight
-  tfmr.h.2.attn.c_attn.bias
-  tfmr.h.2.attn.c_attn.weight
-  tfmr.h.2.attn.c_proj.bias
-  tfmr.h.2.attn.c_proj.weight
-  tfmr.h.2.ln_1.bias
-  tfmr.h.2.ln_1.weight
-  tfmr.h.2.ln_2.bias
-  tfmr.h.2.ln_2.weight
-  tfmr.h.2.mlp.c_fc.bias
-  tfmr.h.2.mlp.c_fc.weight
-  tfmr.h.2.mlp.c_proj.bias
-  tfmr.h.2.mlp.c_proj.weight
-  tfmr.h.20.attn.c_attn.bias
-  tfmr.h.20.attn.c_attn.weight
-  tfmr.h.20.attn.c_proj.bias
-  tfmr.h.20.attn.c_proj.weight
-  tfmr.h.20.ln_1.bias
-  tfmr.h.20.ln_1.weight
-  tfmr.h.20.ln_2.bias
-  tfmr.h.20.ln_2.weight
-  tfmr.h.20.mlp.c_fc.bias
-  tfmr.h.20.mlp.c_fc.weight
-  tfmr.h.20.mlp.c_proj.bias
-  tfmr.h.20.mlp.c_proj.weight
-  tfmr.h.21.attn.c_attn.bias
-  tfmr.h.21.attn.c_attn.weight
-  tfmr.h.21.attn.c_proj.bias
-  tfmr.h.21.attn.c_proj.weight
-  tfmr.h.21.ln_1.bias
-  tfmr.h.21.ln_1.weight
-  tfmr.h.21.ln_2.bias
-  tfmr.h.21.ln_2.weight
-  tfmr.h.21.mlp.c_fc.bias
-  tfmr.h.21.mlp.c_fc.weight
-  tfmr.h.21.mlp.c_proj.bias
-  tfmr.h.21.mlp.c_proj.weight
-  tfmr.h.22.attn.c_attn.bias
-  tfmr.h.22.attn.c_attn.weight
-  tfmr.h.22.attn.c_proj.bias
-  tfmr.h.22.attn.c_proj.weight
-  tfmr.h.22.ln_1.bias
-  tfmr.h.22.ln_1.weight
-  tfmr.h.22.ln_2.bias
-  tfmr.h.22.ln_2.weight
-  tfmr.h.22.mlp.c_fc.bias
-  tfmr.h.22.mlp.c_fc.weight
-  tfmr.h.22.mlp.c_proj.bias
-  tfmr.h.22.mlp.c_proj.weight
-  tfmr.h.23.attn.c_attn.bias
-  tfmr.h.23.attn.c_attn.weight
-  tfmr.h.23.attn.c_proj.bias
-  tfmr.h.23.attn.c_proj.weight
-  tfmr.h.23.ln_1.bias
-  tfmr.h.23.ln_1.weight
-  tfmr.h.23.ln_2.bias
-  tfmr.h.23.ln_2.weight
-  tfmr.h.23.mlp.c_fc.bias
-  tfmr.h.23.mlp.c_fc.weight
-  tfmr.h.23.mlp.c_proj.bias
-  tfmr.h.23.mlp.c_proj.weight
-  tfmr.h.3.attn.c_attn.bias
-  tfmr.h.3.attn.c_attn.weight
-  tfmr.h.3.attn.c_proj.bias
-  tfmr.h.3.attn.c_proj.weight
-  tfmr.h.3.ln_1.bias
-  tfmr.h.3.ln_1.weight
-  tfmr.h.3.ln_2.bias
-  tfmr.h.3.ln_2.weight
-  tfmr.h.3.mlp.c_fc.bias
-  tfmr.h.3.mlp.c_fc.weight
-  tfmr.h.3.mlp.c_proj.bias
-  tfmr.h.3.mlp.c_proj.weight
-  tfmr.h.4.attn.c_attn.bias
-  tfmr.h.4.attn.c_attn.weight
-  tfmr.h.4.attn.c_proj.bias
-  tfmr.h.4.attn.c_proj.weight
-  tfmr.h.4.ln_1.bias
-  tfmr.h.4.ln_1.weight
-  tfmr.h.4.ln_2.bias
-  tfmr.h.4.ln_2.weight
-  tfmr.h.4.mlp.c_fc.bias
-  tfmr.h.4.mlp.c_fc.weight
-  tfmr.h.4.mlp.c_proj.bias
-  tfmr.h.4.mlp.c_proj.weight
-  tfmr.h.5.attn.c_attn.bias
-  tfmr.h.5.attn.c_attn.weight
-  tfmr.h.5.attn.c_proj.bias
-  tfmr.h.5.attn.c_proj.weight
-  tfmr.h.5.ln_1.bias
-  tfmr.h.5.ln_1.weight
-  tfmr.h.5.ln_2.bias
-  tfmr.h.5.ln_2.weight
-  tfmr.h.5.mlp.c_fc.bias
-  tfmr.h.5.mlp.c_fc.weight
-  tfmr.h.5.mlp.c_proj.bias
-  tfmr.h.5.mlp.c_proj.weight
-  tfmr.h.6.attn.c_attn.bias
-  tfmr.h.6.attn.c_attn.weight
-  tfmr.h.6.attn.c_proj.bias
-  tfmr.h.6.attn.c_proj.weight
-  tfmr.h.6.ln_1.bias
-  tfmr.h.6.ln_1.weight
-  tfmr.h.6.ln_2.bias
-  tfmr.h.6.ln_2.weight
-  tfmr.h.6.mlp.c_fc.bias
-  tfmr.h.6.mlp.c_fc.weight
-  tfmr.h.6.mlp.c_proj.bias
-  tfmr.h.6.mlp.c_proj.weight
-  tfmr.h.7.attn.c_attn.bias
-  tfmr.h.7.attn.c_attn.weight
-  tfmr.h.7.attn.c_proj.bias
-  tfmr.h.7.attn.c_proj.weight
-  tfmr.h.7.ln_1.bias
-  tfmr.h.7.ln_1.weight
-  tfmr.h.7.ln_2.bias
-  tfmr.h.7.ln_2.weight
-  tfmr.h.7.mlp.c_fc.bias
-  tfmr.h.7.mlp.c_fc.weight
-  tfmr.h.7.mlp.c_proj.bias
-  tfmr.h.7.mlp.c_proj.weight
-  tfmr.h.8.attn.c_attn.bias
-  tfmr.h.8.attn.c_attn.weight
-  tfmr.h.8.attn.c_proj.bias
-  tfmr.h.8.attn.c_proj.weight
-  tfmr.h.8.ln_1.bias
-  tfmr.h.8.ln_1.weight
-  tfmr.h.8.ln_2.bias
-  tfmr.h.8.ln_2.weight
-  tfmr.h.8.mlp.c_fc.bias
-  tfmr.h.8.mlp.c_fc.weight
-  tfmr.h.8.mlp.c_proj.bias
-  tfmr.h.8.mlp.c_proj.weight
-  tfmr.h.9.attn.c_attn.bias
-  tfmr.h.9.attn.c_attn.weight
-  tfmr.h.9.attn.c_proj.bias
-  tfmr.h.9.attn.c_proj.weight
-  tfmr.h.9.ln_1.bias
-  tfmr.h.9.ln_1.weight
-  tfmr.h.9.ln_2.bias
-  tfmr.h.9.ln_2.weight
-  tfmr.h.9.mlp.c_fc.bias
-  tfmr.h.9.mlp.c_fc.weight
-  tfmr.h.9.mlp.c_proj.bias
-  tfmr.h.9.mlp.c_proj.weight
-  tfmr.ln_f.bias
-  tfmr.ln_f.weight
-  tfmr.wpe.weight
-  tfmr.wte.weight
-
-[Step 4/6] Extracting speaker embedding with VoiceEncoder...
-[Step 5/6] Extracting synthesis embedding with CAMPPlus...
-
-[Step 6/6] Generating tokens with T3...
-
-[Step 7/6] Synthesizing audio...
-  S3Gen Input Tokens Shape: [1, 385]
-  Conditioning Tensor Shape: [1, 80, 770]
-SUCCESS! Audio saved to: output.wav
-</file>
-
 <file path=".github/workflows/install_check.yml">
 name: Test Installation
 
@@ -789,6 +474,321 @@ fn main() -> anyhow::Result<()> {
     println!("\n=== VERIFICATION COMPLETE ===");
     Ok(())
 }
+</file>
+
+<file path="candle/output.txt">
+Downloading model files...
+[DEBUG] T3 Path: "C:\\Users\\Steve Business\\.cache\\huggingface\\hub\\models--ResembleAI--chatterbox-turbo\\snapshots\\749d1c1a46eb10492095d68fbcf55691ccf137cd\\t3_turbo_v1.safetensors"
+[DEBUG] Keys in t3_turbo_v1.safetensors:
+  cond_enc.spkr_enc.bias
+  cond_enc.spkr_enc.weight
+  speech_emb.weight
+  speech_head.bias
+  speech_head.weight
+  text_emb.weight
+  text_head.weight
+  tfmr.h.0.attn.c_attn.bias
+  tfmr.h.0.attn.c_attn.weight
+  tfmr.h.0.attn.c_proj.bias
+  tfmr.h.0.attn.c_proj.weight
+  tfmr.h.0.ln_1.bias
+  tfmr.h.0.ln_1.weight
+  tfmr.h.0.ln_2.bias
+  tfmr.h.0.ln_2.weight
+  tfmr.h.0.mlp.c_fc.bias
+  tfmr.h.0.mlp.c_fc.weight
+  tfmr.h.0.mlp.c_proj.bias
+  tfmr.h.0.mlp.c_proj.weight
+  tfmr.h.1.attn.c_attn.bias
+  tfmr.h.1.attn.c_attn.weight
+  tfmr.h.1.attn.c_proj.bias
+  tfmr.h.1.attn.c_proj.weight
+  tfmr.h.1.ln_1.bias
+  tfmr.h.1.ln_1.weight
+  tfmr.h.1.ln_2.bias
+  tfmr.h.1.ln_2.weight
+  tfmr.h.1.mlp.c_fc.bias
+  tfmr.h.1.mlp.c_fc.weight
+  tfmr.h.1.mlp.c_proj.bias
+  tfmr.h.1.mlp.c_proj.weight
+  tfmr.h.10.attn.c_attn.bias
+  tfmr.h.10.attn.c_attn.weight
+  tfmr.h.10.attn.c_proj.bias
+  tfmr.h.10.attn.c_proj.weight
+  tfmr.h.10.ln_1.bias
+  tfmr.h.10.ln_1.weight
+  tfmr.h.10.ln_2.bias
+  tfmr.h.10.ln_2.weight
+  tfmr.h.10.mlp.c_fc.bias
+  tfmr.h.10.mlp.c_fc.weight
+  tfmr.h.10.mlp.c_proj.bias
+  tfmr.h.10.mlp.c_proj.weight
+  tfmr.h.11.attn.c_attn.bias
+  tfmr.h.11.attn.c_attn.weight
+  tfmr.h.11.attn.c_proj.bias
+  tfmr.h.11.attn.c_proj.weight
+  tfmr.h.11.ln_1.bias
+  tfmr.h.11.ln_1.weight
+  tfmr.h.11.ln_2.bias
+  tfmr.h.11.ln_2.weight
+  tfmr.h.11.mlp.c_fc.bias
+  tfmr.h.11.mlp.c_fc.weight
+  tfmr.h.11.mlp.c_proj.bias
+  tfmr.h.11.mlp.c_proj.weight
+  tfmr.h.12.attn.c_attn.bias
+  tfmr.h.12.attn.c_attn.weight
+  tfmr.h.12.attn.c_proj.bias
+  tfmr.h.12.attn.c_proj.weight
+  tfmr.h.12.ln_1.bias
+  tfmr.h.12.ln_1.weight
+  tfmr.h.12.ln_2.bias
+  tfmr.h.12.ln_2.weight
+  tfmr.h.12.mlp.c_fc.bias
+  tfmr.h.12.mlp.c_fc.weight
+  tfmr.h.12.mlp.c_proj.bias
+  tfmr.h.12.mlp.c_proj.weight
+  tfmr.h.13.attn.c_attn.bias
+  tfmr.h.13.attn.c_attn.weight
+  tfmr.h.13.attn.c_proj.bias
+  tfmr.h.13.attn.c_proj.weight
+  tfmr.h.13.ln_1.bias
+  tfmr.h.13.ln_1.weight
+  tfmr.h.13.ln_2.bias
+  tfmr.h.13.ln_2.weight
+  tfmr.h.13.mlp.c_fc.bias
+  tfmr.h.13.mlp.c_fc.weight
+  tfmr.h.13.mlp.c_proj.bias
+  tfmr.h.13.mlp.c_proj.weight
+  tfmr.h.14.attn.c_attn.bias
+  tfmr.h.14.attn.c_attn.weight
+  tfmr.h.14.attn.c_proj.bias
+  tfmr.h.14.attn.c_proj.weight
+  tfmr.h.14.ln_1.bias
+  tfmr.h.14.ln_1.weight
+  tfmr.h.14.ln_2.bias
+  tfmr.h.14.ln_2.weight
+  tfmr.h.14.mlp.c_fc.bias
+  tfmr.h.14.mlp.c_fc.weight
+  tfmr.h.14.mlp.c_proj.bias
+  tfmr.h.14.mlp.c_proj.weight
+  tfmr.h.15.attn.c_attn.bias
+  tfmr.h.15.attn.c_attn.weight
+  tfmr.h.15.attn.c_proj.bias
+  tfmr.h.15.attn.c_proj.weight
+  tfmr.h.15.ln_1.bias
+  tfmr.h.15.ln_1.weight
+  tfmr.h.15.ln_2.bias
+  tfmr.h.15.ln_2.weight
+  tfmr.h.15.mlp.c_fc.bias
+  tfmr.h.15.mlp.c_fc.weight
+  tfmr.h.15.mlp.c_proj.bias
+  tfmr.h.15.mlp.c_proj.weight
+  tfmr.h.16.attn.c_attn.bias
+  tfmr.h.16.attn.c_attn.weight
+  tfmr.h.16.attn.c_proj.bias
+  tfmr.h.16.attn.c_proj.weight
+  tfmr.h.16.ln_1.bias
+  tfmr.h.16.ln_1.weight
+  tfmr.h.16.ln_2.bias
+  tfmr.h.16.ln_2.weight
+  tfmr.h.16.mlp.c_fc.bias
+  tfmr.h.16.mlp.c_fc.weight
+  tfmr.h.16.mlp.c_proj.bias
+  tfmr.h.16.mlp.c_proj.weight
+  tfmr.h.17.attn.c_attn.bias
+  tfmr.h.17.attn.c_attn.weight
+  tfmr.h.17.attn.c_proj.bias
+  tfmr.h.17.attn.c_proj.weight
+  tfmr.h.17.ln_1.bias
+  tfmr.h.17.ln_1.weight
+  tfmr.h.17.ln_2.bias
+  tfmr.h.17.ln_2.weight
+  tfmr.h.17.mlp.c_fc.bias
+  tfmr.h.17.mlp.c_fc.weight
+  tfmr.h.17.mlp.c_proj.bias
+  tfmr.h.17.mlp.c_proj.weight
+  tfmr.h.18.attn.c_attn.bias
+  tfmr.h.18.attn.c_attn.weight
+  tfmr.h.18.attn.c_proj.bias
+  tfmr.h.18.attn.c_proj.weight
+  tfmr.h.18.ln_1.bias
+  tfmr.h.18.ln_1.weight
+  tfmr.h.18.ln_2.bias
+  tfmr.h.18.ln_2.weight
+  tfmr.h.18.mlp.c_fc.bias
+  tfmr.h.18.mlp.c_fc.weight
+  tfmr.h.18.mlp.c_proj.bias
+  tfmr.h.18.mlp.c_proj.weight
+  tfmr.h.19.attn.c_attn.bias
+  tfmr.h.19.attn.c_attn.weight
+  tfmr.h.19.attn.c_proj.bias
+  tfmr.h.19.attn.c_proj.weight
+  tfmr.h.19.ln_1.bias
+  tfmr.h.19.ln_1.weight
+  tfmr.h.19.ln_2.bias
+  tfmr.h.19.ln_2.weight
+  tfmr.h.19.mlp.c_fc.bias
+  tfmr.h.19.mlp.c_fc.weight
+  tfmr.h.19.mlp.c_proj.bias
+  tfmr.h.19.mlp.c_proj.weight
+  tfmr.h.2.attn.c_attn.bias
+  tfmr.h.2.attn.c_attn.weight
+  tfmr.h.2.attn.c_proj.bias
+  tfmr.h.2.attn.c_proj.weight
+  tfmr.h.2.ln_1.bias
+  tfmr.h.2.ln_1.weight
+  tfmr.h.2.ln_2.bias
+  tfmr.h.2.ln_2.weight
+  tfmr.h.2.mlp.c_fc.bias
+  tfmr.h.2.mlp.c_fc.weight
+  tfmr.h.2.mlp.c_proj.bias
+  tfmr.h.2.mlp.c_proj.weight
+  tfmr.h.20.attn.c_attn.bias
+  tfmr.h.20.attn.c_attn.weight
+  tfmr.h.20.attn.c_proj.bias
+  tfmr.h.20.attn.c_proj.weight
+  tfmr.h.20.ln_1.bias
+  tfmr.h.20.ln_1.weight
+  tfmr.h.20.ln_2.bias
+  tfmr.h.20.ln_2.weight
+  tfmr.h.20.mlp.c_fc.bias
+  tfmr.h.20.mlp.c_fc.weight
+  tfmr.h.20.mlp.c_proj.bias
+  tfmr.h.20.mlp.c_proj.weight
+  tfmr.h.21.attn.c_attn.bias
+  tfmr.h.21.attn.c_attn.weight
+  tfmr.h.21.attn.c_proj.bias
+  tfmr.h.21.attn.c_proj.weight
+  tfmr.h.21.ln_1.bias
+  tfmr.h.21.ln_1.weight
+  tfmr.h.21.ln_2.bias
+  tfmr.h.21.ln_2.weight
+  tfmr.h.21.mlp.c_fc.bias
+  tfmr.h.21.mlp.c_fc.weight
+  tfmr.h.21.mlp.c_proj.bias
+  tfmr.h.21.mlp.c_proj.weight
+  tfmr.h.22.attn.c_attn.bias
+  tfmr.h.22.attn.c_attn.weight
+  tfmr.h.22.attn.c_proj.bias
+  tfmr.h.22.attn.c_proj.weight
+  tfmr.h.22.ln_1.bias
+  tfmr.h.22.ln_1.weight
+  tfmr.h.22.ln_2.bias
+  tfmr.h.22.ln_2.weight
+  tfmr.h.22.mlp.c_fc.bias
+  tfmr.h.22.mlp.c_fc.weight
+  tfmr.h.22.mlp.c_proj.bias
+  tfmr.h.22.mlp.c_proj.weight
+  tfmr.h.23.attn.c_attn.bias
+  tfmr.h.23.attn.c_attn.weight
+  tfmr.h.23.attn.c_proj.bias
+  tfmr.h.23.attn.c_proj.weight
+  tfmr.h.23.ln_1.bias
+  tfmr.h.23.ln_1.weight
+  tfmr.h.23.ln_2.bias
+  tfmr.h.23.ln_2.weight
+  tfmr.h.23.mlp.c_fc.bias
+  tfmr.h.23.mlp.c_fc.weight
+  tfmr.h.23.mlp.c_proj.bias
+  tfmr.h.23.mlp.c_proj.weight
+  tfmr.h.3.attn.c_attn.bias
+  tfmr.h.3.attn.c_attn.weight
+  tfmr.h.3.attn.c_proj.bias
+  tfmr.h.3.attn.c_proj.weight
+  tfmr.h.3.ln_1.bias
+  tfmr.h.3.ln_1.weight
+  tfmr.h.3.ln_2.bias
+  tfmr.h.3.ln_2.weight
+  tfmr.h.3.mlp.c_fc.bias
+  tfmr.h.3.mlp.c_fc.weight
+  tfmr.h.3.mlp.c_proj.bias
+  tfmr.h.3.mlp.c_proj.weight
+  tfmr.h.4.attn.c_attn.bias
+  tfmr.h.4.attn.c_attn.weight
+  tfmr.h.4.attn.c_proj.bias
+  tfmr.h.4.attn.c_proj.weight
+  tfmr.h.4.ln_1.bias
+  tfmr.h.4.ln_1.weight
+  tfmr.h.4.ln_2.bias
+  tfmr.h.4.ln_2.weight
+  tfmr.h.4.mlp.c_fc.bias
+  tfmr.h.4.mlp.c_fc.weight
+  tfmr.h.4.mlp.c_proj.bias
+  tfmr.h.4.mlp.c_proj.weight
+  tfmr.h.5.attn.c_attn.bias
+  tfmr.h.5.attn.c_attn.weight
+  tfmr.h.5.attn.c_proj.bias
+  tfmr.h.5.attn.c_proj.weight
+  tfmr.h.5.ln_1.bias
+  tfmr.h.5.ln_1.weight
+  tfmr.h.5.ln_2.bias
+  tfmr.h.5.ln_2.weight
+  tfmr.h.5.mlp.c_fc.bias
+  tfmr.h.5.mlp.c_fc.weight
+  tfmr.h.5.mlp.c_proj.bias
+  tfmr.h.5.mlp.c_proj.weight
+  tfmr.h.6.attn.c_attn.bias
+  tfmr.h.6.attn.c_attn.weight
+  tfmr.h.6.attn.c_proj.bias
+  tfmr.h.6.attn.c_proj.weight
+  tfmr.h.6.ln_1.bias
+  tfmr.h.6.ln_1.weight
+  tfmr.h.6.ln_2.bias
+  tfmr.h.6.ln_2.weight
+  tfmr.h.6.mlp.c_fc.bias
+  tfmr.h.6.mlp.c_fc.weight
+  tfmr.h.6.mlp.c_proj.bias
+  tfmr.h.6.mlp.c_proj.weight
+  tfmr.h.7.attn.c_attn.bias
+  tfmr.h.7.attn.c_attn.weight
+  tfmr.h.7.attn.c_proj.bias
+  tfmr.h.7.attn.c_proj.weight
+  tfmr.h.7.ln_1.bias
+  tfmr.h.7.ln_1.weight
+  tfmr.h.7.ln_2.bias
+  tfmr.h.7.ln_2.weight
+  tfmr.h.7.mlp.c_fc.bias
+  tfmr.h.7.mlp.c_fc.weight
+  tfmr.h.7.mlp.c_proj.bias
+  tfmr.h.7.mlp.c_proj.weight
+  tfmr.h.8.attn.c_attn.bias
+  tfmr.h.8.attn.c_attn.weight
+  tfmr.h.8.attn.c_proj.bias
+  tfmr.h.8.attn.c_proj.weight
+  tfmr.h.8.ln_1.bias
+  tfmr.h.8.ln_1.weight
+  tfmr.h.8.ln_2.bias
+  tfmr.h.8.ln_2.weight
+  tfmr.h.8.mlp.c_fc.bias
+  tfmr.h.8.mlp.c_fc.weight
+  tfmr.h.8.mlp.c_proj.bias
+  tfmr.h.8.mlp.c_proj.weight
+  tfmr.h.9.attn.c_attn.bias
+  tfmr.h.9.attn.c_attn.weight
+  tfmr.h.9.attn.c_proj.bias
+  tfmr.h.9.attn.c_proj.weight
+  tfmr.h.9.ln_1.bias
+  tfmr.h.9.ln_1.weight
+  tfmr.h.9.ln_2.bias
+  tfmr.h.9.ln_2.weight
+  tfmr.h.9.mlp.c_fc.bias
+  tfmr.h.9.mlp.c_fc.weight
+  tfmr.h.9.mlp.c_proj.bias
+  tfmr.h.9.mlp.c_proj.weight
+  tfmr.ln_f.bias
+  tfmr.ln_f.weight
+  tfmr.wpe.weight
+  tfmr.wte.weight
+
+[Step 4/6] Extracting speaker embedding with VoiceEncoder...
+[Step 5/6] Extracting synthesis embedding with CAMPPlus...
+
+[Step 6/6] Generating tokens with T3...
+
+[Step 7/6] Synthesizing audio...
+  S3Gen Input Tokens Shape: [1, 327]
+  Conditioning Tensor Shape: [1, 80, 654]
+SUCCESS! Audio saved to: output.wav
 </file>
 
 <file path="demo.rs">
@@ -10937,285 +10937,6 @@ s3tokenizer-v2-model/model.safetensors
 s3tokenizer-v2-model/pytorch_model.bin
 </file>
 
-<file path="candle/examples/split_generate.rs">
-use candle_core::{DType, Device, Tensor};
-use candle_nn::VarBuilder;
-use hf_hub::api::sync::Api;
-use tokenizers::Tokenizer;
-
-fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
-    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
-    let mel = mel.clamp(1e-10, f32::MAX)?;
-    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
-
-    // Dynamic range compression
-    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
-    let log_mel = log_mel.maximum(max_val - 8.0)?;
-
-    let result = ((log_mel + 4.0)? / 4.0)?;
-    Ok(result)
-}
-
-fn main() -> anyhow::Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-    let text = args
-        .iter()
-        .position(|a| a == "--text")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("Hello, world.");
-    let ref_audio = args
-        .iter()
-        .position(|a| a == "--ref-audio")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("reference.wav");
-    let output = args
-        .iter()
-        .position(|a| a == "--output")
-        .and_then(|i| args.get(i + 1))
-        .map(|s| s.as_str())
-        .unwrap_or("output.wav");
-    let use_cuda = args.iter().any(|a| a == "--cuda");
-    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
-    let use_fp16 = args.iter().any(|a| a == "--fp16");
-    let device = if use_cuda {
-        Device::new_cuda(0)?
-    } else {
-        Device::Cpu
-    };
-    let t3_device = if use_t3_cuda {
-        Device::new_cuda(0)?
-    } else {
-        device.clone()
-    };
-    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
-
-    println!("Downloading model files...");
-    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
-    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
-    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
-    println!("[DEBUG] T3 Path: {:?}", t3_path);
-    {
-        let file = std::fs::File::open(&t3_path).unwrap();
-        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
-        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
-        let mut names: Vec<_> = safetensors.names().into_iter().collect();
-        names.sort();
-        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
-        for name in names {
-            println!("  {}", name);
-        }
-    }
-    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
-    let ve_path = turbo_repo.get("ve.safetensors")?;
-    let s3tokenizer_path = api
-        .model("ResembleAI/s3tokenizer-v2".to_string())
-        .get("model.safetensors")?;
-    let tokenizer_path = api
-        .model("ResembleAI/chatterbox".to_string())
-        .get("tokenizer.json")?;
-
-    // STEP 1: Text
-    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let encoding = tokenizer
-        .encode(text, true)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
-    let text_tokens_tensor =
-        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
-
-    // STEP 2: Reference Audio Processing
-    let (ref_samples, ref_sr) =
-        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
-    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
-        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
-            .map_err(|e| anyhow::anyhow!("{e}"))?
-    } else {
-        ref_samples.clone()
-    };
-
-    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
-    let config_16k_40 = candle::audio::MelConfig {
-        n_fft: 1024,
-        hop_length: 160,
-        win_length: 1024,
-        n_mels: 40,
-        fmax: 8000.0,
-    };
-    let mel_40_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &config_16k_40,
-    )?;
-
-    let mel_80_16k_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_16k,
-        candle::audio::S3_SR,
-        &device,
-        &candle::audio::MelConfig::for_16k(),
-    )?;
-
-    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
-        &ref_samples_24k,
-        candle::audio::S3GEN_SR,
-        &device,
-        &candle::audio::MelConfig::for_24k(80),
-    )?;
-
-    // --- STEP 3: S3 Prompt Tokens ---
-    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_80_16k_linear)?;
-    let speech_prompt_tokens = {
-        let vb = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
-        };
-        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
-            &candle::s3tokenizer::ModelConfig::default(),
-            vb,
-        )?;
-        let (b, c, t) = mel_for_tokenizer.dims3()?;
-        let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &device)?;
-        s3tok.encode(&Tensor::cat(&[&mel_for_tokenizer, &padding], 1)?)?
-    };
-
-    // --- STEP 4: T3 Embedding (Voice Encoder) ---
-    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
-    let spk_emb_256 = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
-        let ve = candle::voice_encoder::VoiceEncoder::new(
-            candle::voice_encoder::VoiceEncoderConfig::default(),
-            vb,
-        )?;
-        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
-        let mel_40_power = mel_40_linear.sqr()?;
-        // VoiceEncoder expects (B, T, 40)
-        ve.forward(&mel_40_power.transpose(1, 2)?)?
-    };
-
-    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
-    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
-    // CAMPPlus expects Mean-Normalized Log-Mel
-    let mel_80_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
-    let mean = mel_80_log.mean_keepdim(2)?;
-    let mel_for_campplus = mel_80_log.broadcast_sub(&mean)?;
-
-    let spk_emb_80 = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
-        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
-    };
-
-    // STEP 6: T3 Generation
-    println!("\n[Step 6/6] Generating tokens with T3...");
-    let speech_tokens = {
-        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
-        let t3_config = candle::t3_model::T3Config {
-            text_tokens_dict_size: 50276,
-            speech_tokens_dict_size: 6563,
-            hidden_size: 1024,
-            num_layers: 24,
-            num_heads: 16,
-            vocab_size: 50276,
-            speaker_embed_size: 256,
-            start_speech_token: 6561,
-            stop_speech_token: 6562,
-            speech_cond_prompt_len: Some(375),
-            use_perceiver_resampler: false,
-            emotion_adv: false,
-            n_positions: 8196,
-        };
-        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
-        t3.generate(
-            &text_tokens_tensor.to_device(&t3_device)?,
-            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
-            Some(&speech_prompt_tokens.to_device(&t3_device)?),
-            None,
-            500,
-            0.8,
-            0.95,
-            50,
-            1.2,
-            42,
-        )?
-    };
-
-    // STEP 7: Synthesis
-    println!("\n[Step 7/6] Synthesizing audio...");
-
-    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
-    let speech_tokens_filtered = {
-        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
-        let filtered: Vec<u32> = tokens
-            .into_iter()
-            .filter(|&t| t != 6561 && t != 6562)
-            .collect();
-        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
-    };
-
-    // Concatenate prompt tokens + generated tokens
-    // Note: speech_prompt_tokens was calculated in Step 3.
-    // We assume speech_prompt_tokens is (1, N_PROMPT).
-    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
-    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
-
-    let audio_tensor = {
-        let vb =
-            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
-        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
-
-        // 2. Prepare Reference Mel for Conditioning
-        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
-        // mel_80_24k_linear is (1, 80, T_ref)
-        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
-
-        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
-        // The S3Gen Encoder upsamples tokens by 2x.
-        // So output length = input_tokens_len * 2.
-        let (_, n_toks) = s3_input_tokens.dims2()?;
-        let target_len = n_toks * 2;
-        let (b, c, ref_len) = ref_mel_log.dims3()?;
-
-        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
-        let safe_ref_len = ref_len.min(target_len);
-        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
-
-        // Create padding
-        let padding_len = target_len - safe_ref_len;
-        let cond = if padding_len > 0 {
-            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
-            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
-        } else {
-            ref_mel_log_trimmed
-        };
-
-        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
-
-        // 4. Forward with corrected inputs
-        s3gen.forward(
-            &s3_input_tokens,
-            Some(&spk_emb_80),
-            Some(&cond), // Pass the time-aligned conditioning, not the mean!
-        )?
-    };
-
-    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
-    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
-    println!("SUCCESS! Audio saved to: {}", output);
-
-    Ok(())
-}
-</file>
-
 <file path="candle/src/lib.rs">
 pub mod audio;
 pub mod campplus;
@@ -11801,268 +11522,297 @@ name = "chatterbox"
 path = "src/main.rs"
 </file>
 
-<file path="candle/src/audio.rs">
-use candle_core::{DType, Device, Result, Tensor};
-use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
-use rubato::{FftFixedIn, Resampler};
-use std::path::Path;
+<file path="candle/examples/split_generate.rs">
+use candle_core::{DType, Device, Tensor};
+use candle_nn::VarBuilder;
+use hf_hub::api::sync::Api;
+use tokenizers::Tokenizer;
 
-pub const S3GEN_SR: u32 = 24000;
-pub const S3_SR: u32 = 16000;
+fn process_mel_for_s3tokenizer(mel: &Tensor) -> anyhow::Result<Tensor> {
+    // Python: log10(clamp(min=1e-10)) -> max(x, x.max() - 8.0) -> (x + 4.0) / 4.0
+    let mel = mel.clamp(1e-10, f32::MAX)?;
+    let log_mel = ((mel.log()? / 10.0f64.ln())? * 2.0)?; // ln(x) / ln(10) = log10(x) * 2.0 for Power Spectrogram
 
-pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
-    let reader = WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
-    let spec = reader.spec();
-    let sample_rate = spec.sample_rate;
-    let channels = spec.channels as usize;
+    // Dynamic range compression
+    let max_val = log_mel.max_all()?.to_scalar::<f32>()?;
+    let log_mel = log_mel.maximum(max_val - 8.0)?;
 
-    let samples: Vec<f32> = match spec.sample_format {
-        SampleFormat::Int => {
-            let bits = spec.bits_per_sample;
-            let max_val = (1i32 << (bits - 1)) as f32;
-            reader
-                .into_samples::<i32>()
-                .filter_map(|s| s.ok())
-                .map(|s| s as f32 / max_val)
-                .collect()
-        }
-        SampleFormat::Float => reader
-            .into_samples::<f32>()
-            .filter_map(|s| s.ok())
-            .collect(),
-    };
-
-    let mono = if channels > 1 {
-        samples
-            .chunks(channels)
-            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
-            .collect()
-    } else {
-        samples
-    };
-
-    Ok((mono, sample_rate))
+    let result = ((log_mel + 4.0)? / 4.0)?;
+    Ok(result)
 }
 
-pub fn save_wav<P: AsRef<Path>>(
-    path: P,
-    samples: &[f32],
-    sample_rate: u32,
-) -> std::result::Result<(), String> {
-    let spec = WavSpec {
-        channels: 1,
-        sample_rate,
-        bits_per_sample: 16,
-        sample_format: SampleFormat::Int,
-    };
-    let mut writer =
-        WavWriter::create(path, spec).map_err(|e| format!("Failed to create WAV: {}", e))?;
-    for &sample in samples {
-        let clamped = sample.clamp(-1.0, 1.0);
-        writer
-            .write_sample((clamped * 32767.0) as i16)
-            .map_err(|e| format!("Failed to write sample: {}", e))?;
-    }
-    writer
-        .finalize()
-        .map_err(|e| format!("Failed to finalize WAV: {}", e))?;
-    Ok(())
-}
-
-pub fn resample(
-    samples: &[f32],
-    from_sr: u32,
-    to_sr: u32,
-) -> std::result::Result<Vec<f32>, String> {
-    if from_sr == to_sr {
-        return Ok(samples.to_vec());
-    }
-    let chunk_size = 1024;
-    let mut resampler = FftFixedIn::<f32>::new(from_sr as usize, to_sr as usize, chunk_size, 2, 1)
-        .map_err(|e| format!("Failed to create resampler: {}", e))?;
-    let mut output = Vec::new();
-    let mut input_frames = samples.to_vec();
-    let remainder = input_frames.len() % chunk_size;
-    if remainder != 0 {
-        input_frames.extend(std::iter::repeat(0.0).take(chunk_size - remainder));
-    }
-    for chunk in input_frames.chunks(chunk_size) {
-        let input = vec![chunk.to_vec()];
-        let mut resampled = resampler
-            .process(&input, None)
-            .map_err(|e| format!("Resample error: {}", e))?;
-        output.append(&mut resampled[0]);
-    }
-    Ok(output)
-}
-
-pub struct MelConfig {
-    pub n_fft: usize,
-    pub hop_length: usize,
-    pub win_length: usize,
-    pub n_mels: usize,
-    pub fmax: f32,
-}
-
-impl MelConfig {
-    pub fn for_16k() -> Self {
-        Self {
-            n_fft: 1024,
-            hop_length: 160,
-            win_length: 1024,
-            n_mels: 80,
-            fmax: 8000.0,
-        }
-    }
-
-    pub fn for_24k(n_mels: usize) -> Self {
-        Self {
-            n_fft: 1920,
-            hop_length: 480,
-            win_length: 1920,
-            n_mels,
-            fmax: 8000.0,
-        }
-    }
-}
-
-pub fn compute_mel_spectrogram(
-    samples: &[f32],
-    sample_rate: u32,
-    device: &Device,
-    config: &MelConfig,
-) -> Result<Tensor> {
-    use realfft::RealFftPlanner;
-    let n_fft = config.n_fft;
-    let hop_length = config.hop_length;
-    let win_length = config.win_length;
-    let n_mels = config.n_mels;
-    let fmax = config.fmax;
-
-    let window: Vec<f32> = (0..win_length)
-        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
-        .collect();
-
-    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
-    let pad = (n_fft - hop_length) / 2;
-    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
-    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
-    for i in (1..=pad).rev() {
-        padded.push(samples[i]);
-    }
-    padded.extend_from_slice(samples);
-    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
-    let n = samples.len();
-    for i in 1..=pad {
-        padded.push(samples[n - 1 - i]);
-    }
-
-    let n_frames = (padded.len() - n_fft) / hop_length + 1;
-    let mut planner = RealFftPlanner::<f32>::new();
-    let fft = planner.plan_fft_forward(n_fft);
-    let mut power_spectrogram = vec![vec![0.0f32; n_fft / 2 + 1]; n_frames];
-
-    for (frame_idx, frame_start) in (0..padded.len() - n_fft + 1)
-        .step_by(hop_length)
-        .enumerate()
-    {
-        if frame_idx >= n_frames {
-            break;
-        }
-        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
-            .iter()
-            .zip(window.iter())
-            .map(|(s, w)| s * w)
-            .collect();
-        let mut spectrum = fft.make_output_vec();
-        fft.process(&mut windowed, &mut spectrum)
-            .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
-        for (i, c) in spectrum.iter().enumerate() {
-            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
-            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
-            // Then it applies mel and spectral_normalize (log)
-            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
-        }
-    }
-
-    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
-    let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
-    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
-        for (m, filter) in mel_filters.iter().enumerate() {
-            let mut sum = 0.0f32;
-            for (i, &weight) in filter.iter().enumerate() {
-                sum += weight * mag_frame[i];
-            }
-            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
-            mel_spec[t][m] = sum.max(1e-5);
-        }
-    }
-
-    let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
-    // Return (B, C, T) where C=80
-    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
-        .permute((0, 2, 1))?
-        .contiguous()?
-        .to_dtype(DType::F32)
-}
-
-fn create_mel_filterbank(
-    sample_rate: u32,
-    n_fft: usize,
-    n_mels: usize,
-    fmax: f32,
-) -> Vec<Vec<f32>> {
-    let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
-    let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
-    let mel_min = hz_to_mel(0.0);
-    let mel_max = hz_to_mel(fmax);
-    let mel_points: Vec<f32> = (0..=n_mels + 1)
-        .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
-        .collect();
-    let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
-    let n_bins = n_fft / 2 + 1;
-    let bin_points: Vec<usize> = hz_points
+fn main() -> anyhow::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+    let text = args
         .iter()
-        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
-        .collect();
-    let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
+        .position(|a| a == "--text")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("Hello, world.");
+    let ref_audio = args
+        .iter()
+        .position(|a| a == "--ref-audio")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("reference.wav");
+    let output = args
+        .iter()
+        .position(|a| a == "--output")
+        .and_then(|i| args.get(i + 1))
+        .map(|s| s.as_str())
+        .unwrap_or("output.wav");
+    let use_cuda = args.iter().any(|a| a == "--cuda");
+    let use_t3_cuda = args.iter().any(|a| a == "--t3-cuda");
+    let use_fp16 = args.iter().any(|a| a == "--fp16");
+    let device = if use_cuda {
+        Device::new_cuda(0)?
+    } else {
+        Device::Cpu
+    };
+    let t3_device = if use_t3_cuda {
+        Device::new_cuda(0)?
+    } else {
+        device.clone()
+    };
+    let dtype = if use_fp16 { DType::F16 } else { DType::F32 };
 
-    for m in 0..n_mels {
-        let left_hz = hz_points[m];
-        let _center_hz = hz_points[m + 1];
-        let right_hz = hz_points[m + 2];
-
-        let left = bin_points[m];
-        let center = bin_points[m + 1];
-        let right = bin_points[m + 2];
-
-        // Slaney normalization factor
-        let enorm = 2.0 / (right_hz - left_hz);
-
-        for k in left..center {
-            if center > left {
-                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
-            }
-        }
-        for k in center..right {
-            if right > center {
-                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
-            }
+    println!("Downloading model files...");
+    let api = Api::new().map_err(|e| anyhow::anyhow!("{e}"))?;
+    let turbo_repo = api.model("ResembleAI/chatterbox-turbo".to_string());
+    let t3_path = turbo_repo.get("t3_turbo_v1.safetensors")?;
+    println!("[DEBUG] T3 Path: {:?}", t3_path);
+    {
+        let file = std::fs::File::open(&t3_path).unwrap();
+        let mem = unsafe { memmap2::MmapOptions::new().map(&file).unwrap() };
+        let safetensors = safetensors::SafeTensors::deserialize(&mem).unwrap();
+        let mut names: Vec<_> = safetensors.names().into_iter().collect();
+        names.sort();
+        println!("[DEBUG] Keys in t3_turbo_v1.safetensors:");
+        for name in names {
+            println!("  {}", name);
         }
     }
-    filterbank
-}
+    let s3gen_path = turbo_repo.get("s3gen_meanflow.safetensors")?;
+    let ve_path = turbo_repo.get("ve.safetensors")?;
+    let s3tokenizer_path = api
+        .model("ResembleAI/s3tokenizer-v2".to_string())
+        .get("model.safetensors")?;
+    let tokenizer_path = api
+        .model("ResembleAI/chatterbox".to_string())
+        .get("tokenizer.json")?;
 
-pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
-    let rms: f32 = (samples.iter().map(|s| s * s).sum::<f32>() / samples.len() as f32).sqrt();
-    if rms > 1e-10 {
-        let gain = 10.0f32
-            .powf((target_db - 20.0 * rms.log10()) / 20.0)
-            .min(10.0);
-        for sample in samples.iter_mut() {
-            *sample *= gain;
-        }
-    }
+    // STEP 1: Text
+    let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let encoding = tokenizer
+        .encode(text, true)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let text_tokens: Vec<i64> = encoding.get_ids().iter().map(|&x| x as i64).collect();
+    let text_tokens_tensor =
+        Tensor::from_vec(text_tokens.clone(), (1, text_tokens.len()), &device)?;
+
+    // STEP 2: Reference Audio Processing
+    let (ref_samples, ref_sr) =
+        candle::audio::load_wav(ref_audio).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let ref_samples_16k = if ref_sr != candle::audio::S3_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
+
+    let ref_samples_24k = if ref_sr != candle::audio::S3GEN_SR {
+        candle::audio::resample(&ref_samples, ref_sr, candle::audio::S3GEN_SR)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
+    } else {
+        ref_samples.clone()
+    };
+
+    // NOTE: compute_mel_spectrogram now returns LINEAR MAGNITUDE (unlogged)
+
+    // 1. Config for VoiceEncoder (16kHz, 40 mels, n_fft=400)
+    let config_ve = candle::audio::MelConfig {
+        n_fft: 400,
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 40,
+        fmax: 8000.0,
+    };
+
+    // 2. Config for S3Tokenizer (16kHz, 128 mels, n_fft=400)
+    let config_s3tok = candle::audio::MelConfig {
+        n_fft: 400,
+        hop_length: 160,
+        win_length: 400,
+        n_mels: 128,
+        fmax: 8000.0,
+    };
+
+    let mel_40_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_ve,
+    )?;
+
+    // Used for S3Tokenizer (no longer using the default 16k config which was 80 mels)
+    let mel_128_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_16k,
+        candle::audio::S3_SR,
+        &device,
+        &config_s3tok,
+    )?;
+
+    // S3Gen/CAMPPlus (24kHz, 80 mels, n_fft=1920) - This was already correct
+    let mel_80_24k_linear = candle::audio::compute_mel_spectrogram(
+        &ref_samples_24k,
+        candle::audio::S3GEN_SR,
+        &device,
+        &candle::audio::MelConfig::for_24k(80),
+    )?;
+
+    // --- STEP 3: S3 Prompt Tokens ---
+    // Use mel_128_linear directly (no padding needed anymore)
+    let mel_for_tokenizer = process_mel_for_s3tokenizer(&mel_128_linear)?;
+    let speech_prompt_tokens = {
+        let vb = unsafe {
+            VarBuilder::from_mmaped_safetensors(&[&s3tokenizer_path], DType::F32, &device)?
+        };
+        let s3tok = candle::s3tokenizer::S3TokenizerV2::new(
+            &candle::s3tokenizer::ModelConfig::default(),
+            vb,
+        )?;
+
+        // Input is already (B, 128, T), so just encode directly
+        s3tok.encode(&mel_for_tokenizer)?
+    };
+
+    // --- STEP 4: T3 Embedding (Voice Encoder) ---
+    println!("\n[Step 4/6] Extracting speaker embedding with VoiceEncoder...");
+    let spk_emb_256 = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&ve_path], DType::F32, &device)? };
+        let ve = candle::voice_encoder::VoiceEncoder::new(
+            candle::voice_encoder::VoiceEncoderConfig::default(),
+            vb,
+        )?;
+        // VoiceEncoder expects Power Mel Spectrogram (amp^2)
+        let mel_40_power = mel_40_linear.sqr()?;
+        // VoiceEncoder expects (B, T, 40)
+        ve.forward(&mel_40_power.transpose(1, 2)?)?
+    };
+
+    // --- STEP 5: S3Gen Embedding (CAMPPlus) ---
+    println!("[Step 5/6] Extracting synthesis embedding with CAMPPlus...");
+    // CAMPPlus expects Mean-Normalized Log-Mel
+    let mel_80_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+    let mean = mel_80_log.mean_keepdim(2)?;
+    let mel_for_campplus = mel_80_log.broadcast_sub(&mean)?;
+
+    let spk_emb_80 = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let campplus = candle::campplus::CAMPPlus::new(80, 192, vb.pp("speaker_encoder"))?;
+        campplus.forward(&mel_for_campplus)?.narrow(1, 0, 80)?
+    };
+
+    // STEP 6: T3 Generation
+    println!("\n[Step 6/6] Generating tokens with T3...");
+    let speech_tokens = {
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[&t3_path], dtype, &t3_device)? };
+        let t3_config = candle::t3_model::T3Config {
+            text_tokens_dict_size: 50276,
+            speech_tokens_dict_size: 6563,
+            hidden_size: 1024,
+            num_layers: 24,
+            num_heads: 16,
+            vocab_size: 50276,
+            speaker_embed_size: 256,
+            start_speech_token: 6561,
+            stop_speech_token: 6562,
+            speech_cond_prompt_len: Some(375),
+            use_perceiver_resampler: false,
+            emotion_adv: false,
+            n_positions: 8196,
+        };
+        let t3 = candle::t3_model::T3::new(t3_config, vb)?;
+        t3.generate(
+            &text_tokens_tensor.to_device(&t3_device)?,
+            &spk_emb_256.to_device(&t3_device)?.to_dtype(dtype)?,
+            Some(&speech_prompt_tokens.to_device(&t3_device)?),
+            None,
+            500,
+            0.8,
+            0.95,
+            50,
+            1.2,
+            42,
+        )?
+    };
+
+    // STEP 7: Synthesis
+    println!("\n[Step 7/6] Synthesizing audio...");
+
+    // 1. Prepare the full sequence of tokens: [Prompt Tokens, Generated Tokens]
+    let speech_tokens_filtered = {
+        let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
+        let filtered: Vec<u32> = tokens
+            .into_iter()
+            .filter(|&t| t != 6561 && t != 6562)
+            .collect();
+        Tensor::from_vec(filtered.clone(), (1, filtered.len()), &device)?
+    };
+
+    // Concatenate prompt tokens + generated tokens
+    // Note: speech_prompt_tokens was calculated in Step 3.
+    // We assume speech_prompt_tokens is (1, N_PROMPT).
+    let s3_input_tokens = Tensor::cat(&[&speech_prompt_tokens, &speech_tokens_filtered], 1)?;
+    println!("  S3Gen Input Tokens Shape: {:?}", s3_input_tokens.dims());
+
+    let audio_tensor = {
+        let vb =
+            unsafe { VarBuilder::from_mmaped_safetensors(&[&s3gen_path], DType::F32, &device)? };
+        let s3gen = candle::s3gen::S3Gen::new(vb, true)?;
+
+        // 2. Prepare Reference Mel for Conditioning
+        // S3Gen expects Natural Log of Linear Magnitude Mel (not Power, not Log10)
+        // mel_80_24k_linear is (1, 80, T_ref)
+        let ref_mel_log = mel_80_24k_linear.clamp(1e-5, f32::MAX)?.log()?;
+
+        // 3. Construct the Conditioning Tensor [Ref Mel | Zeros]
+        // The S3Gen Encoder upsamples tokens by 2x.
+        // So output length = input_tokens_len * 2.
+        let (_, n_toks) = s3_input_tokens.dims2()?;
+        let target_len = n_toks * 2;
+        let (b, c, ref_len) = ref_mel_log.dims3()?;
+
+        // Ensure we don't overflow if ref is somehow longer than target (unlikely if logic is correct)
+        let safe_ref_len = ref_len.min(target_len);
+        let ref_mel_log_trimmed = ref_mel_log.narrow(2, 0, safe_ref_len)?;
+
+        // Create padding
+        let padding_len = target_len - safe_ref_len;
+        let cond = if padding_len > 0 {
+            let padding = Tensor::zeros((b, c, padding_len), DType::F32, &device)?;
+            Tensor::cat(&[&ref_mel_log_trimmed, &padding], 2)?
+        } else {
+            ref_mel_log_trimmed
+        };
+
+        println!("  Conditioning Tensor Shape: {:?}", cond.dims());
+
+        // 4. Forward with corrected inputs
+        s3gen.forward(
+            &s3_input_tokens,
+            Some(&spk_emb_80),
+            Some(&cond), // Pass the time-aligned conditioning, not the mean!
+        )?
+    };
+
+    let samples: Vec<f32> = audio_tensor.flatten_all()?.to_vec1()?;
+    candle::audio::save_wav(output, &samples, candle::audio::S3GEN_SR)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    println!("SUCCESS! Audio saved to: {}", output);
+
+    Ok(())
 }
 </file>
 
@@ -12939,6 +12689,271 @@ impl VoiceEncoder {
 
         let norm = raw_embeds.sqr()?.sum_keepdim(1)?.sqrt()?;
         raw_embeds.broadcast_div(&norm)
+    }
+}
+</file>
+
+<file path="candle/src/audio.rs">
+use candle_core::{DType, Device, Result, Tensor};
+use hound::{SampleFormat, WavReader, WavSpec, WavWriter};
+use rubato::{FftFixedIn, Resampler};
+use std::path::Path;
+
+pub const S3GEN_SR: u32 = 24000;
+pub const S3_SR: u32 = 16000;
+
+pub fn load_wav<P: AsRef<Path>>(path: P) -> std::result::Result<(Vec<f32>, u32), String> {
+    let reader = WavReader::open(path).map_err(|e| format!("Failed to open WAV: {}", e))?;
+    let spec = reader.spec();
+    let sample_rate = spec.sample_rate;
+    let channels = spec.channels as usize;
+
+    let samples: Vec<f32> = match spec.sample_format {
+        SampleFormat::Int => {
+            let bits = spec.bits_per_sample;
+            let max_val = (1i32 << (bits - 1)) as f32;
+            reader
+                .into_samples::<i32>()
+                .filter_map(|s| s.ok())
+                .map(|s| s as f32 / max_val)
+                .collect()
+        }
+        SampleFormat::Float => reader
+            .into_samples::<f32>()
+            .filter_map(|s| s.ok())
+            .collect(),
+    };
+
+    let mono = if channels > 1 {
+        samples
+            .chunks(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    } else {
+        samples
+    };
+
+    Ok((mono, sample_rate))
+}
+
+pub fn save_wav<P: AsRef<Path>>(
+    path: P,
+    samples: &[f32],
+    sample_rate: u32,
+) -> std::result::Result<(), String> {
+    let spec = WavSpec {
+        channels: 1,
+        sample_rate,
+        bits_per_sample: 16,
+        sample_format: SampleFormat::Int,
+    };
+    let mut writer =
+        WavWriter::create(path, spec).map_err(|e| format!("Failed to create WAV: {}", e))?;
+    for &sample in samples {
+        let clamped = sample.clamp(-1.0, 1.0);
+        writer
+            .write_sample((clamped * 32767.0) as i16)
+            .map_err(|e| format!("Failed to write sample: {}", e))?;
+    }
+    writer
+        .finalize()
+        .map_err(|e| format!("Failed to finalize WAV: {}", e))?;
+    Ok(())
+}
+
+pub fn resample(
+    samples: &[f32],
+    from_sr: u32,
+    to_sr: u32,
+) -> std::result::Result<Vec<f32>, String> {
+    if from_sr == to_sr {
+        return Ok(samples.to_vec());
+    }
+    let chunk_size = 1024;
+    let mut resampler = FftFixedIn::<f32>::new(from_sr as usize, to_sr as usize, chunk_size, 2, 1)
+        .map_err(|e| format!("Failed to create resampler: {}", e))?;
+    let mut output = Vec::new();
+    let mut input_frames = samples.to_vec();
+    let remainder = input_frames.len() % chunk_size;
+    if remainder != 0 {
+        input_frames.extend(std::iter::repeat(0.0).take(chunk_size - remainder));
+    }
+    for chunk in input_frames.chunks(chunk_size) {
+        let input = vec![chunk.to_vec()];
+        let mut resampled = resampler
+            .process(&input, None)
+            .map_err(|e| format!("Resample error: {}", e))?;
+        output.append(&mut resampled[0]);
+    }
+    Ok(output)
+}
+
+pub struct MelConfig {
+    pub n_fft: usize,
+    pub hop_length: usize,
+    pub win_length: usize,
+    pub n_mels: usize,
+    pub fmax: f32,
+}
+
+impl MelConfig {
+    pub fn for_16k() -> Self {
+        Self {
+            n_fft: 1024,
+            hop_length: 160,
+            win_length: 1024,
+            n_mels: 80,
+            fmax: 8000.0,
+        }
+    }
+
+    pub fn for_24k(n_mels: usize) -> Self {
+        Self {
+            n_fft: 1920,
+            hop_length: 480,
+            win_length: 1920,
+            n_mels,
+            fmax: 8000.0,
+        }
+    }
+}
+
+pub fn compute_mel_spectrogram(
+    samples: &[f32],
+    sample_rate: u32,
+    device: &Device,
+    config: &MelConfig,
+) -> Result<Tensor> {
+    use realfft::RealFftPlanner;
+    let n_fft = config.n_fft;
+    let hop_length = config.hop_length;
+    let win_length = config.win_length;
+    let n_mels = config.n_mels;
+    let fmax = config.fmax;
+
+    let window: Vec<f32> = (0..win_length)
+        .map(|i| 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / win_length as f32).cos()))
+        .collect();
+
+    // Reflect padding as per Python: (n_fft - hop_size) / 2 = 720
+    let pad = (n_fft - hop_length) / 2;
+    let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
+    // Left reflect: samples[pad], samples[pad-1], ..., samples[1]
+    for i in (1..=pad).rev() {
+        padded.push(samples[i]);
+    }
+    padded.extend_from_slice(samples);
+    // Right reflect: samples[n-2], samples[n-3], ..., samples[n-pad-1]
+    let n = samples.len();
+    for i in 1..=pad {
+        padded.push(samples[n - 1 - i]);
+    }
+
+    let n_frames = (padded.len() - n_fft) / hop_length + 1;
+    let mut planner = RealFftPlanner::<f32>::new();
+    let fft = planner.plan_fft_forward(n_fft);
+    let mut power_spectrogram = vec![vec![0.0f32; n_fft / 2 + 1]; n_frames];
+
+    for (frame_idx, frame_start) in (0..padded.len() - n_fft + 1)
+        .step_by(hop_length)
+        .enumerate()
+    {
+        if frame_idx >= n_frames {
+            break;
+        }
+        let mut windowed: Vec<f32> = padded[frame_start..frame_start + n_fft]
+            .iter()
+            .zip(window.iter())
+            .map(|(s, w)| s * w)
+            .collect();
+        let mut spectrum = fft.make_output_vec();
+        fft.process(&mut windowed, &mut spectrum)
+            .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
+        for (i, c) in spectrum.iter().enumerate() {
+            // Magnitude = sqrt(re^2 + im^2), then power = magnitude^2 = re^2 + im^2
+            // mel.py: spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
+            // Then it applies mel and spectral_normalize (log)
+            power_spectrogram[frame_idx][i] = (c.norm_sqr() + 1e-9).sqrt();
+        }
+    }
+
+    let mel_filters = create_mel_filterbank(sample_rate, n_fft, n_mels, fmax);
+    let mut mel_spec = vec![vec![0.0f32; n_mels]; n_frames];
+    for (t, mag_frame) in power_spectrogram.iter().enumerate() {
+        for (m, filter) in mel_filters.iter().enumerate() {
+            let mut sum = 0.0f32;
+            for (i, &weight) in filter.iter().enumerate() {
+                sum += weight * mag_frame[i];
+            }
+            // spectral_normalize_torch uses natural log: torch.log(clamp(x, min=1e-5))
+            mel_spec[t][m] = sum.max(1e-5);
+        }
+    }
+
+    let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
+    // Return (B, C, T) where C=80
+    Tensor::from_vec(flat, (1, n_frames, n_mels), device)?
+        .permute((0, 2, 1))?
+        .contiguous()?
+        .to_dtype(DType::F32)
+}
+
+fn create_mel_filterbank(
+    sample_rate: u32,
+    n_fft: usize,
+    n_mels: usize,
+    fmax: f32,
+) -> Vec<Vec<f32>> {
+    let hz_to_mel = |hz: f32| 2595.0 * (1.0 + hz / 700.0).log10();
+    let mel_to_hz = |mel: f32| 700.0 * (10.0f32.powf(mel / 2595.0) - 1.0);
+    let mel_min = hz_to_mel(0.0);
+    let mel_max = hz_to_mel(fmax);
+    let mel_points: Vec<f32> = (0..=n_mels + 1)
+        .map(|i| mel_min + (mel_max - mel_min) * i as f32 / (n_mels + 1) as f32)
+        .collect();
+    let hz_points: Vec<f32> = mel_points.iter().map(|&m| mel_to_hz(m)).collect();
+    let n_bins = n_fft / 2 + 1;
+    let bin_points: Vec<usize> = hz_points
+        .iter()
+        .map(|&hz| ((hz * (n_fft as f32) / sample_rate as f32).round() as usize).min(n_bins - 1))
+        .collect();
+    let mut filterbank = vec![vec![0.0f32; n_bins]; n_mels];
+
+    for m in 0..n_mels {
+        let left_hz = hz_points[m];
+        let _center_hz = hz_points[m + 1];
+        let right_hz = hz_points[m + 2];
+
+        let left = bin_points[m];
+        let center = bin_points[m + 1];
+        let right = bin_points[m + 2];
+
+        // Slaney normalization factor
+        let enorm = 2.0 / (right_hz - left_hz);
+
+        for k in left..center {
+            if center > left {
+                filterbank[m][k] = ((k - left) as f32 / (center - left) as f32) * enorm;
+            }
+        }
+        for k in center..right {
+            if right > center {
+                filterbank[m][k] = ((right - k) as f32 / (right - center) as f32) * enorm;
+            }
+        }
+    }
+    filterbank
+}
+
+pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
+    let rms: f32 = (samples.iter().map(|s| s * s).sum::<f32>() / samples.len() as f32).sqrt();
+    if rms > 1e-10 {
+        let gain = 10.0f32
+            .powf((target_db - 20.0 * rms.log10()) / 20.0)
+            .min(10.0);
+        for sample in samples.iter_mut() {
+            *sample *= gain;
+        }
     }
 }
 </file>
@@ -14783,6 +14798,47 @@ fn simple_istft(real: &Tensor, imag: &Tensor, n_fft: usize, hop_len: usize) -> R
 }
 </file>
 
+<file path="pyproject.toml">
+[project]
+name = "chatterbox-tts"
+version = "0.1.6"
+description = "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+    {name = "resemble-ai", email = "engineering@resemble.ai"}
+]
+dependencies = [
+    "numpy>=1.24.0,<1.26.0",
+    "librosa==0.11.0",
+    "s3tokenizer",
+    "torch==2.6.0",
+    "torchaudio==2.6.0",
+    "transformers==4.46.3",
+    "diffusers==0.29.0",
+    "resemble-perth==1.0.1",
+    "conformer==0.3.2",
+    "safetensors==0.5.3",
+    "spacy-pkuseg",
+    "pykakasi==2.3.0",
+    "gradio==5.44.1",
+    "pyloudnorm",
+    "omegaconf"
+]
+
+[project.urls]
+Homepage = "https://github.com/resemble-ai/chatterbox"
+Repository = "https://github.com/resemble-ai/chatterbox"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+</file>
+
 <file path="candle/src/chatterbox.rs">
 use candle_core::{DType, Device, Result, Tensor};
 use candle_nn::VarBuilder;
@@ -14891,21 +14947,29 @@ impl ChatterboxTTS {
             ref_samples
         };
 
-        let config_16k_40 = audio::MelConfig {
-            n_fft: 1024,
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
             hop_length: 160,
-            win_length: 1024,
+            win_length: 400,
             n_mels: 40,
             fmax: 8000.0,
         };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
         let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_16k_40)?;
-        let mel_80_16k = audio::compute_mel_spectrogram(
-            &ref_samples_16k,
-            S3_SR,
-            &self.device,
-            &audio::MelConfig::for_16k(),
-        )?;
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
+
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+
         let mel_80_24k = audio::compute_mel_spectrogram(
             &ref_samples_24k,
             S3GEN_SR,
@@ -14928,13 +14992,8 @@ impl ChatterboxTTS {
             .forward(&mel_80_norm)?
             .narrow(1, 0, 80)?;
 
-        // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
-        let prompt_tokens = {
-            let (b, c, t) = mel_80_16k.dims3()?;
-            let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &self.device)?;
-            let mel_padded = Tensor::cat(&[&mel_80_16k, &padding], 1)?; // (B, 128, T)
-            self.s3tokenizer.encode(&mel_padded)?
-        };
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
         let text_tokens = self.tokenize_text(text)?;
 
         let speech_tokens = self.t3.generate(
@@ -15097,25 +15156,31 @@ impl ChatterboxTurboTTS {
 
         // VoiceEncoder expects 16kHz mel (40 channels)
         // VoiceEncoder expects 16kHz mel (40 channels)
-        let config_16k_40 = audio::MelConfig {
-            n_fft: 1024,
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
             hop_length: 160,
-            win_length: 1024,
+            win_length: 400,
             n_mels: 40,
             fmax: 8000.0,
         };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
         let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_16k_40)?;
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
         eprintln!("[generate_speech] mel_40 (16k): {:?}", mel_40.dims());
 
-        // Tokenizer expects 16kHz mel (80 channels)
-        let mel_80_16k = audio::compute_mel_spectrogram(
-            &ref_samples_16k,
-            S3_SR,
-            &self.device,
-            &audio::MelConfig::for_16k(),
-        )?;
-        eprintln!("[generate_speech] mel_80 (16k): {:?}", mel_80_16k.dims());
+        // Tokenizer expects 16kHz mel (128 channels)
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+        eprintln!("[generate_speech] mel_128 (16k): {:?}", mel_128.dims());
 
         // S3Gen expects 24kHz mel (80 channels)
         let mel_80_24k = audio::compute_mel_spectrogram(
@@ -15144,14 +15209,9 @@ impl ChatterboxTurboTTS {
             .narrow(1, 0, 80)?;
         eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
-        // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
         eprintln!("[generate_speech] Running S3Tokenizer...");
-        let prompt_tokens = {
-            let (b, c, t) = mel_80_16k.dims3()?;
-            let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &self.device)?;
-            let mel_padded = Tensor::cat(&[&mel_80_16k, &padding], 1)?; // (B, 128, T)
-            self.s3tokenizer.encode(&mel_padded)?
-        };
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
 
         eprintln!(
             "[generate_speech] prompt_tokens: {:?}",
@@ -16291,47 +16351,6 @@ impl S3Gen {
         self.decoder.forward(&mu, &mask, spks, Some(&mu), n_steps)
     }
 }
-</file>
-
-<file path="pyproject.toml">
-[project]
-name = "chatterbox-tts"
-version = "0.1.6"
-description = "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI"
-readme = "README.md"
-requires-python = ">=3.10"
-license = {file = "LICENSE"}
-authors = [
-    {name = "resemble-ai", email = "engineering@resemble.ai"}
-]
-dependencies = [
-    "numpy>=1.24.0,<1.26.0",
-    "librosa==0.11.0",
-    "s3tokenizer",
-    "torch==2.6.0",
-    "torchaudio==2.6.0",
-    "transformers==4.46.3",
-    "diffusers==0.29.0",
-    "resemble-perth==1.0.1",
-    "conformer==0.3.2",
-    "safetensors==0.5.3",
-    "spacy-pkuseg",
-    "pykakasi==2.3.0",
-    "gradio==5.44.1",
-    "pyloudnorm",
-    "omegaconf"
-]
-
-[project.urls]
-Homepage = "https://github.com/resemble-ai/chatterbox"
-Repository = "https://github.com/resemble-ai/chatterbox"
-
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["src"]
 </file>
 
 <file path="README.md">

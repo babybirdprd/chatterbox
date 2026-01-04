@@ -105,21 +105,29 @@ impl ChatterboxTTS {
             ref_samples
         };
 
-        let config_16k_40 = audio::MelConfig {
-            n_fft: 1024,
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
             hop_length: 160,
-            win_length: 1024,
+            win_length: 400,
             n_mels: 40,
             fmax: 8000.0,
         };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
         let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_16k_40)?;
-        let mel_80_16k = audio::compute_mel_spectrogram(
-            &ref_samples_16k,
-            S3_SR,
-            &self.device,
-            &audio::MelConfig::for_16k(),
-        )?;
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
+
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+
         let mel_80_24k = audio::compute_mel_spectrogram(
             &ref_samples_24k,
             S3GEN_SR,
@@ -142,13 +150,8 @@ impl ChatterboxTTS {
             .forward(&mel_80_norm)?
             .narrow(1, 0, 80)?;
 
-        // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
-        let prompt_tokens = {
-            let (b, c, t) = mel_80_16k.dims3()?;
-            let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &self.device)?;
-            let mel_padded = Tensor::cat(&[&mel_80_16k, &padding], 1)?; // (B, 128, T)
-            self.s3tokenizer.encode(&mel_padded)?
-        };
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
         let text_tokens = self.tokenize_text(text)?;
 
         let speech_tokens = self.t3.generate(
@@ -311,25 +314,31 @@ impl ChatterboxTurboTTS {
 
         // VoiceEncoder expects 16kHz mel (40 channels)
         // VoiceEncoder expects 16kHz mel (40 channels)
-        let config_16k_40 = audio::MelConfig {
-            n_fft: 1024,
+        // VoiceEncoder expects 16kHz mel (40 channels, n_fft=400)
+        let config_ve = audio::MelConfig {
+            n_fft: 400,
             hop_length: 160,
-            win_length: 1024,
+            win_length: 400,
             n_mels: 40,
             fmax: 8000.0,
         };
+        // S3Tokenizer expects 16kHz mel (128 channels, n_fft=400)
+        let config_s3tok = audio::MelConfig {
+            n_fft: 400,
+            hop_length: 160,
+            win_length: 400,
+            n_mels: 128,
+            fmax: 8000.0,
+        };
+
         let mel_40 =
-            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_16k_40)?;
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_ve)?;
         eprintln!("[generate_speech] mel_40 (16k): {:?}", mel_40.dims());
 
-        // Tokenizer expects 16kHz mel (80 channels)
-        let mel_80_16k = audio::compute_mel_spectrogram(
-            &ref_samples_16k,
-            S3_SR,
-            &self.device,
-            &audio::MelConfig::for_16k(),
-        )?;
-        eprintln!("[generate_speech] mel_80 (16k): {:?}", mel_80_16k.dims());
+        // Tokenizer expects 16kHz mel (128 channels)
+        let mel_128 =
+            audio::compute_mel_spectrogram(&ref_samples_16k, S3_SR, &self.device, &config_s3tok)?;
+        eprintln!("[generate_speech] mel_128 (16k): {:?}", mel_128.dims());
 
         // S3Gen expects 24kHz mel (80 channels)
         let mel_80_24k = audio::compute_mel_spectrogram(
@@ -358,14 +367,9 @@ impl ChatterboxTurboTTS {
             .narrow(1, 0, 80)?;
         eprintln!("[generate_speech] spk_emb_80: {:?}", spk_emb_80.dims());
 
-        // S3Tokenizer expects (B, 128, T) mel - pad mel_80_16k from (B, 80, T) to (B, 128, T)
+        // S3Tokenizer expects (B, 128, T) mel - now computed directly
         eprintln!("[generate_speech] Running S3Tokenizer...");
-        let prompt_tokens = {
-            let (b, c, t) = mel_80_16k.dims3()?;
-            let padding = Tensor::zeros((b, 128 - c, t), DType::F32, &self.device)?;
-            let mel_padded = Tensor::cat(&[&mel_80_16k, &padding], 1)?; // (B, 128, T)
-            self.s3tokenizer.encode(&mel_padded)?
-        };
+        let prompt_tokens = self.s3tokenizer.encode(&mel_128)?;
 
         eprintln!(
             "[generate_speech] prompt_tokens: {:?}",
