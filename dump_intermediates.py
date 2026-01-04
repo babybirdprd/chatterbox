@@ -167,7 +167,7 @@ def main():
     with torch.inference_mode():
         mel_camp, _, _ = extract_feature(ref_16k_torch.unsqueeze(0))
     # mel_camp shape is [1, T, 80]
-    save_tensor(mel_camp.transpose(1, 2), output_dir, "mel_camp")
+    save_tensor(mel_camp.transpose(1, 2).contiguous(), output_dir, "mel_camp")
 
     # PRE-CALCULATE T3 Conditioning while s3gen is still here
     print("  Pre-calculating T3 conditioning...")

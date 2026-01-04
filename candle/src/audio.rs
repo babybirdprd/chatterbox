@@ -214,7 +214,7 @@ impl MelConfig {
             win_length: 400,
             n_mels: 80,
             fmin: 20.0,
-            fmax: 7600.0,
+            fmax: 8000.0, // Kaldi default: high_freq=0 means Nyquist/2
             stft_mode: STFTMode::Power,
             mel_scale: MelScale::HTK,
             center: false,

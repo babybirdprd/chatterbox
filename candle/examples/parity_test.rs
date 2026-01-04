@@ -234,22 +234,27 @@ fn main() -> Result<()> {
     let mel_camp_rust =
         AudioProcessor::compute_mel_spectrogram(&samples_16k, &Device::Cpu, &cfg_camp)?;
 
-    // Check Mel CAMPPlus parity
-    if let Ok(mel_camp_py) = load_npy(args.ref_dir.join("mel_camp.npy"), &Device::Cpu) {
-        check(
-            "Mel CAMPPlus",
-            &mel_camp_rust,
-            &mel_camp_py.to_device(&Device::Cpu)?,
-            1e-1, // Larger tolerance for Kaldi features due to windowing differences
-        )?;
-    }
-
+    // Apply log and mean normalization to match Kaldi fbank output
     let mel_camp_log = mel_camp_rust.clamp(1e-5, f32::MAX)?.log()?;
     let mean = mel_camp_log.mean_keepdim(2)?;
     let mel_camp_norm = mel_camp_log
         .broadcast_sub(&mean)?
         .to_device(&device)?
         .to_dtype(dtype)?;
+
+    // Check Mel CAMPPlus parity (Python's mel_camp.npy is already log+mean-normalized)
+    let mel_camp_py = load_npy(args.ref_dir.join("mel_camp.npy"), &Device::Cpu)?;
+    println!(
+        "Rust mel_camp_norm shape: {:?}, Python mel_camp shape: {:?}",
+        mel_camp_norm.shape(),
+        mel_camp_py.shape()
+    );
+    check(
+        "Mel CAMPPlus (log+norm)",
+        &mel_camp_norm.to_dtype(DType::F32)?,
+        &mel_camp_py.to_device(&Device::Cpu)?,
+        1e-1,
+    )?;
 
     let spk_emb_camp_rust = campplus.forward(&mel_camp_norm)?.narrow(1, 0, 80)?;
     check(
