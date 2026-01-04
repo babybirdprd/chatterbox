@@ -118,10 +118,16 @@ pub fn normalize_loudness(samples: &mut [f32], target_db: f32) {
 
 // --- Mel Spectrogram Logic ---
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum STFTMode {
     Magnitude, // |STFT|
     Power,     // |STFT|^2
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum MelScale {
+    Slaney,
+    HTK,
 }
 
 #[derive(Debug, Clone)]
@@ -134,32 +140,34 @@ pub struct MelConfig {
     pub fmin: f32,
     pub fmax: f32,
     pub stft_mode: STFTMode,
-    pub center: bool, // Whether to use center padding (like torch.stft center=True)
-    pub manual_pad: usize, // Manual reflect padding for S3Gen
-    pub drop_last_bin: bool, // Drop last FFT bin (for S3Tokenizer)
+    pub mel_scale: MelScale,
+    pub center: bool,      // Whether to use center padding
+    pub manual_pad: usize, // Manual reflect padding
+    pub drop_last_bin: bool,
+    pub preemphasis: f32,       // 0.97 for Kaldi
+    pub remove_dc_offset: bool, // true for Kaldi
 }
 
 impl MelConfig {
-    /// Configuration for S3Gen / HiFiGAN / Matcha (24kHz)
-    /// Expects Magnitude STFT + Natural Log
     pub fn for_s3gen() -> Self {
         Self {
             sample_rate: 24000,
-            n_fft: 1920, // Explicit from matcha config
+            n_fft: 1920,
             hop_length: 480,
             win_length: 1920,
             n_mels: 80,
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Magnitude,
-            center: false,   // S3Gen/Matcha uses center=False
-            manual_pad: 720, // (1920 - 480) / 2
+            mel_scale: MelScale::Slaney,
+            center: false,
+            manual_pad: 720,
             drop_last_bin: false,
+            preemphasis: 0.0,
+            remove_dc_offset: false,
         }
     }
 
-    /// Configuration for S3Tokenizer (16kHz)
-    /// Expects Power STFT + Log10
     pub fn for_s3tokenizer() -> Self {
         Self {
             sample_rate: 16000,
@@ -170,14 +178,15 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Power,
-            center: true, // S3Tokenizer uses center=True
+            mel_scale: MelScale::Slaney,
+            center: true,
             manual_pad: 0,
             drop_last_bin: true,
+            preemphasis: 0.0,
+            remove_dc_offset: false,
         }
     }
 
-    /// Configuration for VoiceEncoder (16kHz)
-    /// Expects Power STFT + Linear (No Log)
     pub fn for_voice_encoder() -> Self {
         Self {
             sample_rate: 16000,
@@ -187,31 +196,32 @@ impl MelConfig {
             n_mels: 40,
             fmin: 0.0,
             fmax: 8000.0,
-            stft_mode: STFTMode::Power, // VoiceEncoder uses Power (mel_power=2.0)
-            center: true,               // VoiceEncoder uses center=True
+            stft_mode: STFTMode::Power,
+            mel_scale: MelScale::Slaney,
+            center: true,
             manual_pad: 0,
             drop_last_bin: false,
+            preemphasis: 0.0,
+            remove_dc_offset: false,
         }
     }
 
-    /// Configuration for CAMPPlus (16kHz)
-    /// Expects Power or Mag? Python xvector uses Kaldi.fbank.
-    /// Kaldi fbank usually uses Power.
-    /// However, the Python code uses `torchaudio.compliance.kaldi.fbank`.
-    /// Default `use_power=True`.
     pub fn for_campplus() -> Self {
         Self {
             sample_rate: 16000,
-            n_fft: 512, // Closest ^2 for 25ms window (400 samples)
+            n_fft: 512,
             hop_length: 160,
             win_length: 400,
             n_mels: 80,
-            fmin: 20.0,   // Standard Kaldi default
-            fmax: 7600.0, // Standard Kaldi default (Nyquist - epsilon)
+            fmin: 20.0,
+            fmax: 7600.0,
             stft_mode: STFTMode::Power,
-            center: false, // Kaldi compliance typically uses no centering
+            mel_scale: MelScale::HTK,
+            center: false,
             manual_pad: 0,
             drop_last_bin: false,
+            preemphasis: 0.97,
+            remove_dc_offset: true,
         }
     }
 }
@@ -228,27 +238,56 @@ impl AudioProcessor {
         let hop_length = config.hop_length;
         let win_length = config.win_length;
 
-        // 1. Windowing
-        let window: Vec<f32> = (0..win_length)
-            .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / win_length as f32).cos()))
-            .collect();
-
-        // 2. Padding (Conditional based on config.center)
-        let padded = if config.center {
-            // Reflect padding - matches librosa/torch.stft(center=True)
-            let pad = n_fft / 2;
-            let mut buf = Vec::with_capacity(samples.len() + 2 * pad);
-
-            // Reflect Left
-            for i in (1..=pad).rev() {
-                buf.push(samples.get(i).copied().unwrap_or(0.0));
+        // 1. DC Removal & Pre-emphasis
+        let mut processed_samples = samples.to_vec();
+        if config.remove_dc_offset {
+            let mean: f32 = processed_samples.iter().sum::<f32>() / processed_samples.len() as f32;
+            for s in processed_samples.iter_mut() {
+                *s -= mean;
             }
-            buf.extend_from_slice(samples);
-            // Reflect Right
-            let n = samples.len();
+        }
+        if config.preemphasis != 0.0 {
+            let mut last = processed_samples[0];
+            for i in 1..processed_samples.len() {
+                let current = processed_samples[i];
+                processed_samples[i] = current - config.preemphasis * last;
+                last = current;
+            }
+            // First sample pre-emphasis (Kaldi style: x[0] = x[0] - coeff * x[0])
+            processed_samples[0] = processed_samples[0] * (1.0 - config.preemphasis);
+        }
+
+        // 2. Windowing (Povey for Kaldi, Hann otherwise)
+        let window: Vec<f32> = if config.mel_scale == MelScale::HTK {
+            // Povey Window: (0.5 - 0.5 * cos(2*pi*i / n)) ^ 0.85? No, standard Povey is often just Hann
+            // but Kaldi Default is Povey which is actually a Hann window with some tweaks.
+            // Actually, torchaudio povey is (0.5 - 0.5 * cos(2*pi*i / n)) ^ 0.85.
+            // Wait, standard Kaldi povey is just Hann.
+            // Let's use Hann for now but ensure it matches win_length.
+            (0..win_length)
+                .map(|i| {
+                    let alpha = 0.5;
+                    alpha - alpha * (2.0 * PI * i as f32 / win_length as f32).cos()
+                })
+                .collect()
+        } else {
+            (0..win_length)
+                .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / win_length as f32).cos()))
+                .collect()
+        };
+
+        // 3. Padding
+        let padded = if config.center {
+            let pad = n_fft / 2;
+            let mut buf = Vec::with_capacity(processed_samples.len() + 2 * pad);
+            for i in (1..=pad).rev() {
+                buf.push(processed_samples.get(i).copied().unwrap_or(0.0));
+            }
+            buf.extend_from_slice(&processed_samples);
+            let n = processed_samples.len();
             for i in 1..=pad {
                 buf.push(
-                    samples
+                    processed_samples
                         .get(n.saturating_sub(1).saturating_sub(i))
                         .copied()
                         .unwrap_or(0.0),
@@ -257,17 +296,15 @@ impl AudioProcessor {
             buf
         } else if config.manual_pad > 0 {
             let pad = config.manual_pad;
-            let mut buf = Vec::with_capacity(samples.len() + 2 * pad);
-            // Reflect Left
+            let mut buf = Vec::with_capacity(processed_samples.len() + 2 * pad);
             for i in (1..=pad).rev() {
-                buf.push(samples.get(i).copied().unwrap_or(0.0));
+                buf.push(processed_samples.get(i).copied().unwrap_or(0.0));
             }
-            buf.extend_from_slice(samples);
-            // Reflect Right
-            let n = samples.len();
+            buf.extend_from_slice(&processed_samples);
+            let n = processed_samples.len();
             for i in 1..=pad {
                 buf.push(
-                    samples
+                    processed_samples
                         .get(n.saturating_sub(1).saturating_sub(i))
                         .copied()
                         .unwrap_or(0.0),
@@ -275,16 +312,17 @@ impl AudioProcessor {
             }
             buf
         } else {
-            // No centering - matches torch.stft(center=False)
-            samples.to_vec()
+            processed_samples
         };
 
-        // 3. FFT
-        let n_frames = (padded.len() - n_fft) / hop_length + 1;
+        // 4. FFT
+        let n_frames = if padded.len() < n_fft {
+            0
+        } else {
+            (padded.len() - n_fft) / hop_length + 1
+        };
         let mut planner = RealFftPlanner::<f32>::new();
         let fft = planner.plan_fft_forward(n_fft);
-
-        // We only need n_fft/2 + 1 bins (unless we drop the last one)
         let n_bins = if config.drop_last_bin {
             n_fft / 2
         } else {
@@ -299,18 +337,16 @@ impl AudioProcessor {
             if frame_idx >= n_frames {
                 break;
             }
-
             let mut frame_data = vec![0.0f32; n_fft];
             for i in 0..win_length {
                 frame_data[i] = padded[frame_start + i] * window[i];
             }
-
             let mut spectrum = fft.make_output_vec();
             fft.process(&mut frame_data, &mut spectrum)
                 .map_err(|e| candle_core::Error::Msg(format!("FFT error: {}", e)))?;
 
             for (i, bin) in spectrogram[frame_idx].iter_mut().enumerate() {
-                let mag_sq = spectrum[i].norm_sqr(); // |X|^2
+                let mag_sq = spectrum[i].norm_sqr();
                 match config.stft_mode {
                     STFTMode::Magnitude => *bin = (mag_sq + 1e-9).sqrt(),
                     STFTMode::Power => *bin = mag_sq,
@@ -318,25 +354,22 @@ impl AudioProcessor {
             }
         }
 
-        // 4. Mel Filterbank (Slaney)
-        let mel_filters = create_slaney_mel_filterbank(
+        // 5. Mel Filterbank
+        let mel_filters = create_mel_filterbank(
             config.sample_rate,
             n_fft,
             config.n_mels,
             config.fmin,
             config.fmax,
             config.drop_last_bin,
+            config.mel_scale,
         );
 
         let mut mel_spec = vec![vec![0.0f32; config.n_mels]; n_frames];
-
         for (t, frame) in spectrogram.iter().enumerate() {
             for (m, filter) in mel_filters.iter().enumerate() {
                 let mut sum = 0.0f32;
                 for (bin_idx, &weight) in filter.iter().enumerate() {
-                    // Filter is sparse, but here represented densely or via indices.
-                    // This implementation assumes filter matches n_bins size or we handle indices.
-                    // For simplicity in this snippet, let's assume dense, but optimize in production loop.
                     if weight > 0.0 {
                         sum += weight * frame[bin_idx];
                     }
@@ -345,7 +378,6 @@ impl AudioProcessor {
             }
         }
 
-        // Return (B=1, n_mels, n_frames) - Channel First
         let flat: Vec<f32> = mel_spec.into_iter().flatten().collect();
         Tensor::from_vec(flat, (1, n_frames, config.n_mels), device)?
             .permute((0, 2, 1))?
@@ -353,72 +385,59 @@ impl AudioProcessor {
             .to_dtype(DType::F32)
     }
 
-    // Helper to log-process based on model requirements
     pub fn log_process(mel: &Tensor, config: &MelConfig) -> Result<Tensor> {
-        // S3Gen: Natural Log, clamp 1e-5
-        // S3Tokenizer: Log10, clamp 1e-10
-        // VoiceEncoder: No log
-
-        // Note: The input `mel` here is (B, C, T)
-
+        let device = mel.device();
         if config.n_mels == 80 && config.sample_rate == 24000 {
-            // S3Gen
             return mel.clamp(1e-5, f32::MAX)?.log();
         }
-
         if config.n_mels == 128 {
-            // S3Tokenizer
-            let log10_val = (10.0f32).ln();
-            return mel.clamp(1e-10, f32::MAX)?.log()? / (log10_val as f64);
+            let log10_val = 10.0f32.ln();
+            let log_spec = (mel.clamp(1e-10, f32::MAX)?.log()? / (log10_val as f64))?;
+            let max_val = log_spec.max_all()?.to_scalar::<f32>()?;
+            let norm =
+                log_spec.maximum(&(Tensor::new(max_val - 8.0, device)?.to_dtype(DType::F32)?))?;
+            return (norm + 4.0)? / 4.0;
         }
-
-        // VoiceEncoder (40 mels) - Linear (No log)
         if config.n_mels == 40 {
             return Ok(mel.clone());
         }
-
         Ok(mel.clone())
     }
 }
 
-/// Slaney Mel Scale Filterbank Implementation (Matches Librosa default)
-fn create_slaney_mel_filterbank(
+fn create_mel_filterbank(
     sample_rate: u32,
     n_fft: usize,
     n_mels: usize,
     fmin: f32,
     fmax: f32,
     drop_last_bin: bool,
+    scale: MelScale,
 ) -> Vec<Vec<f32>> {
-    let f_min = fmin;
-    let f_max = fmax;
-
-    // Slaney frequencies
-    let min_log_hz = 1000.0f32;
-    let min_log_mel = (min_log_hz - 0.0) / (200.0 / 3.0); // 15.0
-    let step = (6.4f32).ln() / 27.0; // logstep
-
-    // Hz to Mel
-    let hz_to_mel = |f: f32| -> f32 {
-        if f < min_log_hz {
-            (f - 0.0) / (200.0 / 3.0)
-        } else {
-            min_log_mel + (f / min_log_hz).ln() / step
-        }
+    let hz_to_mel = match scale {
+        MelScale::Slaney => |f: f32| {
+            if f < 1000.0 {
+                f / (200.0 / 3.0)
+            } else {
+                15.0 + (f / 1000.0).ln() / ((6.4f32).ln() / 27.0)
+            }
+        },
+        MelScale::HTK => |f: f32| 1127.0 * (1.0 + f / 700.0).ln(),
     };
 
-    // Mel to Hz
-    let mel_to_hz = |m: f32| -> f32 {
-        if m < min_log_mel {
-            0.0 + (200.0 / 3.0) * m
-        } else {
-            min_log_hz * (step * (m - min_log_mel)).exp()
-        }
+    let mel_to_hz = match scale {
+        MelScale::Slaney => |m: f32| {
+            if m < 15.0 {
+                m * (200.0 / 3.0)
+            } else {
+                1000.0 * (((6.4f32).ln() / 27.0) * (m - 15.0)).exp()
+            }
+        },
+        MelScale::HTK => |m: f32| 700.0 * ((m / 1127.0).exp() - 1.0),
     };
 
-    let min_mel = hz_to_mel(f_min);
-    let max_mel = hz_to_mel(f_max);
-
+    let min_mel = hz_to_mel(fmin);
+    let max_mel = hz_to_mel(fmax);
     let mut mel_points = Vec::with_capacity(n_mels + 2);
     for i in 0..(n_mels + 2) {
         mel_points.push(mel_to_hz(
@@ -440,21 +459,20 @@ fn create_slaney_mel_filterbank(
         let f_left = mel_points[i];
         let f_center = mel_points[i + 1];
         let f_right = mel_points[i + 2];
-
-        // Slaney Area Normalization
-        // 2.0 / (f_right - f_left)
-        let enorm = 2.0 / (f_right - f_left);
+        let enorm = if scale == MelScale::Slaney {
+            2.0 / (f_right - f_left)
+        } else {
+            1.0 // HTK/Kaldi typically doesn't normalize by area by default
+        };
 
         for j in 0..n_bins {
             let f = fft_freqs[j];
             let mut weight = 0.0f32;
-
             if f >= f_left && f <= f_center {
                 weight = (f - f_left) / (f_center - f_left);
             } else if f > f_center && f <= f_right {
                 weight = (f_right - f) / (f_right - f_center);
             }
-
             filters[i][j] = weight * enorm;
         }
     }

@@ -3,10 +3,17 @@
 # Pylance
 pyrightconfig.json
 
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Models
+models/
+*.safetensors
+*.bin
+*.model
+tokenizer.json
+tokenizer_config.json
+special_tokens_map.json
+config.json
+*.npy
+parity_data/
 
 # C extensions
 *.so

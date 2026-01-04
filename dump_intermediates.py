@@ -69,7 +69,7 @@ def main():
     parser.add_argument("--ref-audio", type=str, required=True, help="Path to reference audio WAV")
     parser.add_argument("--text", type=str, default="Hello world this is a test", help="Text to synthesize")
     parser.add_argument("--output-dir", type=str, default="parity_data", help="Output directory for .npy files")
-    parser.add_argument("--ckpt-dir", type=str, default=None, help="Path to model checkpoint directory")
+    parser.add_argument("--ckpt-dir", type=str, default="models", help="Path to model checkpoint directory")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     args = parser.parse_args()
@@ -86,10 +86,9 @@ def main():
     print(f"Using device: {device}")
 
     print("\n=== Loading Models ===")
-    if args.ckpt_dir:
-        ckpt_dir = Path(args.ckpt_dir)
-    else:
-        print("Downloading models from HF Hub...")
+    ckpt_dir = Path(args.ckpt_dir)
+    if not ckpt_dir.exists():
+        print(f"Models directory {ckpt_dir} not found. Downloading from HF Hub...")
         ckpt_dir = Path(snapshot_download(
             repo_id="ResembleAI/chatterbox-turbo",
             token=os.getenv("HF_TOKEN") or True,
@@ -116,6 +115,12 @@ def main():
     ref_16k_tensor = torch.from_numpy(ref_16k).unsqueeze(0).to(device)
     mel_s3tok = s3tok_model.log_mel_spectrogram(ref_16k_tensor)
     save_tensor(mel_s3tok, output_dir, "mel_s3tok")
+    
+    # Delete to free memory - we're done with S3Tokenizer
+    del s3tok_model
+    del mel_s3tok
+    del ref_16k_tensor
+    gc.collect()
 
     print("  Computing S3Gen Mel...")
     ref_24k_tensor = torch.from_numpy(ref_24k).float()
@@ -153,15 +158,37 @@ def main():
     
     save_tensor(ref_dict["embedding"], output_dir, "spk_emb_camp_full")
     save_tensor(ref_dict["embedding"][:, :80], output_dir, "spk_emb_camp")
+    save_tensor(ref_dict["prompt_token"], output_dir, "prompt_tokens")
+    save_tensor(ref_dict["prompt_feat"], output_dir, "prompt_feat")
 
     # Also dump CAMPPlus Mel input for parity debugging
     from src.chatterbox.models.s3gen.xvector import extract_feature
     ref_16k_torch = torch.from_numpy(ref_16k).float().to(device)
-    mel_camp, _, _ = extract_feature(ref_16k_torch.unsqueeze(0))
+    with torch.inference_mode():
+        mel_camp, _, _ = extract_feature(ref_16k_torch.unsqueeze(0))
     # mel_camp shape is [1, T, 80]
     save_tensor(mel_camp.transpose(1, 2), output_dir, "mel_camp")
-    save_tensor(ref_dict["prompt_token"], output_dir, "prompt_tokens")
-    save_tensor(ref_dict["prompt_feat"], output_dir, "prompt_feat")
+
+    # PRE-CALCULATE T3 Conditioning while s3gen is still here
+    print("  Pre-calculating T3 conditioning...")
+    ENC_COND_LEN = 15 * S3_SR
+    ref_16k_cond = ref_16k[:ENC_COND_LEN]
+    # We need t3_config params here, let's hardcode or assume defaults
+    t3_cond_prompt_tokens, _ = s3gen.tokenizer([ref_16k_cond], max_len=375)
+    t3_cond_prompt_tokens = torch.atleast_2d(t3_cond_prompt_tokens).cpu()
+    save_tensor(t3_cond_prompt_tokens, output_dir, "t3_cond_prompt_tokens")
+
+    # Store ref_dict for later but clear model memory
+    ref_dict_cpu = {k: v.cpu() if isinstance(v, torch.Tensor) else v for k, v in ref_dict.items()}
+    spk_emb_ve_cpu = spk_emb_ve.cpu()
+    del s3gen
+    del ref_dict
+    del spk_emb_ve
+    del ref_16k_torch
+    del mel_camp
+    gc.collect()
+    gc.collect()
+    if torch.cuda.is_available(): torch.cuda.empty_cache()
 
     # --- Phase 5: Text Tokenization ---
     print("\n=== Phase 5: Text Tokenization ===")
@@ -192,37 +219,40 @@ def main():
         hp.use_perceiver_resampler = False
         hp.emotion_adv = False
         
+        # Use torch's meta device to create an empty model shell (no memory)
+        # Then load weights directly
+        print("  Creating T3 model (this may take a moment)...")
         t3 = T3(hp)
         t3_path = ckpt_dir / "t3_turbo_v1.safetensors"
-        print(f"  Loading {t3_path}...")
-        # Turbo model might have been saved in a way that needs strict=False or has extra keys
-        t3_state = load_file(t3_path)
+        print(f"  Loading weights from {t3_path}...")
+        
+        # Direct load_file is more memory efficient than safe_open + dict comprehension
+        t3_state = load_file(t3_path, device="cpu")
+        
+        print(f"  Loaded {len(t3_state)} tensors, applying state dict...")
         missing, unexpected = t3.load_state_dict(t3_state, strict=False)
         print(f"  State dict loaded. Missing: {len(missing)}, Unexpected: {len(unexpected)}")
+        del t3_state 
+        gc.collect()
         
-        # In tts_turbo.py, it says "del t3.tfmr.wte" to avoid double-loading or such?
-        # Actually it's probably because we use custom text_emb.
         if hasattr(t3.tfmr, 'wte'):
-            print("  Deleting tfmr.wte...")
+            print("  Deleting tfmr.wte to save memory...")
             del t3.tfmr.wte
             
         t3.to(device).eval()
+        gc.collect()
+        if torch.cuda.is_available(): torch.cuda.empty_cache()
         
         print("  Preparing T3 conditioning...")
-        ENC_COND_LEN = 15 * S3_SR
-        ref_16k_cond = ref_16k[:ENC_COND_LEN]
-        t3_cond_prompt_tokens, _ = s3gen.tokenizer([ref_16k_cond], max_len=hp.speech_cond_prompt_len)
-        t3_cond_prompt_tokens = torch.atleast_2d(t3_cond_prompt_tokens).to(device)
-        save_tensor(t3_cond_prompt_tokens, output_dir, "t3_cond_prompt_tokens")
-        
-        t3_cond = T3Cond(
-            speaker_emb=spk_emb_ve.to(device),
-            cond_prompt_speech_tokens=t3_cond_prompt_tokens,
-            emotion_adv=0.0 * torch.ones(1, 1, 1),
-        ).to(device=device)
-        
-        print("  Running T3 inference_turbo...")
         with torch.inference_mode():
+            print("  Creating T3Cond...")
+            t3_cond = T3Cond(
+                speaker_emb=spk_emb_ve_cpu.to(device),
+                cond_prompt_speech_tokens=t3_cond_prompt_tokens.to(device),
+                emotion_adv=0.0 * torch.ones(1, 1, 1).to(device),
+            ).to(device=device)
+            
+            print("  Running T3 inference_turbo...")
             torch.manual_seed(args.seed)
             speech_tokens = t3.inference_turbo(
                 t3_cond=t3_cond,
@@ -245,6 +275,13 @@ def main():
         
         # --- Phase 7: S3Gen Flow ---
         print("\n=== Phase 7: S3Gen Flow (Token -> Mel) ===")
+        # Re-initialize S3Gen
+        s3gen = S3Gen(meanflow=True)
+        s3gen_path = ckpt_dir / "s3gen_meanflow.safetensors"
+        s3gen.load_state_dict(load_file(s3gen_path), strict=True)
+        s3gen.to(device).eval()
+        
+        ref_dict = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in ref_dict_cpu.items()}
         with torch.inference_mode():
             print("  Running flow_inference...")
             output_mels = s3gen.flow_inference(

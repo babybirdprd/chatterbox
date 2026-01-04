@@ -119,11 +119,7 @@ impl ChatterboxTTS {
         let cfg_s3tok = MelConfig::for_s3tokenizer();
         let mel_s3tok =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_s3tok)?;
-        let mel_s3tok_log = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
-
-        let max_val = mel_s3tok_log.max_all()?.to_scalar::<f32>()?;
-        let mel_s3tok_norm = mel_s3tok_log.maximum(max_val - 8.0)?;
-        let mel_s3tok_final = ((mel_s3tok_norm + 4.0)? / 4.0)?;
+        let mel_s3tok_final = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
 
         let prompt_tokens = self.s3tokenizer.encode(&mel_s3tok_final)?;
 
@@ -331,11 +327,7 @@ impl ChatterboxTurboTTS {
         let cfg_s3tok = MelConfig::for_s3tokenizer();
         let mel_s3tok =
             AudioProcessor::compute_mel_spectrogram(&ref_samples_16k, &self.device, &cfg_s3tok)?;
-        let mel_s3tok_log = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
-
-        let max_val = mel_s3tok_log.max_all()?.to_scalar::<f32>()?;
-        let mel_s3tok_norm = mel_s3tok_log.maximum(max_val - 8.0)?;
-        let mel_s3tok_final = ((mel_s3tok_norm + 4.0)? / 4.0)?;
+        let mel_s3tok_final = AudioProcessor::log_process(&mel_s3tok, &cfg_s3tok)?;
 
         let prompt_tokens = self.s3tokenizer.encode(&mel_s3tok_final)?;
 
