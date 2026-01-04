@@ -134,6 +134,7 @@ pub struct MelConfig {
     pub fmin: f32,
     pub fmax: f32,
     pub stft_mode: STFTMode,
+    pub center: bool, // Whether to use center padding (like torch.stft center=True)
 }
 
 impl MelConfig {
@@ -149,6 +150,7 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Magnitude,
+            center: false, // S3Gen/Matcha uses center=False
         }
     }
 
@@ -164,6 +166,7 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Power,
+            center: false, // S3Tokenizer uses center=False
         }
     }
 
@@ -179,6 +182,7 @@ impl MelConfig {
             fmin: 0.0,
             fmax: 8000.0,
             stft_mode: STFTMode::Power,
+            center: false, // VoiceEncoder uses center=False
         }
     }
 
@@ -197,6 +201,7 @@ impl MelConfig {
             fmin: 20.0,   // Standard Kaldi default
             fmax: 7600.0, // Standard Kaldi default (Nyquist - epsilon)
             stft_mode: STFTMode::Power,
+            center: false, // Kaldi compliance typically uses no centering
         }
     }
 }
@@ -218,26 +223,32 @@ impl AudioProcessor {
             .map(|i| 0.5 * (1.0 - (2.0 * PI * i as f32 / win_length as f32).cos()))
             .collect();
 
-        // 2. Padding (Reflect)
-        // Matches librosa/torch.stft(center=True)
-        let pad = n_fft / 2;
-        let mut padded = Vec::with_capacity(samples.len() + 2 * pad);
+        // 2. Padding (Conditional based on config.center)
+        let padded = if config.center {
+            // Reflect padding - matches librosa/torch.stft(center=True)
+            let pad = n_fft / 2;
+            let mut buf = Vec::with_capacity(samples.len() + 2 * pad);
 
-        // Reflect Left
-        for i in (1..=pad).rev() {
-            padded.push(samples.get(i).copied().unwrap_or(0.0));
-        }
-        padded.extend_from_slice(samples);
-        // Reflect Right
-        let n = samples.len();
-        for i in 1..=pad {
-            padded.push(
-                samples
-                    .get(n.saturating_sub(1).saturating_sub(i))
-                    .copied()
-                    .unwrap_or(0.0),
-            );
-        }
+            // Reflect Left
+            for i in (1..=pad).rev() {
+                buf.push(samples.get(i).copied().unwrap_or(0.0));
+            }
+            buf.extend_from_slice(samples);
+            // Reflect Right
+            let n = samples.len();
+            for i in 1..=pad {
+                buf.push(
+                    samples
+                        .get(n.saturating_sub(1).saturating_sub(i))
+                        .copied()
+                        .unwrap_or(0.0),
+                );
+            }
+            buf
+        } else {
+            // No centering - matches torch.stft(center=False)
+            samples.to_vec()
+        };
 
         // 3. FFT
         let n_frames = (padded.len() - n_fft) / hop_length + 1;

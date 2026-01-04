@@ -614,11 +614,23 @@ impl HiFTGenerator {
 
         // Python: magnitude = torch.exp(x[:, :n_fft // 2 + 1, :])
         //         phase = torch.sin(x[:, n_fft // 2 + 1:, :])
+        // Then in _istft: real = magnitude * torch.cos(phase), img = magnitude * torch.sin(phase)
         let n_bins = self.config.n_fft / 2 + 1;
-        let magnitude = x.narrow(1, 0, n_bins)?.exp()?;
-        let phase = x.narrow(1, n_bins, n_bins)?.sin()?;
 
-        let audio = simple_istft(&magnitude, &phase, self.config.n_fft, self.config.hop_len)?;
+        // 1. Extract Magnitude (exp of network output)
+        let magnitude = x.narrow(1, 0, n_bins)?.exp()?;
+
+        // 2. Extract Angle (sin of network output) - Python does phase = sin(x)
+        let angle = x.narrow(1, n_bins, n_bins)?.sin()?;
+
+        // 3. Convert Polar (Mag, Angle) to Rectangular (Real, Imag)
+        // Real = Mag * cos(Angle)
+        // Imag = Mag * sin(Angle)
+        let real = (&magnitude * angle.cos()?)?;
+        let imag = (&magnitude * angle.sin()?)?;
+
+        // 4. Pass Rectangular coordinates to iSTFT
+        let audio = simple_istft(&real, &imag, self.config.n_fft, self.config.hop_len)?;
         audio.clamp(-0.99f32, 0.99f32)
     }
 }

@@ -159,11 +159,11 @@ impl ChatterboxTTS {
             config.repetition_penalty,
             config.seed,
         )?;
-        // Filter tokens and append silence tokens (S3GEN_SIL = 6560)
+        // Filter tokens and append silence tokens (S3GEN_SIL = 4299)
         let speech_tokens_filtered = {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
             let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
-            filtered.extend_from_slice(&[6560, 6560, 6560]);
+            filtered.extend_from_slice(&[4299, 4299, 4299]);
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
 
@@ -371,7 +371,7 @@ impl ChatterboxTurboTTS {
             config.seed,
         )?;
 
-        // Filter tokens and append silence tokens (S3GEN_SIL = 6560)
+        // Filter tokens and append silence tokens (S3GEN_SIL = 4299)
         // Python: speech_tokens = speech_tokens[speech_tokens < 6561]
         //         silence = torch.tensor([S3GEN_SIL, S3GEN_SIL, S3GEN_SIL])
         //         speech_tokens = torch.cat([speech_tokens, silence])
@@ -379,7 +379,7 @@ impl ChatterboxTurboTTS {
             let tokens = speech_tokens.to_vec2::<u32>()?[0].clone();
             let mut filtered: Vec<u32> = tokens.into_iter().filter(|&t| t < 6561).collect();
             // Append silence tokens to prevent audio cutoff
-            filtered.extend_from_slice(&[6560, 6560, 6560]);
+            filtered.extend_from_slice(&[4299, 4299, 4299]);
             Tensor::from_vec(filtered.clone(), (1, filtered.len()), &self.device)?
         };
 
