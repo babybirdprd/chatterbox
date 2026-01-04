@@ -229,6 +229,17 @@ fn main() -> Result<()> {
     let cfg_camp = MelConfig::for_campplus();
     let mel_camp_raw =
         AudioProcessor::compute_mel_spectrogram(&samples_16k, &Device::Cpu, &cfg_camp)?;
+
+    // Check Mel CAMPPlus parity
+    if let Ok(mel_camp_py) = load_npy(args.ref_dir.join("mel_camp.npy"), &Device::Cpu) {
+        check(
+            "Mel CAMPPlus",
+            &mel_camp_raw,
+            &mel_camp_py.to_device(&Device::Cpu)?,
+            1e-2,
+        )?;
+    }
+
     let mel_camp_log = mel_camp_raw.clamp(1e-5, f32::MAX)?.log()?;
     let mean = mel_camp_log.mean_keepdim(2)?;
     let mel_camp_norm = mel_camp_log

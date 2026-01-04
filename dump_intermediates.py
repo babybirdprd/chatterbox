@@ -156,7 +156,8 @@ def main():
 
     # Also dump CAMPPlus Mel input for parity debugging
     from src.chatterbox.models.s3gen.xvector import extract_feature
-    mel_camp, _, _ = extract_feature(ref_wav_16)
+    ref_16k_torch = torch.from_numpy(ref_16k).float().to(device)
+    mel_camp, _, _ = extract_feature(ref_16k_torch.unsqueeze(0))
     # mel_camp shape is [1, T, 80]
     save_tensor(mel_camp.transpose(1, 2), output_dir, "mel_camp")
     save_tensor(ref_dict["prompt_token"], output_dir, "prompt_tokens")
